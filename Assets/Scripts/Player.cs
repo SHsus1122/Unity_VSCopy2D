@@ -9,11 +9,15 @@ public class Player : MonoBehaviour
     public float speed;
 
     Rigidbody2D rigid;
+    SpriteRenderer spriter;
+    Animator anim;
 
     // Start is called before the first frame update
     void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
+        spriter = GetComponent<SpriteRenderer>();
+        anim = GetComponent<Animator>();
     }
 
     // 예전 방식의 컨트롤러 적용법 코드
@@ -51,5 +55,19 @@ public class Player : MonoBehaviour
     void OnMove(InputValue value)
     {
         inputVec = value.Get<Vector2>();
+    }
+
+    // 프레임이 종료 되기 전 실행되는 생명주기 함수(즉, 업데이트가 끝나고 다음 프레임으로 넘어가기 직전에 실행)
+    void LateUpdate()
+    {
+        // magnitude : 백터의 크기를 가져오는 방법
+        anim.SetFloat("Speed_f", inputVec.magnitude);
+
+        // 키 입력에 따라 캐릭터의 회전 방향을 처리
+        if (inputVec.x != 0)
+        {
+            // Flip 을 이용해서 Sprite를 반전 시켜 방향을 구현, inputVec의 x값이 양수냐 음수냐에 따라 방향 처리
+            spriter.flipX = inputVec.x < 0;
+        }
     }
 }
