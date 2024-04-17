@@ -58,7 +58,6 @@ public class Reposition : MonoBehaviour
                 {
                     // Collider가 활성화 된 경우 플레이어가 가는 방향에서 20의 거리만큼 멀리에 랜덤하게 이동
                     transform.Translate(playerDir * 20 + new Vector3(Random.Range(-3f, 3f) , Random.Range(-3f, 3f), 0f));
-
                 }
                 break;
         }

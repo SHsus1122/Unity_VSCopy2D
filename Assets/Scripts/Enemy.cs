@@ -44,4 +44,11 @@ public class Enemy : MonoBehaviour
         // target(플레이어) 위치의 X값과 rigid(적) X값의 크기에 따라 변동시키게 됩니다.
         spriter.flipX = target.position.x < rigid.position.x;
     }
+
+    // 스크립트가 활성화 될 때, 호출되는 함수
+    void OnEnable()
+    {
+        // 기존에 계층구조에서 Player에 지정하던 것이 현재는 프리펩으로 변경되었기에 이처럼 지정해줍니다.
+        target = GameManager.Instance.player.GetComponent<Rigidbody2D>();
+    }
 }
