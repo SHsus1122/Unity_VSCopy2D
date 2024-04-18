@@ -13,20 +13,26 @@ public class Enemy : MonoBehaviour
     bool isLive;
 
     Rigidbody2D rigid;
+    Collider2D coll;
     Animator anim;
     SpriteRenderer spriter;
+    WaitForFixedUpdate wait;
 
     // Start is called before the first frame update
     void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
+        coll = GetComponent<Collider2D>();
         anim = GetComponent<Animator>();
         spriter = GetComponent<SpriteRenderer>();
+        wait = new WaitForFixedUpdate();
     }
 
     void FixedUpdate()
     {
-        if (!isLive)
+        // GetCurrentAnimatorStateInfo : 현재 상태 정보를 가져오는 함수
+        // 추가 조건을 이용해서 Hit 상태일 때는 움직이는 물리력을 제거해서 밀려나도록 합니다.
+        if (!isLive || anim.GetCurrentAnimatorStateInfo(0).IsName("Hit"))
             return;
 
         // 방향의 크기는 1 이 아니기에 normalize 를 사용할 것입니다.
@@ -55,7 +61,11 @@ public class Enemy : MonoBehaviour
     {
         // 기존에 계층구조에서 Player에 지정하던 것이 현재는 프리펩으로 변경되었기에 이처럼 지정해줍니다.
         target = GameManager.Instance.player.GetComponent<Rigidbody2D>();
-        isLive = true;
+        isLive = true;                  // 생존 상태 변경
+        coll.enabled = true;            // 콜라이더 비활성화
+        rigid.simulated = true;         // 물리(움직임) 비활성화
+        spriter.sortingOrder = 2;       // 표현 우선순위 변경
+        anim.SetBool("Dead", false);    // 애니메이터 파라메터 상태 변경
         health = maxHealth;
     }
 
@@ -71,19 +81,40 @@ public class Enemy : MonoBehaviour
     // 적의 충돌 이벤트 관련 처리용 함수
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (!collision.CompareTag("Bullet"))
+        // 사망 로직이 연달아 실행되는 것을 방지하기 위해서 !isLive 조건을 추가
+        // 즉, 너무 짧은 순간에 두 번 일어나는 경우를 방지하는 것입니다.
+        if (!collision.CompareTag("Bullet") || !isLive)
             return;
 
         health -= collision.GetComponent<Bullet>().damage;  // 데미지 처리
+        StartCoroutine(KnockBack());                        // 물리력 발생 함수 호출
 
         if (health > 0)
         {
-
+            anim.SetTrigger("Hit");
         }
         else
         {
-            Dead();
+            isLive = false;             // 생존 상태 변경
+            coll.enabled = false;       // 콜라이더 비활성화
+            rigid.simulated = false;    // 물리(움직임) 비활성화
+            spriter.sortingOrder = 1;   // 표현 우선순위 변경
+            anim.SetBool("Dead", true); // 애니메이터 파라메터 상태 변경
+
+            // 경험치 적용을 위한 코드
+            GameManager.Instance.kill++;
+            GameManager.Instance.GetExp();
         }
+    }
+
+    // 코루틴만의 반환형 인터페이스
+    IEnumerator KnockBack() 
+    {
+        // null 을 리턴할 경우 1 프레임 쉬기
+        yield return null;  // 다음 하나의 물리 프레임까지 기다리는 딜레이
+        Vector3 playerPos = GameManager.Instance.player.transform.position;
+        Vector3 dirVec = transform.position - playerPos;    // 플레이어로부터 반대의 방향
+        rigid.AddForce(dirVec.normalized * 3f, ForceMode2D.Impulse);    // Impulse : 즉시 발동(물리력)
     }
 
     void Dead()
