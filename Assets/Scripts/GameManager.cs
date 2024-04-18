@@ -12,6 +12,8 @@ public class GameManager : MonoBehaviour
     public float maxGameTime = 2 * 10f; // 20초
 
     [Header("# Player Info")]
+    public int health;
+    public int maxHealth = 100;
     public int level;
     public int kill;
     public int exp;
@@ -25,6 +27,11 @@ public class GameManager : MonoBehaviour
     {
         // 생명 주기에서 인스턴스 변수를 자기 자신으로 초기화 
         Instance = this;
+    }
+
+    void Start()
+    {
+        health = maxHealth;
     }
 
     void Update()
