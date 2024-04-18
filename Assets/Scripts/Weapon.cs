@@ -11,6 +11,15 @@ public class Weapon : MonoBehaviour
     public int count;       // 개수
     public float speed;     // 속도
 
+    float timer;
+    Player player;
+
+    void Awake()
+    {
+        // 자기자신 말고 부모 오브젝트로부터 가져오는 방법
+        player = GetComponentInParent<Player>();    
+    }
+
     void Start()
     {
         Init();  
@@ -24,13 +33,20 @@ public class Weapon : MonoBehaviour
                 transform.Rotate(Vector3.back * speed * Time.deltaTime);
                 break;
             default:
+                timer += Time.deltaTime;
+
+                if (timer > speed)
+                {
+                    timer = 0f;
+                    Fire();
+                } 
                 break;
         }
 
         // 강화 시스템 테스트 코드
         if (Input.GetButtonDown("Jump"))
         {
-            LevelUp(20, 5);
+            LevelUp(10, 1);
         }
     }
 
@@ -48,10 +64,13 @@ public class Weapon : MonoBehaviour
         switch (id)
         {
             case 0:
+                // speed : 회전방향 및 속도
                 speed = 150;   // 음수로 설정시 시계방향으로 회전
                 Batch();
                 break;
             default:
+                // 발사 속도
+                speed = 0.3f;
                 break;
         }
     }
@@ -88,7 +107,27 @@ public class Weapon : MonoBehaviour
             // 이렇게 해주면 시작 위치는 고정이되 회전하는 각도는 위에서 지정해주었기 때문에 일정하게 배치가 됩니다.
             bullet.Translate(bullet.up * 1.5f, Space.World);
 
-            bullet.GetComponent<Bullet>().Init(damage, -1); // 근접 무기의 경우 관통에 제한을 주지 않습니다.(무한), -1 is Infinity Per.
+            // 근접 무기의 경우 관통에 제한을 주지 않습니다.(무한), -1 is Infinity Per.
+            bullet.GetComponent<Bullet>().Init(damage, -1, Vector3.zero); 
         }
+    }
+
+    void Fire()
+    {
+        if (!player.scanner.nearestTarget)
+            return;
+
+        // 타겟의 위치 및 방향 구하기(즉, 총알이 나아가고자 하는 위치, 방향, 속도 구하기)
+        Vector3 targetPos = player.scanner.nearestTarget.position;
+        Vector3 dir = targetPos - transform.position;
+        dir = dir.normalized;   // 현재 벡터의 방향은 유지하고 크기를 1로 변환(정규화)
+
+        // 총알 생성 및 스폰 위치 지정(플레이어 자신 위치)
+        Transform bullet = GameManager.Instance.pool.Get(prefabId).transform;
+        bullet.position = transform.position;
+
+        // FromToRotation : 지정된 축을 중심으로 목표를 향해 회전하는 함수
+        bullet.rotation = Quaternion.FromToRotation(Vector3.up, dir);   // 축 지정, 위에서 구한 방향 지정
+        bullet.GetComponent<Bullet>().Init(damage, count, dir);         // 원하는 값들로 초기화 작업, count가 관통 값
     }
 }
