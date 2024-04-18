@@ -5,17 +5,22 @@ using UnityEngine;
 public class Enemy : MonoBehaviour
 {
     public float speed;
+    public float health;        // 현재 체력
+    public float maxHealth;     // 최대 체력
+    public RuntimeAnimatorController[] animCon; // Sprite 즉, 적의 종류(타입) 변경을 위한 변수
     public Rigidbody2D target;
 
-    bool isLive = true;
+    bool isLive;
 
     Rigidbody2D rigid;
+    Animator anim;
     SpriteRenderer spriter;
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
+        anim = GetComponent<Animator>();
         spriter = GetComponent<SpriteRenderer>();
     }
 
@@ -50,5 +55,16 @@ public class Enemy : MonoBehaviour
     {
         // 기존에 계층구조에서 Player에 지정하던 것이 현재는 프리펩으로 변경되었기에 이처럼 지정해줍니다.
         target = GameManager.Instance.player.GetComponent<Rigidbody2D>();
+        isLive = true;
+        health = maxHealth;
+    }
+
+    // 생성시 초기값 초기화 함수
+    public void Init(SpawnData data)
+    {
+        anim.runtimeAnimatorController = animCon[data.spriteType];  // 적 타입
+        speed = data.speed;
+        maxHealth = data.health;
+        health = data.health;
     }
 }

@@ -21,7 +21,6 @@ public class Reposition : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        Debug.Log("OnTriggerExit2D Event Triggered !!");
         if (!collision.CompareTag("Area")) 
             return;
 
