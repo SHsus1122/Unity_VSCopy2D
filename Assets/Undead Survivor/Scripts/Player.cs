@@ -82,4 +82,25 @@ public class Player : MonoBehaviour
             spriter.flipX = inputVec.x < 0;
         }
     }
+
+    // 플레이어와 몬스터가 충돌하고 있는 상태면 지속적으로 체력 감소
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        if (!GameManager.Instance.isLive)
+            return;
+
+        GameManager.Instance.health -= Time.deltaTime * 10;
+
+        if (GameManager.Instance.health < 0)
+        {
+            for (int index = 2; index < transform.childCount; index++) 
+            {
+                // GetChild : 해당 오브젝트의 자식 오브젝트를 반환
+                transform.GetChild(index).gameObject.SetActive(false);
+            }
+
+            anim.SetTrigger("Dead_t");
+            GameManager.Instance.GameOver();
+        }
+    }
 }
