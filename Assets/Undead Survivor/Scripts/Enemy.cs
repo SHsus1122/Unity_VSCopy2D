@@ -30,6 +30,9 @@ public class Enemy : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (!GameManager.Instance.isLive)
+            return;
+
         // GetCurrentAnimatorStateInfo : 현재 상태 정보를 가져오는 함수
         // 추가 조건을 이용해서 Hit 상태일 때는 움직이는 물리력을 제거해서 밀려나도록 합니다.
         if (!isLive || anim.GetCurrentAnimatorStateInfo(0).IsName("Hit"))
@@ -48,7 +51,7 @@ public class Enemy : MonoBehaviour
 
     void LateUpdate()
     {
-        if (!isLive)
+        if (!isLive || !GameManager.Instance.isLive)
             return;
 
         // 방향 전환, 캐릭터가 바라보는 방향으로 회전시키기 위해서 Flip 기능을 사용합니다.

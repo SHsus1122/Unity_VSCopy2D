@@ -13,15 +13,18 @@ public class Hand : MonoBehaviour
     Vector3 rightPos = new Vector3(0.35f, -0.15f, 0);
     Vector3 rightPosReverse = new Vector3(-0.15f, -0.15f, 0);
 
-    // 왼손의 회전 각도와 반전시 회전각도
+    // 왼손의 회전 각도와 반전시 회전각도(Euler는 기존 회전각도와 상관없이 지정한 각도로 회전값을 설정합니다)
     Quaternion leftRot = Quaternion.Euler(0, 0, -35);
     Quaternion leftRotReverse = Quaternion.Euler(0, 0, -135);
 
     void Awake()
     {
+        // 부모로부터 접근해서 가져와야 합니다.
+        // 하지만, 0번째는 자기 자신이므로 1번을 해주어야 가져오고자 하는 Player를 가져올 수 있습니다.
         player = GetComponentsInParent<SpriteRenderer>()[1];
     }
 
+    // 모든 Update가 호출된 뒤 마지막 호출인 LateUpdate를 이용합니다.
     void LateUpdate()
     {
         bool isReverse = player.flipX;

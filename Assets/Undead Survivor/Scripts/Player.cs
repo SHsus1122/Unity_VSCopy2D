@@ -25,13 +25,16 @@ public class Player : MonoBehaviour
     }
 
     // 예전 방식의 컨트롤러 적용법 코드
-    /*void Update()
+    void Update()
     {
         // Input.GetAxis 의 경우 보정이 들어가 있어서 부드럽게 움직임이 멈추게 됩니다.
         // 하지만 GetAxisRaw 의 경우에는 부드럽게 멈추는 것이 아닌 그 자리에 바로 멈추게끔 됩니다.
-        inputVec.x = Input.GetAxisRaw("Horizontal");
-        inputVec.y = Input.GetAxisRaw("Vertical");
-    }*/
+        /*inputVec.x = Input.GetAxisRaw("Horizontal");
+        inputVec.y = Input.GetAxisRaw("Vertical");*/
+
+        if (!GameManager.Instance.isLive)
+            return;
+    }
 
     // 물리 관련한 처리를 위해서는 FixedUpdate 를 사용
     private void FixedUpdate()
@@ -44,6 +47,8 @@ public class Player : MonoBehaviour
         // 속도 제어
         rigid.velocity = inputVec;
         */
+        if (!GameManager.Instance.isLive)
+            return;
 
         // normalized 를 통해서 어떠한 방향으로 나아가도 벡터의 크기가 1이 되도록 수정, deltaTime 을 사용해서 프레임에 따른 차이를 방지
         // Time.deltaTime : 물리 프레임 하나가 소비한 시간
@@ -64,6 +69,9 @@ public class Player : MonoBehaviour
     // 프레임이 종료 되기 전 실행되는 생명주기 함수(즉, 업데이트가 끝나고 다음 프레임으로 넘어가기 직전에 실행)
     void LateUpdate()
     {
+        if (!GameManager.Instance.isLive)
+            return;
+
         // magnitude : 백터의 크기를 가져오는 방법
         anim.SetFloat("Speed_f", inputVec.magnitude);
 

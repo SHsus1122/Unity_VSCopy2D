@@ -14,6 +14,7 @@ public class ItemData : ScriptableObject
     public ItemType itemType;
     public int itemId;
     public string itemName;
+    [TextArea]  // TextArea : 인스펙터에 텍스트를 여러 줄 넣을 수 있게 해주는 속성을 부여하는 기능입니다.
     public string itemDesc;
     public Sprite itemIcon;
 
