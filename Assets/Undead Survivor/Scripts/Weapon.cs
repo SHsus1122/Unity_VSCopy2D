@@ -16,13 +16,11 @@ public class Weapon : MonoBehaviour
 
     void Awake()
     {
-        // 자기자신 말고 부모 오브젝트로부터 가져오는 방법
-        player = GetComponentInParent<Player>();    
-    }
+        // [기존 방식] 자기자신 말고 부모 오브젝트로부터 가져오는 방법
+        //player = GetComponentInParent<Player>();
 
-    void Start()
-    {
-        Init();  
+        // [변경된 방식] 플레이어 초기화에 매개변수가 들어감으로 인해 처음 초기화는 게임 매니저를 활용하는 것으로 변경합니다.
+        player = GameManager.Instance.player;
     }
 
     void Update()
@@ -57,10 +55,36 @@ public class Weapon : MonoBehaviour
 
         if (id == 0)
             Batch();
+
+        // 물론 레벨업을 하는 경우에도 레벨업에 대한 Gear데미지를 올려 달라는 의미로 여기서 호출시켜 줍니다.
+        player.BroadcastMessage("ApplyGear", SendMessageOptions.DontRequireReceiver);
     }
 
-    public void Init()
+    // 초기화 함수에 만들어둔 스크립트블 오브젝트를 매개변수로 받아서 활용합니다.
+    public void Init(ItemData data)
     {
+        // Basic Set
+        name = "Weapon " + data.itemId;         // Weapon 이름 설정, 클래스 자체 변수
+        transform.parent = player.transform;    // 위에서 만든 Player변수는 Weapon을 소유중인 부모 오브젝트를 지정
+        transform.localPosition = Vector3.zero; // 플레이어 안에서 생성되기에 지역 위치에 해당하는 localposition을 사용
+
+        // Property Set
+        // 각종 무기 속성들은 스크립트블 오브젝트의 데이터로 초기화 작업(셋팅값을 가져오기 위해서)
+        id = data.itemId;
+        damage = data.baseDamage;
+        count = data.baseCount;
+
+        // prefabId 를 찾기위한 반복문입니다.
+        // 프리펩의 종류만큼 들고와서 순회시킵니다.(즉, 등록된 모든 프리펩을 순회합니다)
+        for (int index = 0; index < GameManager.Instance.pool.prefabs.Length; index++)
+        {
+            if (data.projectile == GameManager.Instance.pool.prefabs[index])
+            {
+                prefabId = index;
+                break;
+            }
+        }
+
         switch (id)
         {
             case 0:
@@ -73,6 +97,12 @@ public class Weapon : MonoBehaviour
                 speed = 0.3f;
                 break;
         }
+
+        // 특정 함수 호출을 모든 자식에게 방송하는 역할인 BroadcastMessage를 사용합니다.
+        // 즉, Player가 가지고 있는 모든 Gear에 한해서 실행시키게 하는게 목적입니다.
+        // 이를 하는 이유는 이미 레벨업이 되어있는 상태에서 새롭게 Weapon이 추가되면 Gear가 이미 활성화 되어 있을 경우 이 수치가 적용되지 않습니다.
+        // 그래서 초기화가 들어가는 즉, 초기 실행 시점에도 ApplyGear를 실행시키도록 해줍니다.
+        player.BroadcastMessage("ApplyGear", SendMessageOptions.DontRequireReceiver);
     }
 
     void Batch()
