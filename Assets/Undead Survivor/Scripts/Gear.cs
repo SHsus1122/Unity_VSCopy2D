@@ -53,10 +53,12 @@ public class Gear : MonoBehaviour
             {
                 // case 0번은 근접무기인 Melee
                 case 0:
-                    weapon.speed = 150 + (150 * rate);  // 회전 속도 
+                    float speed = 150 * Character.WeaponSpeed;
+                    weapon.speed = speed + (speed * rate);  // 회전 속도 
                     break;
                 default:
-                    weapon.speed = 0.5f * (1f - rate);  // 원거리 무기 발사 속도
+                    speed = 0.5f * Character.WeaponRate;
+                    weapon.speed = speed * (1f - rate);  // 원거리 무기 발사 속도
                     break;
             }
         }
@@ -65,7 +67,7 @@ public class Gear : MonoBehaviour
     // 신발의 기능인 플레이어의 이동속도를 올리는 함수
     void SpeedUp()
     {
-        float speed = 3;
+        float speed = 3 * Character.Speed;  // 캐릭터 고유속성 함께 적용
         GameManager.Instance.player.speed = speed + (speed * rate);
     }
 }

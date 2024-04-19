@@ -14,6 +14,7 @@ public class GameManager : MonoBehaviour
     public float maxGameTime = 2 * 10f; // 20초
 
     [Header("# Player Info")]
+    public int playerId;
     public float health;
     public float maxHealth = 100;
     public int level;
@@ -35,10 +36,13 @@ public class GameManager : MonoBehaviour
     }
 
     // ========================================== [ 게임 시작 ]
-    public void GameStart()
+    public void GameStart(int id)
     {
-        health = maxHealth;
-        uiLevelUp.Select(0);    // 임시 스크립트(첫 번째 캐릭터 선택)
+        playerId = id;                      // 캐릭터 종류 ID
+        health = maxHealth;                 // 초기 체력 설정
+
+        player.gameObject.SetActive(true);  // 게임 시작시 캐릭터 활성화(표시)
+        uiLevelUp.Select(playerId % 2);     // 기존 무기 지급을 위한 함수 호출 -> 캐릭터 ID로 변경
         Resume();
     }
 

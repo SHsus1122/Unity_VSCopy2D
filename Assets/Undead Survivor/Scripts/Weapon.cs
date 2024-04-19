@@ -31,6 +31,7 @@ public class Weapon : MonoBehaviour
         switch (id)
         {
             case 0:
+                // 음수로 설정시 시계방향으로 회전, Vector3.back은 음수입니다.
                 transform.Rotate(Vector3.back * speed * Time.deltaTime);
                 break;
             default:
@@ -53,7 +54,7 @@ public class Weapon : MonoBehaviour
 
     public void LevelUp(float damage, int count)
     {
-        this.damage = damage;
+        this.damage = damage * Character.Damage;
         this.count += count;
 
         if (id == 0)
@@ -74,8 +75,8 @@ public class Weapon : MonoBehaviour
         // Property Set
         // 각종 무기 속성들은 스크립트블 오브젝트의 데이터로 초기화 작업(셋팅값을 가져오기 위해서)
         id = data.itemId;
-        damage = data.baseDamage;
-        count = data.baseCount;
+        damage = data.baseDamage * Character.Damage;
+        count = data.baseCount + Character.Count;
 
         // prefabId 를 찾기위한 반복문입니다.
         // 프리펩의 종류만큼 들고와서 순회시킵니다.(즉, 등록된 모든 프리펩을 순회합니다)
@@ -92,12 +93,12 @@ public class Weapon : MonoBehaviour
         {
             case 0:
                 // speed : 회전방향 및 속도
-                speed = 150;   // 음수로 설정시 시계방향으로 회전
+                speed = 150 * Character.WeaponSpeed;
                 Batch();
                 break;
             default:
                 // 발사 속도
-                speed = 0.3f;
+                speed = 0.5f * Character.WeaponRate;
                 break;
         }
 
