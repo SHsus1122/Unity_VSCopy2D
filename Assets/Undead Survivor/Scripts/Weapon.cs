@@ -98,6 +98,11 @@ public class Weapon : MonoBehaviour
                 break;
         }
 
+        // Hand Set
+        Hand hand = player.hands[(int)data.itemType];   // itemType(열거형)을 이용해서 가져옵니다.
+        hand.spriter.sprite = data.hand;
+        hand.gameObject.SetActive(true);
+
         // 특정 함수 호출을 모든 자식에게 방송하는 역할인 BroadcastMessage를 사용합니다.
         // 즉, Player가 가지고 있는 모든 Gear에 한해서 실행시키게 하는게 목적입니다.
         // 이를 하는 이유는 이미 레벨업이 되어있는 상태에서 새롭게 Weapon이 추가되면 Gear가 이미 활성화 되어 있을 경우 이 수치가 적용되지 않습니다.

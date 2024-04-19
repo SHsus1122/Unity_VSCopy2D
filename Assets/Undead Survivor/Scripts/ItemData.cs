@@ -27,4 +27,5 @@ public class ItemData : ScriptableObject
     // 사격, 회전 등 다양한 아이템들에 대한 데이터
     [Header("# Weapon")]
     public GameObject projectile;   // 투사체 변수
+    public Sprite hand;
 }
