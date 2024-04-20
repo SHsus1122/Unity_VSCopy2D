@@ -147,7 +147,7 @@ public class Weapon : MonoBehaviour
             bullet.Translate(bullet.up * 1.5f, Space.World);
 
             // 근접 무기의 경우 관통에 제한을 주지 않습니다.(무한), -1 is Infinity Per.
-            bullet.GetComponent<Bullet>().Init(damage, -1, Vector3.zero); 
+            bullet.GetComponent<Bullet>().Init(damage, -100, Vector3.zero); 
         }
     }
 
