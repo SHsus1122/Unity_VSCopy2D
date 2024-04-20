@@ -7,6 +7,7 @@ using UnityEngine;
 public class ItemData : ScriptableObject
 {
     // 아이템들의 종류를 담고있는 열거형
+    // 근접, 원거리, 장갑, 신발, 힐 포션(음료수)
     public enum ItemType { Melee, Range, Glove, Shoe, Heal }
     
     // 가장 기본적인 데이터 (Id, 이름, 속성 등)
