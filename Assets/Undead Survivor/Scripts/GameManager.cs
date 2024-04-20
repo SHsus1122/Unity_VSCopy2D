@@ -44,6 +44,9 @@ public class GameManager : MonoBehaviour
         player.gameObject.SetActive(true);  // 게임 시작시 캐릭터 활성화(표시)
         uiLevelUp.Select(playerId % 2);     // 기존 무기 지급을 위한 함수 호출 -> 캐릭터 ID로 변경
         Resume();
+
+        AudioManager.instance.PlayBgm(true);                    // 게임 배경음 재생
+        AudioManager.instance.PlaySfx(AudioManager.Sfx.Select); // 클릭 효과음 재생
     }
 
     // ========================================== [ 게임 종료 ]
@@ -57,6 +60,9 @@ public class GameManager : MonoBehaviour
         uiResult.gameObject.SetActive(true);
         uiResult.Lose();
         Stop();
+
+        AudioManager.instance.PlayBgm(false);                   // 게임 배경음 재생
+        AudioManager.instance.PlaySfx(AudioManager.Sfx.Lose);   // 패배 효과음 재생
     }
 
     public void GameOver()
@@ -76,6 +82,9 @@ public class GameManager : MonoBehaviour
         uiResult.gameObject.SetActive(true);
         uiResult.Win(); 
         Stop();
+
+        AudioManager.instance.PlayBgm(false);                  // 게임 배경음 재생
+        AudioManager.instance.PlaySfx(AudioManager.Sfx.Win);   // 승리 효과음 재생
     }
 
     public void GameVictory()

@@ -95,6 +95,7 @@ public class Enemy : MonoBehaviour
         if (health > 0)
         {
             anim.SetTrigger("Hit");
+            AudioManager.instance.PlaySfx(AudioManager.Sfx.Hit);   // 피격 효과음 재생
         }
         else
         {
@@ -107,11 +108,15 @@ public class Enemy : MonoBehaviour
             // 경험치 적용을 위한 코드
             GameManager.Instance.kill++;
             GameManager.Instance.GetExp();
+
+            // 분기문으로 플레이어가 생존함에 따라 최종 결과에서 몬스터들이 전부 사망시 다량의 사망 효과음 재생을 방지합니다.
+            if (GameManager.Instance.isLive)
+                AudioManager.instance.PlaySfx(AudioManager.Sfx.Dead);   // 사망 효과음 재생
         }
     }
 
     // 코루틴만의 반환형 인터페이스
-    IEnumerator KnockBack() 
+    IEnumerator KnockBack()
     {
         // null 을 리턴할 경우 1 프레임 쉬기
         yield return null;  // 다음 하나의 물리 프레임까지 기다리는 딜레이
