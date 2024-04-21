@@ -6448,7 +6448,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 22.640423
+  orthographic size: 9.208333
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -13602,10 +13602,22 @@ MonoBehaviour:
     spriteType: 0
     health: 10
     speed: 1.5
-  - spawnTime: 0.2
+  - spawnTime: 0.4
     spriteType: 1
-    health: 15
-    speed: 2.4
+    health: 20
+    speed: 2
+  - spawnTime: 0.2
+    spriteType: 2
+    health: 30
+    speed: 2.5
+  - spawnTime: 0.2
+    spriteType: 3
+    health: 40
+    speed: 3
+  - spawnTime: 0.2
+    spriteType: 4
+    health: 50
+    speed: 3
   levelTime: 0
 --- !u!1 &1162803922
 GameObject:
@@ -14453,7 +14465,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isLive: 0
   gameTime: 0
-  maxGameTime: 300
+  maxGameTime: 60
   playerId: 0
   health: 0
   maxHealth: 100
