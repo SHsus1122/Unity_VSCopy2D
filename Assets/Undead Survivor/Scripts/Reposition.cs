@@ -8,7 +8,7 @@ public class Reposition : MonoBehaviour
 
     void Awake()
     {
-        coll = GetComponent<Collider2D>();
+        coll = GetComponent<Collider2D>();    
     }
 
     /*void Start()
@@ -45,11 +45,11 @@ public class Reposition : MonoBehaviour
                 // Ground 즉, 땅에 대한 이동 코드입니다.
                 if (diffX > diffY)
                 {
-                    transform.Translate(Vector3.right * dirX * 80);
+                    transform.Translate(Vector3.right * dirX * 40);
                 }
                 else if (diffX < diffY)
                 {
-                    transform.Translate(Vector3.up * dirY * 80);
+                    transform.Translate(Vector3.up * dirY * 40);
                 }
                 break;
             case "Enemy":

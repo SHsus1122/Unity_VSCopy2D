@@ -16,9 +16,6 @@ public class Follow : MonoBehaviour
     {
         // 월드 좌표와 스크린 좌표는 다릅니다. 그래서 아래처럼 코드를 작성해줍니다.
         // WorldToScreenPoint : 월드 상의 오브젝트 위치를 스크린 좌표로 변환합니다.
-        if (GameManager.Instance.isLive)
-        {
-            rect.position = Camera.main.WorldToScreenPoint(GameManager.Instance.player.transform.position);
-        }
+        rect.position = Camera.main.WorldToScreenPoint(GameManager.Instance.player.transform.position);
     }
 }

@@ -1,10 +1,9 @@
-﻿using Photon.Pun;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
+public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
@@ -30,7 +29,6 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     public Result uiResult;
     public Transform uiJoy;
     public GameObject enemyCleaner;
-    public Transform spawnPoint;
 
     void Awake()
     {
@@ -39,17 +37,13 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         Application.targetFrameRate = 60;   // 게임 프레임 강제 지정
     }
 
-
     // ========================================== [ 게임 시작 ]
     public void GameStart(int id)
     {
         playerId = id;                      // 캐릭터 종류 ID
         health = maxHealth;                 // 초기 체력 설정
 
-        GameObject playerPrefab = PhotonNetwork.Instantiate("Player", spawnPoint.transform.position, Quaternion.identity);
-        //Debug.Log("[ GamaManager ] name is : " + playerPrefab.name);
-
-        player = playerPrefab.GetComponent<Player>();
+        player.gameObject.SetActive(true);  // 게임 시작시 캐릭터 활성화(표시)
         uiLevelUp.Select(playerId % 2);     // 기존 무기 지급을 위한 함수 호출 -> 캐릭터 ID로 변경
         Resume();
 
@@ -154,10 +148,5 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         isLive = true;
         Time.timeScale = 1;
         uiJoy.localScale = Vector3.one;
-    }
-
-    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
-    {
-
     }
 }
