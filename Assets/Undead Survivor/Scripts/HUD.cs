@@ -7,7 +7,7 @@ using static Cinemachine.DocumentationSortingAttribute;
 public class HUD : MonoBehaviour
 {
     // 정보의 종류를 담을 열거형과 타입 선언
-    public enum InfoType { Exp, Level, Kill, Time, Health, Nickname }
+    public enum InfoType { Exp, Level, Kill, Time, Health }
     public InfoType type;
 
     Text myText;        // 텍스트 정보
@@ -48,9 +48,6 @@ public class HUD : MonoBehaviour
                 float curHealth = GameManager.Instance.health;
                 float maxHealth = GameManager.Instance.maxHealth;
                 mySlider.value = curHealth / maxHealth;
-                break;
-            case InfoType.Nickname:
-                myText.text = GameManager.Instance.player.name;
                 break;
         }
     }

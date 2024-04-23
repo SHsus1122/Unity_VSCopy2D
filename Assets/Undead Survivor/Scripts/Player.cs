@@ -15,8 +15,8 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     public Hand[] hands;
     public RuntimeAnimatorController[] animCon;
     public PhotonView PV;
-    
     public Text NickNameText;
+
     Rigidbody2D rigid;
     SpriteRenderer spriter;
     Animator anim;
@@ -31,13 +31,20 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         anim = GetComponent<Animator>();
         scanner = GetComponent<Scanner>();
         hands = GetComponentsInChildren<Hand>(true);    // 인자값에 true를 넣을 시 Active상태가 아닌 오브젝트도 가져옵니다.
-        NickNameText = GameObject.Find("Nickname").GetComponent<Text>();
-
-        Text tete = Instantiate(NickNameText);
+        
+        NickNameText.text = PV.IsMine ? PhotonNetwork.NickName.ToString() : PV.Owner.NickName.ToString();
+        NickNameText.color = PV.IsMine ? Color.green : Color.red;
     }
 
 
-    private void Start()
+    /*private void Start()
+    {
+        PV.RPC("SetInfo", RpcTarget.All);
+    }*/
+
+
+    /*[PunRPC]
+    void SetInfo()
     {
         if (PhotonNetwork.NickName == null)
         {
@@ -45,11 +52,12 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         }
         else
         {
+            NickNameText = GameObject.Find("Nickname").GetComponent<Text>();
             NickNameText.text = PV.IsMine ? PhotonNetwork.NickName.ToString() : PV.Owner.NickName.ToString();
             NickNameText.color = PV.IsMine ? Color.green : Color.red;
             this.name = NickNameText.text;
         }
-    }
+    }*/
 
 
     private void OnEnable()
@@ -59,17 +67,19 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     }
 
 
-
-    // 예전 방식의 컨트롤러 적용법 코드
     void Update()
     {
-        // Input.GetAxis 의 경우 보정이 들어가 있어서 부드럽게 움직임이 멈추게 됩니다.
-        // 하지만 GetAxisRaw 의 경우에는 부드럽게 멈추는 것이 아닌 그 자리에 바로 멈추게끔 됩니다.
-        inputVec.x = Input.GetAxisRaw("Horizontal");
-        inputVec.y = Input.GetAxisRaw("Vertical");
-
         if (!GameManager.Instance.isLive)
             return;
+
+        // 예전 방식의 컨트롤러 적용법 코드
+        // Input.GetAxis 의 경우 보정이 들어가 있어서 부드럽게 움직임이 멈추게 됩니다.
+        // 하지만 GetAxisRaw 의 경우에는 부드럽게 멈추는 것이 아닌 그 자리에 바로 멈추게끔 됩니다.
+        if (PV.IsMine)
+        {
+            inputVec.x = Input.GetAxisRaw("Horizontal");
+            inputVec.y = Input.GetAxisRaw("Vertical");
+        }
     }
 
 
@@ -112,38 +122,45 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     }*/
 
 
-
     // 프레임이 종료 되기 전 실행되는 생명주기 함수(즉, 업데이트가 끝나고 다음 프레임으로 넘어가기 직전에 실행)
-    [PunRPC]
     void LateUpdate()
     {
         if (!GameManager.Instance.isLive)
             return;
 
+        PV.RPC("FlipXRPC", RpcTarget.AllBuffered);
+    }
+
+
+    [PunRPC]
+    void FlipXRPC()
+    {
         // magnitude : 백터의 크기를 가져오는 방법
         anim.SetFloat("Speed_f", resultVec.magnitude);
 
-        // 키 입력에 따라 캐릭터의 회전 방향을 처리
+        // Flip 을 이용해서 Sprite를 반전 시켜 방향을 구현, inputVec의 x값이 양수냐 음수냐에 따라 방향 처리
+        spriter.flipX = resultVec.x < 0;
+
+        /*// 키 입력에 따라 캐릭터의 회전 방향을 처리
         if (resultVec.x != 0)
         {
             // Flip 을 이용해서 Sprite를 반전 시켜 방향을 구현, inputVec의 x값이 양수냐 음수냐에 따라 방향 처리
             spriter.flipX = resultVec.x < 0;
-        }
+        }*/
     }
-
 
 
     // 플레이어와 몬스터가 충돌하고 있는 상태면 지속적으로 체력 감소
     private void OnCollisionStay2D(Collision2D collision)
     {
-        if (!GameManager.Instance.isLive)
-            return;
+        //if (!GameManager.Instance.isLive)
+        return;
 
         GameManager.Instance.health -= Time.deltaTime * 10;
 
         if (GameManager.Instance.health < 0)
         {
-            for (int index = 2; index < transform.childCount; index++) 
+            for (int index = 2; index < transform.childCount; index++)
             {
                 // GetChild : 해당 오브젝트의 자식 오브젝트를 반환
                 transform.GetChild(index).gameObject.SetActive(false);
@@ -153,7 +170,6 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             GameManager.Instance.GameOver();
         }
     }
-
 
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)

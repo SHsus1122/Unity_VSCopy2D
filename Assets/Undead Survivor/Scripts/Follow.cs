@@ -5,6 +5,7 @@ using UnityEngine;
 public class Follow : MonoBehaviour
 {
     RectTransform rect;
+    Vector3 posNick;
 
     void Start()
     {

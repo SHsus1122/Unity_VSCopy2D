@@ -8,6 +8,7 @@ TagManager:
   - Area
   - Enemy
   - Bullet
+  - Nickname
   layers:
   - Default
   - TransparentFX

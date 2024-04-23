@@ -12,8 +12,6 @@ GameObject:
   - component: {fileID: 1491974170408634101}
   - component: {fileID: 2238306746024857796}
   - component: {fileID: 8024435857217782421}
-  - component: {fileID: 563249770999880352}
-  - component: {fileID: 3691918019683099704}
   m_Layer: 5
   m_Name: Nickname
   m_TagString: Untagged
@@ -97,28 +95,3 @@ MonoBehaviour:
   m_EffectColor: {r: 1, g: 1, b: 1, a: 0.5}
   m_EffectDistance: {x: 0.1, y: 0.1}
   m_UseGraphicAlpha: 1
---- !u!114 &563249770999880352
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3178613654686468153}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f872c4faceac8ee4e9bba65af7d88852, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  type: 5
---- !u!114 &3691918019683099704
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3178613654686468153}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3ab958a0b5ffdfa44ab780e29ebd4978, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

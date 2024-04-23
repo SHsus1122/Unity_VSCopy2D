@@ -708,7 +708,6 @@ RectTransform:
   - {fileID: 1572807907}
   - {fileID: 538594671}
   - {fileID: 1702422459}
-  - {fileID: 1786453888}
   - {fileID: 1214258292}
   m_Father: {fileID: 243875355}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -895,9 +894,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1383446451}
-        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: GaemRetry
+      - m_Target: {fileID: 1833145267}
+        m_TargetAssemblyTypeName: NetworkManager, PhotonUnityNetworking
+        m_MethodName: JoinLobby
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -38547,7 +38546,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1214258292
 RectTransform:
   m_ObjectHideFlags: 0
@@ -38561,6 +38560,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1360568333}
+  - {fileID: 1786453888}
   m_Father: {fileID: 122712409}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -76622,10 +76622,14 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 122712409}
+    m_TransformParent: {fileID: 1214258292}
     m_Modifications:
     - target: {fileID: 3178613654686468153, guid: 9ff5eaf6bca66094d822829d2492efe8, type: 3}
       propertyPath: m_Name
+      value: Nickname
+      objectReference: {fileID: 0}
+    - target: {fileID: 3178613654686468153, guid: 9ff5eaf6bca66094d822829d2492efe8, type: 3}
+      propertyPath: m_TagString
       value: Nickname
       objectReference: {fileID: 0}
     - target: {fileID: 9048125842911373289, guid: 9ff5eaf6bca66094d822829d2492efe8, type: 3}
@@ -76694,7 +76698,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9048125842911373289, guid: 9ff5eaf6bca66094d822829d2492efe8, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -7
+      value: -8
       objectReference: {fileID: 0}
     - target: {fileID: 9048125842911373289, guid: 9ff5eaf6bca66094d822829d2492efe8, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -76708,7 +76712,8 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 3691918019683099704, guid: 9ff5eaf6bca66094d822829d2492efe8, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
