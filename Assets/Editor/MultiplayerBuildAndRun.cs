@@ -1,4 +1,4 @@
-using UnityEditor;
+ï»¿using UnityEditor;
 using UnityEngine;
 
 public class MultiplayerBuildAndRun
@@ -33,8 +33,8 @@ public class MultiplayerBuildAndRun
         EditorUserBuildSettings.SwitchActiveBuildTarget(
             BuildTargetGroup.Standalone, BuildTarget.StandaloneWindows);
 
-        // Æ¯Á¤ ¾ÀÀÇ °æ·Î¸¦ ¼³Á¤ÇÕ´Ï´Ù. ¿¹¸¦ µé¾î "Assets/Scenes/MyScene.unity"¿Í °°ÀÌ ÁöÁ¤ÇÕ´Ï´Ù.
-        string[] scenePaths = new string[] { "Assets/Scenes/TestScene.unity", "Assets/Scenes/TestScene.unity" };
+        // íŠ¹ì • ì”¬ì˜ ê²½ë¡œë¥¼ ì„¤ì •í•©ë‹ˆë‹¤. ì˜ˆë¥¼ ë“¤ì–´ "Assets/Scenes/MyScene.unity"ì™€ ê°™ì´ ì§€ì •í•©ë‹ˆë‹¤.
+        string[] scenePaths = new string[] { "Assets/Scenes/UndeadSurvivar.unity", "Assets/Scenes/UndeadSurvivar.unity" };
 
         for (int i = 1; i <= playerCount; i++)
         {
@@ -79,18 +79,18 @@ public class MultiplayerBuildAndRun
 
     static void PerformMacBuild(int playerCount)
     {
-        // À¯´ÏÆ¼ ºôµå¼¼ÆÃ API¸¦ »ç¿ë
-        // ºôµå Å¸°Ù ¼³Á¤ => À©µµ¿ì, ¸Æ, ¾Èµå·ÎÀÌµå, IOS Áß ¾î¶²°É·Î ¼³Á¤ÇÒ Áö
+        // ìœ ë‹ˆí‹° ë¹Œë“œì„¸íŒ… APIë¥¼ ì‚¬ìš©
+        // ë¹Œë“œ íƒ€ê²Ÿ ì„¤ì • => ìœˆë„ìš°, ë§¥, ì•ˆë“œë¡œì´ë“œ, IOS ì¤‘ ì–´ë–¤ê±¸ë¡œ ì„¤ì •í•  ì§€
         EditorUserBuildSettings.SwitchActiveBuildTarget(
             BuildTargetGroup.Standalone,
             BuildTarget.StandaloneWindows
         );
 
-        // ½ÇÇàÇÒ Å¬¶óÀÌ¾ğÆ®(ÇÃ·¹ÀÌ¾î) °¹¼ö ¸¸Å­ ¹İº¹¹® ½ÇÇà
+        // ì‹¤í–‰í•  í´ë¼ì´ì–¸íŠ¸(í”Œë ˆì´ì–´) ê°¯ìˆ˜ ë§Œí¼ ë°˜ë³µë¬¸ ì‹¤í–‰
         for (int i = 1; i <= playerCount; i++)
         {
-            // ¾ÀÀÇ °æ·Î¸¦ Ãß°¡
-            // ÇÁ·ÎÁ§Æ® ÀÌ¸§°ú ÇÃ·¹ÀÌ¾î ¹øÈ£¸¦ »ç¿ëÇØ¼­ ºôµå °æ·Î¿Í ÆÄÀÏ ¼³Á¤
+            // ì”¬ì˜ ê²½ë¡œë¥¼ ì¶”ê°€
+            // í”„ë¡œì íŠ¸ ì´ë¦„ê³¼ í”Œë ˆì´ì–´ ë²ˆí˜¸ë¥¼ ì‚¬ìš©í•´ì„œ ë¹Œë“œ ê²½ë¡œì™€ íŒŒì¼ ì„¤ì •
             BuildPipeline.BuildPlayer(GetScenePaths(),
                 "Builds/Win64/" + GetProjectName() + i.ToString() + "/" + GetProjectName() + i.ToString() + ".app",
                 BuildTarget.StandaloneOSX, BuildOptions.AutoRunPlayer
