@@ -1,4 +1,5 @@
-﻿using Photon.Pun;
+﻿using Cinemachine;
+using Photon.Pun;
 using Photon.Realtime;
 using System.Collections;
 using System.Collections.Generic;
@@ -16,6 +17,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     public RuntimeAnimatorController[] animCon;
     public PhotonView PV;
     public Text NickNameText;
+    public int Cost;
 
     Rigidbody2D rigid;
     SpriteRenderer spriter;
@@ -31,32 +33,24 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         anim = GetComponent<Animator>();
         scanner = GetComponent<Scanner>();
         hands = GetComponentsInChildren<Hand>(true);    // 인자값에 true를 넣을 시 Active상태가 아닌 오브젝트도 가져옵니다.
+        Cost = 1;
         
         NickNameText.text = PV.IsMine ? PhotonNetwork.NickName.ToString() : PV.Owner.NickName.ToString();
         NickNameText.color = PV.IsMine ? Color.green : Color.red;
+
+        if (PV.IsMine)
+        {
+            // 2D 카메라
+            CinemachineVirtualCamera CM = GameObject.Find("Virtual Camera").GetComponent<CinemachineVirtualCamera>();
+            CM.Follow = transform;
+            CM.LookAt = transform;
+        }
     }
 
 
     /*private void Start()
     {
         PV.RPC("SetInfo", RpcTarget.All);
-    }*/
-
-
-    /*[PunRPC]
-    void SetInfo()
-    {
-        if (PhotonNetwork.NickName == null)
-        {
-            Debug.Log("null!!!!!!!!!!!!!!!!!!!");
-        }
-        else
-        {
-            NickNameText = GameObject.Find("Nickname").GetComponent<Text>();
-            NickNameText.text = PV.IsMine ? PhotonNetwork.NickName.ToString() : PV.Owner.NickName.ToString();
-            NickNameText.color = PV.IsMine ? Color.green : Color.red;
-            this.name = NickNameText.text;
-        }
     }*/
 
 
@@ -139,7 +133,8 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         anim.SetFloat("Speed_f", resultVec.magnitude);
 
         // Flip 을 이용해서 Sprite를 반전 시켜 방향을 구현, inputVec의 x값이 양수냐 음수냐에 따라 방향 처리
-        spriter.flipX = resultVec.x < 0;
+        if (resultVec.x != 0)
+            spriter.flipX = resultVec.x < 0;
 
         /*// 키 입력에 따라 캐릭터의 회전 방향을 처리
         if (resultVec.x != 0)

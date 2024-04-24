@@ -1223,6 +1223,7 @@ MonoBehaviour:
   - {fileID: 22100000, guid: 533ea7c4f55a673428acd6823c62cf9d, type: 2}
   PV: {fileID: 5825622529715855626}
   NickNameText: {fileID: 5330871365154669944}
+  Cost: 0
 --- !u!114 &5825622529715855626
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -25,7 +25,7 @@ public class HUD : MonoBehaviour
         {
             case InfoType.Exp:
                 float curExp = GameManager.Instance.exp;
-                float maxExp = GameManager.Instance.nextExp[Mathf.Min(GameManager.Instance.level, GameManager.Instance.nextExp.Length - 1)];
+                float maxExp = GameManager.Instance.nextExp[Mathf.Min(GameManager.Instance.Playerlevel, GameManager.Instance.nextExp.Length - 1)];
                 mySlider.value = curExp / maxExp;
                 break;
             case InfoType.Level:
@@ -33,7 +33,7 @@ public class HUD : MonoBehaviour
                 //  첫 번쨰 인자 : 포맷을 쓸 타입 / 두 번째 인자 : 해당 포맷에 적용될 Data
                 //      - {0} : 인자 값의 문자열이 들어갈 자리를 {순번} 형태로 지정합니다.
                 //      - F0, F1... 이는 소숫점 자리를 지정합니다.
-                myText.text = string.Format("Lv.{0:F0}", GameManager.Instance.level);
+                myText.text = string.Format("Lv.{0:F0}", GameManager.Instance.Playerlevel);
                 break;
             case InfoType.Kill:
                 myText.text = string.Format("{0:F0}", GameManager.Instance.kill);

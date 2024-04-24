@@ -18,7 +18,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     public int playerId;
     public float health;
     public float maxHealth = 100;
-    public int level;
+    public int Playerlevel;
     public int kill;
     public int exp;
     public int[] nextExp = { 3, 5, 10, 100, 150, 210, 280, 360, 450, 600 };
@@ -50,6 +50,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         //Debug.Log("[ GamaManager ] name is : " + playerPrefab.name);
 
         player = playerPrefab.GetComponent<Player>();
+        Debug.Log("GameManager : " + Playerlevel);
         uiLevelUp.Select(playerId % 2);     // 기존 무기 지급을 위한 함수 호출 -> 캐릭터 ID로 변경
         Resume();
 
@@ -126,6 +127,8 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
             GameVictory();
         }
     }
+
+
     public void GetExp()
     {
         if (!isLive)
@@ -134,25 +137,27 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         exp++;
 
         // Mathf.Min(level, nextExp.Length - 1) 를 통해서 에러방지(초과) 및 마지막 레벨만 나오게 합니다.
-        if (exp == nextExp[Mathf.Min(level, nextExp.Length - 1)])
+        if (exp == nextExp[Mathf.Min(Playerlevel, nextExp.Length - 1)])
         {
-            level++;    // 레벨업 적용
-            exp = 0;    // 경험치 초기화
-            uiLevelUp.Show();
+            Playerlevel++;        // 레벨업 적용
+            exp = 0;        // 경험치 초기화
+            player.Cost++;  // Player 레벨업 스킬 강화용 코스트 추가
+            uiLevelUp.CallLevelUp();
         }
     }
+
 
     public void Stop()
     {
         isLive = false;
-        Time.timeScale = 0; // 유니티의 시간 속도(배율)
+        //Time.timeScale = 0; // 유니티의 시간 속도(배율)
         uiJoy.localScale = Vector3.zero;
     }
 
     public void Resume()
     {
         isLive = true;
-        Time.timeScale = 1;
+        //Time.timeScale = 1;
         uiJoy.localScale = Vector3.one;
     }
 

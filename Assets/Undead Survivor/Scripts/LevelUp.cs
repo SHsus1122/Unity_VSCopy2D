@@ -1,19 +1,41 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class LevelUp : MonoBehaviour
 {
     RectTransform rect;
     Item[] items;
+    Button[] buttons;
 
     private void Awake()
     {
         rect = GetComponent<RectTransform>();
         items = GetComponentsInChildren<Item>(true);
+        buttons = GetComponentsInChildren<Button>();
     }
 
-    public void Show()
+    private void Start()
+    {
+        buttons = GetComponentsInChildren<Button>();
+        for (int i = 0; i < items.Length; i++)
+        {
+            buttons[i] = items[i].GetComponent<Button>();
+            Debug.Log(items[i].name);
+        }
+    }
+
+    public void CallLevelUp()
+    {
+        ListUpdate();
+        AudioManager.instance.PlaySfx(AudioManager.Sfx.LevelUp);    // 레벨업 효과음 재생
+        AudioManager.instance.EffectBgm(true);
+    }
+
+    /*public void Show()
     {
         Next();
         rect.localScale = Vector3.one;
@@ -28,14 +50,30 @@ public class LevelUp : MonoBehaviour
         GameManager.Instance.Resume();
         AudioManager.instance.PlaySfx(AudioManager.Sfx.Select);     // 선택 효과음 재생
         AudioManager.instance.EffectBgm(false);
-    }
+    }*/
 
     public void Select(int index)
     {
-        items[index].OnClick();
+        Debug.Log("==== [ LevelUp ] Select : " + index);
+        Debug.Log("==== [ LevelUp ] Player Cost is : " + GameManager.Instance.player.Cost);
+        if (GameManager.Instance.player.Cost < 1)
+        {
+            Debug.Log("==== [ LevelUp ] GameManager.Instance.player.Cost : " + GameManager.Instance.player.Cost);
+            foreach (Button button in buttons)
+            {
+                button.interactable = false;
+            }
+        }
+        else
+        {
+            bool check = items == null;
+            Debug.Log("==== [ LevelUp ] items is bool? : " + check);
+            items[index].OnClick();
+        }
+        ListUpdate();
     }
 
-    void Next()
+    /*void Next()
     {
         // 1. 모든 아이템 비활성화
         foreach (Item item in items)
@@ -68,6 +106,27 @@ public class LevelUp : MonoBehaviour
             else
             {
                 ranItem.gameObject.SetActive(true);
+            }
+        }
+    }*/
+
+    void ListUpdate()
+    {
+        if (GameManager.Instance.player.Cost < 1)
+            return;
+
+        Debug.Log("==== [ LevelUp ] ListUpdate Call");
+
+        // 1. 모든 아이템 비활성화
+        foreach (Item item in items)
+        {
+            if (item.Itemlevel == item.data.damages.Length)
+            {
+                item.GetComponentsInChildren<Button>()[0].interactable = false;
+            }
+            else
+            {
+                item.GetComponentsInChildren<Button>()[0].interactable = true;
             }
         }
     }

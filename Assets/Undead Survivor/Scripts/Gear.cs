@@ -22,7 +22,7 @@ public class Gear : MonoBehaviour
     }
 
     // 레벨업 함수
-    public void LevelUp(float rate)
+    public void GearLevelUp(float rate)
     {
         this.rate = rate;   // 레벨업 수치 적용
         ApplyGear();        // 레벨업 실제 적용

@@ -48,11 +48,11 @@ public class Weapon : MonoBehaviour
         // 강화 시스템 테스트 코드
         if (Input.GetButtonDown("Jump"))
         {
-            LevelUp(10, 1);
+            WeaponLevelUp(10, 1);
         }
     }
 
-    public void LevelUp(float damage, int count)
+    public void WeaponLevelUp(float damage, int count)
     {
         this.damage = damage * Character.Damage;
         this.count += count;
@@ -67,6 +67,7 @@ public class Weapon : MonoBehaviour
     // 초기화 함수에 만들어둔 스크립트블 오브젝트를 매개변수로 받아서 활용합니다.
     public void Init(ItemData data)
     {
+        Debug.Log("[ Weapon ] Init Call");
         // Basic Set
         name = "Weapon " + data.itemId;         // Weapon 이름 설정, 클래스 자체 변수
         transform.parent = player.transform;    // 위에서 만든 Player변수는 Weapon을 소유중인 부모 오브젝트를 지정
