@@ -43,14 +43,20 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     // ========================================== [ 게임 시작 ]
     public void GameStart(int id)
     {
+        GameStartRPC(id);
+    }
+
+    [PunRPC]
+    public void GameStartRPC(int id)
+    {
         playerId = id;                      // 캐릭터 종류 ID
         health = maxHealth;                 // 초기 체력 설정
 
         GameObject playerPrefab = PhotonNetwork.Instantiate("Player", spawnPoint.transform.position, Quaternion.identity);
-        //Debug.Log("[ GamaManager ] name is : " + playerPrefab.name);
 
         player = playerPrefab.GetComponent<Player>();
         Debug.Log("GameManager : " + Playerlevel);
+        uiLevelUp.Show();
         uiLevelUp.Select(playerId % 2);     // 기존 무기 지급을 위한 함수 호출 -> 캐릭터 ID로 변경
         Resume();
 
@@ -139,9 +145,9 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         // Mathf.Min(level, nextExp.Length - 1) 를 통해서 에러방지(초과) 및 마지막 레벨만 나오게 합니다.
         if (exp == nextExp[Mathf.Min(Playerlevel, nextExp.Length - 1)])
         {
-            Playerlevel++;        // 레벨업 적용
-            exp = 0;        // 경험치 초기화
-            player.Cost++;  // Player 레벨업 스킬 강화용 코스트 추가
+            Playerlevel++;      // 레벨업 적용
+            exp = 0;            // 경험치 초기화
+            player.Cost++;      // Player 레벨업 스킬 강화용 코스트 추가
             uiLevelUp.CallLevelUp();
         }
     }
@@ -163,6 +169,13 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
-
+        if (stream.IsWriting)
+        {
+            stream.SendNext(isLive);
+        }
+        else
+        {
+            isLive = (bool)stream.ReceiveNext();
+        }
     }
 }

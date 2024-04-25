@@ -15,6 +15,7 @@ public class Item : MonoBehaviour
     Text textLevel;
     Text textName;
     Text textDesc;
+    int nowLevel;
 
     private void Awake()
     {
@@ -37,20 +38,21 @@ public class Item : MonoBehaviour
 
     void ItemInfoUpdate()
     {
-        textLevel.text = "Lv." + Itemlevel;
+        nowLevel = Itemlevel - 1;
 
         switch (data.itemType)
         {
             case ItemData.ItemType.Melee:
             case ItemData.ItemType.Range:
-                Debug.Log("Level is : " + Itemlevel);
-                textDesc.text = string.Format(data.itemDesc, data.damages[Itemlevel] * 100, data.counts[Itemlevel]);
+                textLevel.text = "Lv." + Itemlevel;
+                textDesc.text = string.Format(data.itemDesc, data.damages[nowLevel] * 100, data.counts[nowLevel]);
                 break;
             case ItemData.ItemType.Glove:
             case ItemData.ItemType.Shoe:
-                textDesc.text = string.Format(data.itemDesc, data.damages[Itemlevel] * 100);
+                textLevel.text = "Lv." + Itemlevel;
+                textDesc.text = string.Format(data.itemDesc, data.damages[nowLevel] * 100);
                 break;
-            default:
+            case ItemData.ItemType.Heal:
                 textDesc.text = string.Format(data.itemDesc);
                 break;
         }
@@ -94,7 +96,6 @@ public class Item : MonoBehaviour
 
                 // 위의 과정을 거치고 나면 level업 처리를 진행합니다.
                 Itemlevel++;
-                GameManager.Instance.player.Cost--;
                 break;
             case ItemData.ItemType.Glove:
             case ItemData.ItemType.Shoe:
@@ -114,12 +115,10 @@ public class Item : MonoBehaviour
 
                 // 위의 과정을 거치고 나면 level업 처리를 진행합니다.
                 Itemlevel++;
-                GameManager.Instance.player.Cost--;
                 break;
             case ItemData.ItemType.Heal:
                 Debug.Log("==== [ Item ] level.Heal 호출");
                 GameManager.Instance.health = GameManager.Instance.maxHealth;
-                GameManager.Instance.player.Cost--;
                 break;
         }
 

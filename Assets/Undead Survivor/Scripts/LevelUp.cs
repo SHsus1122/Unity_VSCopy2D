@@ -10,12 +10,14 @@ public class LevelUp : MonoBehaviour
     RectTransform rect;
     Item[] items;
     Button[] buttons;
+    Text textCost;
 
     private void Awake()
     {
         rect = GetComponent<RectTransform>();
         items = GetComponentsInChildren<Item>(true);
         buttons = GetComponentsInChildren<Button>();
+        textCost = GetComponentsInChildren<Text>()[0];
     }
 
     private void Start()
@@ -30,9 +32,9 @@ public class LevelUp : MonoBehaviour
 
     public void CallLevelUp()
     {
-        ListUpdate();
+        InfoUpdate();
         AudioManager.instance.PlaySfx(AudioManager.Sfx.LevelUp);    // 레벨업 효과음 재생
-        AudioManager.instance.EffectBgm(true);
+        //AudioManager.instance.EffectBgm(true);
     }
 
     /*public void Show()
@@ -52,25 +54,19 @@ public class LevelUp : MonoBehaviour
         AudioManager.instance.EffectBgm(false);
     }*/
 
+    public void Show()
+    {
+        rect.localScale = Vector3.one;
+    }
+
     public void Select(int index)
     {
         Debug.Log("==== [ LevelUp ] Select : " + index);
         Debug.Log("==== [ LevelUp ] Player Cost is : " + GameManager.Instance.player.Cost);
-        if (GameManager.Instance.player.Cost < 1)
-        {
-            Debug.Log("==== [ LevelUp ] GameManager.Instance.player.Cost : " + GameManager.Instance.player.Cost);
-            foreach (Button button in buttons)
-            {
-                button.interactable = false;
-            }
-        }
-        else
-        {
-            bool check = items == null;
-            Debug.Log("==== [ LevelUp ] items is bool? : " + check);
-            items[index].OnClick();
-        }
-        ListUpdate();
+
+        items[index].OnClick();
+        GameManager.Instance.player.Cost--;
+        InfoUpdate();
     }
 
     /*void Next()
@@ -110,17 +106,14 @@ public class LevelUp : MonoBehaviour
         }
     }*/
 
-    void ListUpdate()
+    void InfoUpdate()
     {
-        if (GameManager.Instance.player.Cost < 1)
-            return;
-
-        Debug.Log("==== [ LevelUp ] ListUpdate Call");
+        textCost.text = "Cost\n" + GameManager.Instance.player.Cost;
 
         // 1. 모든 아이템 비활성화
         foreach (Item item in items)
         {
-            if (item.Itemlevel == item.data.damages.Length)
+            if (item.Itemlevel == item.data.damages.Length || GameManager.Instance.player.Cost < 1)
             {
                 item.GetComponentsInChildren<Button>()[0].interactable = false;
             }
