@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Photon.Pun;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Item : MonoBehaviour
+public class Item : MonoBehaviourPunCallbacks
 {
     public ItemData data;
     public int Itemlevel;
@@ -59,6 +60,7 @@ public class Item : MonoBehaviour
     }
 
     // 사용자가 Button UI 를 통해서 클릭 이벤트로 레벨업을 통해 능력치 활성화 및 강화에 사용할 함수입니다.
+    [PunRPC]
     public void OnClick()
     {
         if (GameManager.Instance.player.Cost < 1) 
@@ -76,8 +78,10 @@ public class Item : MonoBehaviour
                 {
                     Debug.Log("==== [ Item ] level.Melee, Range 0 으로 첫 시작부");
                     // level이 0인 즉, 처음 초기값의 실행부입니다. 
-                    GameObject newWeapon = new GameObject();    // 무기를 담을 빈 오브젝트 생성
-                    weapon = newWeapon.AddComponent<Weapon>();  // 새롭게 컴포넌트를 추가해서 현재 무기에 대입
+                    //GameObject newWeapon = new GameObject();    // 무기를 담을 빈 오브젝트 생성
+                    //weapon = newWeapon.AddComponent<Weapon>();  // 새롭게 컴포넌트를 추가해서 현재 무기에 대입
+
+                    weapon = PhotonNetwork.Instantiate("Weapon", transform.position, Quaternion.identity).GetComponent<Weapon>();
                     weapon.Init(data);
                 }
                 else

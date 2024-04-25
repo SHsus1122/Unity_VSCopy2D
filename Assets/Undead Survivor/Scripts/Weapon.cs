@@ -1,15 +1,20 @@
-﻿using System.Collections;
+﻿using Photon.Pun;
+using Photon.Realtime;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using Unity.VisualScripting;
 using UnityEngine;
 
-public class Weapon : MonoBehaviour
+public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
 {
     public int id;          // 무기 ID
     public int prefabId;    // 프리펩 ID(종류)
     public float damage;    // 데미지
     public int count;       // 개수
     public float speed;     // 속도
+    public PhotonView weaponPV;
 
     float timer;
     Player player;
@@ -21,6 +26,7 @@ public class Weapon : MonoBehaviour
 
         // [변경된 방식] 플레이어 초기화에 매개변수가 들어감으로 인해 처음 초기화는 게임 매니저를 활용하는 것으로 변경합니다.
         player = GameManager.Instance.player;
+        transform.parent = player.GetComponentsInChildren<Transform>()[0];
     }
 
     void Update()
@@ -65,6 +71,7 @@ public class Weapon : MonoBehaviour
     }
 
     // 초기화 함수에 만들어둔 스크립트블 오브젝트를 매개변수로 받아서 활용합니다.
+    [PunRPC]
     public void Init(ItemData data)
     {
         Debug.Log("[ Weapon ] Init Call");
@@ -115,6 +122,9 @@ public class Weapon : MonoBehaviour
         player.BroadcastMessage("ApplyGear", SendMessageOptions.DontRequireReceiver);
     }
 
+
+
+    [PunRPC]
     void Batch()
     {
         for (int index = 0; index < count; index++)
@@ -131,6 +141,7 @@ public class Weapon : MonoBehaviour
             {
                 bullet = GameManager.Instance.pool.Get(prefabId).transform;
                 bullet.parent = transform;
+                Debug.Log(bullet.name + "'s parent is " + bullet.parent.name);
             }
 
             // 초기 스폰시 위치 지정을 위해서 해주는 작업입니다.
@@ -140,7 +151,7 @@ public class Weapon : MonoBehaviour
             // Weapon의 방향을 설정하기 위한 작업입니다.
             // 갯수에 따라 각도를 설정하기 위해서 초기에 Vector3.forward 로 처음 방향을 잡아주고 해당위치를 기준으로 360을 곱합니다.
             // 이렇게 하면 이제 회전을 위한 360도 각도를 설정했으며 무기의 갯수에 따라 일정한 간격을 주기 위해서 count 로 나누게 됩니다.
-            Vector3 rotVec = Vector3.forward * 360 * index / count; 
+            Vector3 rotVec = Vector3.forward * 360 * index / count;
             bullet.Rotate(rotVec);  // Rotate 로 위에서 계산된 각도를 적용해줍니다.
 
             // 이후에는 Translate를 이용해서 배치를 하는데 자기 자신의 위쪽 방향을 기준으로(즉, Local 좌표에 해당)위쪽 방향을 고정합니다.
@@ -148,9 +159,17 @@ public class Weapon : MonoBehaviour
             bullet.Translate(bullet.up * 1.5f, Space.World);
 
             // 근접 무기의 경우 관통에 제한을 주지 않습니다.(무한), -1 is Infinity Per.
-            bullet.GetComponent<Bullet>().Init(damage, -100, Vector3.zero); 
+            bullet.GetComponent<Bullet>().Init(damage, -100, Vector3.zero);
         }
     }
+
+    [PunRPC]
+    void BatchRPC()
+    {
+        
+    }
+
+
 
     void Fire()
     {
@@ -171,5 +190,12 @@ public class Weapon : MonoBehaviour
         bullet.GetComponent<Bullet>().Init(damage, count, dir);         // 원하는 값들로 초기화 작업, count가 관통 값
 
         AudioManager.instance.PlaySfx(AudioManager.Sfx.Range);          // 발사 효과음 재생
+    }
+
+
+
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+    
     }
 }

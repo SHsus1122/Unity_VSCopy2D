@@ -12,12 +12,7 @@ public class AchiveManager : MonoBehaviour
 
     // unlockPotato : 감자 농부, unlockBean : 콩 농부
     enum Achive { unlockPotato, unlockBean }
-    Achive[] achives;   // 업적 데이터들을 저장해둘 배열 선언
-
-    // 아래의 캐릭터 해금 알림 메시지용 변수입니다.
-    // WaitForSeconds으로 바로 사용할 경우 알림 메시지가 뜰 때마다 새로이 변수를 생성하기에 보다 효율적인 사용을 위해 여기서 미리 선언합니다.
-    // 또한, WaitForSeconds의 경우 TimeScale에 영향을 받습니다. 즉, 레벨업을 했을 때 업적이 같이 뜨면 레벨업시 TimeSacle이 0이기 때문에,
-    // 알리 메시지도 계속 살아있는 형태가 됩니다. 그래서 이를 별개로 독립적으로 작동시키기 위해서 Realtime을 사용합니다.
+    Achive[] achives;               // 업적 데이터 저장용 배열
     WaitForSecondsRealtime wait;
 
     private void Awake()

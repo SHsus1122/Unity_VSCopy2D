@@ -15,14 +15,13 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     public Scanner scanner;
     public Hand[] hands;
     public RuntimeAnimatorController[] animCon;
-    public PhotonView PV;
+    public PhotonView playerPV;
     public Text NickNameText;
     public int Cost;
 
     Rigidbody2D rigid;
     SpriteRenderer spriter;
     Animator anim;
-
 
 
     // Start is called before the first frame update
@@ -35,10 +34,10 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         hands = GetComponentsInChildren<Hand>(true);    // 인자값에 true를 넣을 시 Active상태가 아닌 오브젝트도 가져옵니다.
         Cost = 1;
         
-        NickNameText.text = PV.IsMine ? PhotonNetwork.NickName.ToString() : PV.Owner.NickName.ToString();
-        NickNameText.color = PV.IsMine ? Color.green : Color.red;
+        NickNameText.text = playerPV.IsMine ? PhotonNetwork.NickName.ToString() : playerPV.Owner.NickName.ToString();
+        NickNameText.color = playerPV.IsMine ? Color.green : Color.red;
 
-        if (PV.IsMine)
+        if (playerPV.IsMine)
         {
             // 2D 카메라
             CinemachineVirtualCamera CM = GameObject.Find("Virtual Camera").GetComponent<CinemachineVirtualCamera>();
@@ -69,7 +68,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         // 예전 방식의 컨트롤러 적용법 코드
         // Input.GetAxis 의 경우 보정이 들어가 있어서 부드럽게 움직임이 멈추게 됩니다.
         // 하지만 GetAxisRaw 의 경우에는 부드럽게 멈추는 것이 아닌 그 자리에 바로 멈추게끔 됩니다.
-        if (PV.IsMine)
+        if (playerPV.IsMine)
         {
             inputVec.x = Input.GetAxisRaw("Horizontal");
             inputVec.y = Input.GetAxisRaw("Vertical");
@@ -96,7 +95,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         // Time.deltaTime : 물리 프레임 하나가 소비한 시간
         //resultVec = inputVec.normalized * speed * Time.deltaTime;
 
-        if (PV.IsMine)
+        if (playerPV.IsMine)
         {
             // InputSystem 사용시 에디터에서 normalized를 사용하기에 위의 이전 코드처럼 normalized를 추가할 필요가 없습니다.
             //resultVec = inputVec * speed * Time.deltaTime;
@@ -122,7 +121,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         if (!GameManager.Instance.isLive)
             return;
 
-        PV.RPC("FlipXRPC", RpcTarget.AllBuffered);
+        playerPV.RPC("FlipXRPC", RpcTarget.AllBuffered);
     }
 
 

@@ -1,14 +1,17 @@
-﻿using System.Collections;
+﻿using Photon.Pun;
+using Photon.Realtime;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Enemy : MonoBehaviour
+public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
 {
     public float speed;
     public float health;        // 현재 체력
     public float maxHealth;     // 최대 체력
     public RuntimeAnimatorController[] animCon; // Sprite 즉, 적의 종류(타입) 변경을 위한 변수
     public Rigidbody2D target;
+    public PhotonView enemyPV;
 
     bool isLive;
 
@@ -17,6 +20,8 @@ public class Enemy : MonoBehaviour
     Animator anim;
     SpriteRenderer spriter;
     WaitForFixedUpdate wait;
+    SpawnData enemyData;
+    Vector2 nowPos;
 
     // Start is called before the first frame update
     void Awake()
@@ -27,6 +32,8 @@ public class Enemy : MonoBehaviour
         spriter = GetComponent<SpriteRenderer>();
         wait = new WaitForFixedUpdate();
     }
+
+
 
     void FixedUpdate()
     {
@@ -47,7 +54,10 @@ public class Enemy : MonoBehaviour
         rigid.MovePosition(rigid.position + nextVec);
         // 물리 속도가 이동에 영향을 주지 않도록 속도를 제거해주도록 합니다.(캐릭터와 충돌 시 영향을 위해서)
         rigid.velocity = Vector2.zero;
+        nowPos = rigid.position;
     }
+
+
 
     void LateUpdate()
     {
@@ -58,6 +68,8 @@ public class Enemy : MonoBehaviour
         // target(플레이어) 위치의 X값과 rigid(적) X값의 크기에 따라 변동시키게 됩니다.
         spriter.flipX = target.position.x < rigid.position.x;
     }
+
+
 
     // 스크립트가 활성화 될 때, 호출되는 함수
     void OnEnable()
@@ -72,14 +84,28 @@ public class Enemy : MonoBehaviour
         health = maxHealth;
     }
 
+
+
     // 생성시 초기값 초기화 함수
     public void Init(SpawnData data)
     {
-        anim.runtimeAnimatorController = animCon[data.spriteType];  // 적 타입
-        speed = data.speed;
-        maxHealth = data.health;
-        health = data.health;
+        enemyData = data;
+        Debug.Log("[ Enemy ] Init");
+        enemyPV.RPC("InitRPC", RpcTarget.AllBuffered);
     }
+
+    [PunRPC]
+    public void InitRPC()
+    {
+        anim.runtimeAnimatorController = animCon[enemyData.spriteType];  // 적 타입
+        speed = enemyData.speed;
+        maxHealth = enemyData.health;
+        health = enemyData.health;
+
+        Debug.Log("[ Enemy ] enemyData.health : " + enemyData.health);
+    }
+
+
 
     // 적의 충돌 이벤트 관련 처리용 함수
     private void OnTriggerEnter2D(Collider2D collision)
@@ -115,6 +141,8 @@ public class Enemy : MonoBehaviour
         }
     }
 
+
+
     // 코루틴만의 반환형 인터페이스
     IEnumerator KnockBack()
     {
@@ -128,5 +156,19 @@ public class Enemy : MonoBehaviour
     void Dead()
     {
         gameObject.SetActive(false);
+    }
+
+
+
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        if (stream.IsWriting)
+        {
+            stream.SendNext(nowPos);
+        }
+        else
+        {
+            transform.position = (Vector2)stream.ReceiveNext();
+        }
     }
 }

@@ -47,6 +47,15 @@ MonoBehaviour:
   - LateUpdate
   - FlipXRPC
   - SetInfo
+  - GameStartRPC
+  - InitRPC
+  - OnTriggerEnter2DRPC
+  - SpawnRPC
+  - GetRPC
+  - BatchRPC
+  - OnClick
+  - Init
+  - Batch
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

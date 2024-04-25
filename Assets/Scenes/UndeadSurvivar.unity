@@ -19059,7 +19059,7 @@ RectTransform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0, y: 0, z: 0}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1350385595}
   - {fileID: 1173972638}
@@ -21720,6 +21720,8 @@ GameObject:
   m_Component:
   - component: {fileID: 860527869}
   - component: {fileID: 860527870}
+  - component: {fileID: 860527871}
+  - component: {fileID: 860527874}
   m_Layer: 0
   m_Name: PoolManager
   m_TagString: Untagged
@@ -21758,6 +21760,57 @@ MonoBehaviour:
   - {fileID: 2270711029522858002, guid: 57d863bc1ff1f4d47aa773ce625ce7cb, type: 3}
   - {fileID: 6106279653900032370, guid: 92a29554dff5fb34ea8676315cd8c6c1, type: 3}
   - {fileID: 8086548022900914848, guid: 98ea7259bd6c50644aa54889f8ca132c, type: 3}
+  poolManagerPV: {fileID: 860527871}
+--- !u!114 &860527871
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 860527868}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 0
+  ObservedComponents:
+  - {fileID: 860527870}
+  sceneViewId: 2
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
+--- !u!50 &860527874
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 860527868}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 3
 --- !u!1 &882638456
 GameObject:
   m_ObjectHideFlags: 0
@@ -39698,7 +39751,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: -5}
   m_SizeDelta: {x: 14, y: 80}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!114 &1173972639
@@ -40514,13 +40567,13 @@ RectTransform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 388469696}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: -5}
   m_SizeDelta: {x: 14, y: 100}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!114 &1350385596
@@ -41015,6 +41068,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1383446450}
   - component: {fileID: 1383446451}
+  - component: {fileID: 1383446452}
+  - component: {fileID: 1383446453}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -41052,6 +41107,7 @@ MonoBehaviour:
   isLive: 0
   gameTime: 0
   maxGameTime: 300
+  gameManagerPV: {fileID: 1383446452}
   playerId: 0
   health: 0
   maxHealth: 100
@@ -41066,6 +41122,45 @@ MonoBehaviour:
   uiJoy: {fileID: 1085187955}
   enemyCleaner: {fileID: 1693453985}
   spawnPoint: {fileID: 101672802}
+--- !u!114 &1383446452
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1383446449}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 0
+  ObservedComponents:
+  - {fileID: 1383446453}
+  sceneViewId: 1
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
+--- !u!114 &1383446453
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1383446449}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 627855c7f81362d41938ffe0b1475957, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SynchronizePosition: 1
+  m_SynchronizeRotation: 1
+  m_SynchronizeScale: 0
+  m_UseLocal: 1
 --- !u!1 &1388364314
 GameObject:
   m_ObjectHideFlags: 0
@@ -59266,6 +59361,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   damage: 10000000
   per: -100
+  bulletPV: {fileID: 0}
 --- !u!61 &1693453988
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -62434,7 +62530,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2100852116
 RectTransform:
   m_ObjectHideFlags: 0

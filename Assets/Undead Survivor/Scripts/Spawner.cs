@@ -1,12 +1,15 @@
-﻿using System.Collections;
+﻿using Photon.Pun;
+using Photon.Realtime;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Spawner : MonoBehaviour
+public class Spawner : MonoBehaviourPunCallbacks, IPunObservable
 {
     public Transform[] spawnPoint;
     public SpawnData[] spawnData;
     public float levelTime;
+    public PhotonView SpawnerPV;
 
     int level;
     float timer;
@@ -32,17 +35,27 @@ public class Spawner : MonoBehaviour
         if (timer > spawnData[level].spawnTime)
         {
             timer = 0f;
-            Spawn();
+            SpawnerPV.RPC("SpawnRPC", RpcTarget.MasterClient);
         }
     }
 
-    void Spawn()
+    [PunRPC]
+    void SpawnRPC()
     {
         // 0~1 사이의 랜덤 숫자를 이용
         GameObject enemy = GameManager.Instance.pool.Get(0);
+        Debug.Log("enemy is name : " + enemy.name);
+
         // 자식 오브젝트에서만 선택되도록 랜덤 시작은 1로 지정합니다.(Spanwer의 자식으로 포인트가 존재하기에 0번째는 Spanwer입니다)
         enemy.transform.position = spawnPoint[Random.Range(1, spawnPoint.Length)].position;
         enemy.GetComponent<Enemy>().Init(spawnData[level]);
+    }
+
+
+
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        
     }
 }
 

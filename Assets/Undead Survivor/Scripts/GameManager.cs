@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     public bool isLive;
     public float gameTime;
     public float maxGameTime = 2 * 10f; // 20초
+    public PhotonView gameManagerPV;
 
     [Header("# Player Info")]
     public int playerId;
@@ -40,10 +41,11 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     }
 
 
+
     // ========================================== [ 게임 시작 ]
     public void GameStart(int id)
     {
-        GameStartRPC(id);
+        gameManagerPV.RPC("GameStartRPC", RpcTarget.All, id);
     }
 
     [PunRPC]
@@ -53,16 +55,17 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         health = maxHealth;                 // 초기 체력 설정
 
         GameObject playerPrefab = PhotonNetwork.Instantiate("Player", spawnPoint.transform.position, Quaternion.identity);
-
         player = playerPrefab.GetComponent<Player>();
-        Debug.Log("GameManager : " + Playerlevel);
+
         uiLevelUp.Show();
         uiLevelUp.Select(playerId % 2);     // 기존 무기 지급을 위한 함수 호출 -> 캐릭터 ID로 변경
-        Resume();
+        gameManagerPV.RPC("Resume", RpcTarget.All);
 
         AudioManager.instance.PlayBgm(true);                    // 게임 배경음 재생
         AudioManager.instance.PlaySfx(AudioManager.Sfx.Select); // 클릭 효과음 재생
     }
+
+
 
     // ========================================== [ 게임 종료 ]
     IEnumerator GameOverRoutine()       // 코루틴 활용
@@ -84,6 +87,8 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     {
         StartCoroutine(GameOverRoutine());
     }
+
+
 
     // ========================================== [ 게임 승리 ]
     IEnumerator GameVictoryRoutine()    // 코루틴 활용
@@ -107,12 +112,16 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         StartCoroutine(GameVictoryRoutine());
     }
 
+
+
     // ========================================== [ 게임 재시작 ]
     public void GaemRetry()
     {
         // 씬의 이름을 넣거나 순번을 넣을 수 있습니다.
         SceneManager.LoadScene(0);
     }
+
+
 
     // ========================================== [ 게임 종료 ]
     public void GaemQuit()
@@ -135,6 +144,8 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     }
 
 
+
+    // ========================================== [ 경험치 획득 ]
     public void GetExp()
     {
         if (!isLive)
@@ -153,20 +164,28 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     }
 
 
+
+    // ========================================== [ 게임 정지, 시작 ]
+    [PunRPC]
     public void Stop()
     {
         isLive = false;
-        //Time.timeScale = 0; // 유니티의 시간 속도(배율)
+        Time.timeScale = 0; // 유니티의 시간 속도(배율)
         uiJoy.localScale = Vector3.zero;
     }
 
+    [PunRPC]
     public void Resume()
     {
+        Debug.Log("=============== Call Resume ===============");
         isLive = true;
-        //Time.timeScale = 1;
+        Time.timeScale = 1;
         uiJoy.localScale = Vector3.one;
     }
 
+
+
+    // ========================================== [ 네트워크 상태 동기화 함수 ]
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
         if (stream.IsWriting)
