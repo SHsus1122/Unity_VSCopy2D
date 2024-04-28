@@ -1,12 +1,15 @@
-﻿using System;
+﻿using Photon.Pun;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class LevelUp : MonoBehaviour
+public class LevelUp : MonoBehaviourPunCallbacks
 {
+    public PhotonView levelUpPV;
+
     RectTransform rect;
     Item[] items;
     Button[] buttons;
@@ -113,7 +116,7 @@ public class LevelUp : MonoBehaviour
         // 1. 모든 아이템 비활성화
         foreach (Item item in items)
         {
-            if (item.Itemlevel == item.data.damages.Length || GameManager.Instance.player.Cost < 1)
+            if (item.itemLevel == item.data.damages.Length || GameManager.Instance.player.Cost < 1)
             {
                 item.GetComponentsInChildren<Button>()[0].interactable = false;
             }

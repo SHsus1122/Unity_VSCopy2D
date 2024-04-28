@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: -8994307077323181509}
   - component: {fileID: 8529449559587022324}
   - component: {fileID: -271835598332304405}
-  - component: {fileID: 1725863448220735053}
   - component: {fileID: 1627230602409224551}
   m_Layer: 0
   m_Name: Weapon
@@ -62,7 +61,7 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6428608480993069363}
-  m_BodyType: 0
+  m_BodyType: 1
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
@@ -101,27 +100,10 @@ MonoBehaviour:
   observableSearch: 0
   ObservedComponents:
   - {fileID: -8994307077323181509}
-  - {fileID: 1725863448220735053}
   - {fileID: 1627230602409224551}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
---- !u!114 &1725863448220735053
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6428608480993069363}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 627855c7f81362d41938ffe0b1475957, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_SynchronizePosition: 1
-  m_SynchronizeRotation: 1
-  m_SynchronizeScale: 0
-  m_UseLocal: 1
 --- !u!114 &1627230602409224551
 MonoBehaviour:
   m_ObjectHideFlags: 0

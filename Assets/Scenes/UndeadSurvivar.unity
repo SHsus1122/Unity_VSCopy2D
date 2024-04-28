@@ -1406,6 +1406,7 @@ GameObject:
   - component: {fileID: 215814645}
   - component: {fileID: 215814644}
   - component: {fileID: 215814643}
+  - component: {fileID: 215814647}
   m_Layer: 5
   m_Name: Item 2
   m_TagString: Untagged
@@ -1449,9 +1450,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   data: {fileID: 11400000, guid: 4981fbcc6db012e44bf42bd6511c3951, type: 2}
-  Itemlevel: 0
+  itemLevel: 0
   weapon: {fileID: 0}
   gear: {fileID: 0}
+  itemPV: {fileID: 215814647}
 --- !u!114 &215814644
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1546,6 +1548,29 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 215814641}
   m_CullTransparentMesh: 1
+--- !u!114 &215814647
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 215814641}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 0
+  ObservedComponents:
+  - {fileID: 215814643}
+  sceneViewId: 8
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
 --- !u!1 &227999582
 GameObject:
   m_ObjectHideFlags: 0
@@ -1941,9 +1966,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   data: {fileID: 11400000, guid: df4e6c2a0bfe3e948b9f356d40f8c431, type: 2}
-  Itemlevel: 0
+  itemLevel: 0
   weapon: {fileID: 0}
   gear: {fileID: 0}
+  itemPV: {fileID: 0}
 --- !u!114 &286495005
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2064,7 +2090,6 @@ GameObject:
   - component: {fileID: 298502634}
   - component: {fileID: 298502633}
   - component: {fileID: 298502632}
-  - component: {fileID: 298502635}
   m_Layer: 0
   m_Name: Tilemap (0)
   m_TagString: Ground
@@ -18328,18 +18353,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!114 &298502635
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 298502628}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b00c5f8e0a9bbc4eab41a5dfc108233, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &323730653
 GameObject:
   m_ObjectHideFlags: 0
@@ -18767,9 +18780,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   data: {fileID: 11400000, guid: 2e41b80524cc6ff47ba986c4c4e3d6a5, type: 2}
-  Itemlevel: 0
+  itemLevel: 0
   weapon: {fileID: 0}
   gear: {fileID: 0}
+  itemPV: {fileID: 0}
 --- !u!114 &354402936
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19042,6 +19056,7 @@ GameObject:
   - component: {fileID: 388469699}
   - component: {fileID: 388469698}
   - component: {fileID: 388469697}
+  - component: {fileID: 388469700}
   m_Layer: 5
   m_Name: LevelUp
   m_TagString: Untagged
@@ -19082,6 +19097,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e447737139ef8447ac6cc2876723d9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  levelUpPV: {fileID: 388469700}
 --- !u!114 &388469698
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19120,6 +19136,28 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 388469695}
   m_CullTransparentMesh: 1
+--- !u!114 &388469700
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 388469695}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents: []
+  sceneViewId: 9
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
 --- !u!1 &411125868
 GameObject:
   m_ObjectHideFlags: 0
@@ -19130,7 +19168,6 @@ GameObject:
   m_Component:
   - component: {fileID: 411125870}
   - component: {fileID: 411125869}
-  - component: {fileID: 411125871}
   m_Layer: 0
   m_Name: Ground
   m_TagString: Untagged
@@ -19169,18 +19206,6 @@ Transform:
   - {fileID: 1475504250}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &411125871
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 411125868}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b00c5f8e0a9bbc4eab41a5dfc108233, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &412532722
 GameObject:
   m_ObjectHideFlags: 0
@@ -20855,18 +20880,6 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 830426603}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
       - m_Target: {fileID: 122712408}
         m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
         m_MethodName: SetActive
@@ -21318,8 +21331,8 @@ RectTransform:
   m_GameObject: {fileID: 830426603}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 0, y: 0, z: 0}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1784814297}
   - {fileID: 1933717468}
@@ -21346,6 +21359,7 @@ GameObject:
   - component: {fileID: 844398076}
   - component: {fileID: 844398075}
   - component: {fileID: 844398074}
+  - component: {fileID: 844398078}
   m_Layer: 5
   m_Name: Item 3
   m_TagString: Untagged
@@ -21389,9 +21403,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   data: {fileID: 11400000, guid: 2e41b80524cc6ff47ba986c4c4e3d6a5, type: 2}
-  Itemlevel: 0
+  itemLevel: 0
   weapon: {fileID: 0}
   gear: {fileID: 0}
+  itemPV: {fileID: 844398078}
 --- !u!114 &844398075
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -21486,6 +21501,29 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 844398072}
   m_CullTransparentMesh: 1
+--- !u!114 &844398078
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 844398072}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 0
+  ObservedComponents:
+  - {fileID: 844398074}
+  sceneViewId: 7
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
 --- !u!1 &845861934
 GameObject:
   m_ObjectHideFlags: 0
@@ -21587,18 +21625,6 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 830426603}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
       - m_Target: {fileID: 122712408}
         m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
         m_MethodName: SetActive
@@ -21722,13 +21748,14 @@ GameObject:
   - component: {fileID: 860527870}
   - component: {fileID: 860527871}
   - component: {fileID: 860527874}
+  - component: {fileID: 860527875}
   m_Layer: 0
   m_Name: PoolManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &860527869
 Transform:
   m_ObjectHideFlags: 0
@@ -21781,6 +21808,7 @@ MonoBehaviour:
   observableSearch: 0
   ObservedComponents:
   - {fileID: 860527870}
+  - {fileID: 860527875}
   sceneViewId: 2
   InstantiationId: 0
   isRuntimeInstantiated: 0
@@ -21811,6 +21839,22 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 3
+--- !u!114 &860527875
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 860527868}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 627855c7f81362d41938ffe0b1475957, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SynchronizePosition: 1
+  m_SynchronizeRotation: 1
+  m_SynchronizeScale: 0
+  m_UseLocal: 1
 --- !u!1 &882638456
 GameObject:
   m_ObjectHideFlags: 0
@@ -23206,7 +23250,6 @@ GameObject:
   - component: {fileID: 1093179274}
   - component: {fileID: 1093179273}
   - component: {fileID: 1093179272}
-  - component: {fileID: 1093179277}
   m_Layer: 0
   m_Name: Tilemap (2)
   m_TagString: Ground
@@ -39470,18 +39513,6 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
---- !u!114 &1093179277
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1093179270}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b00c5f8e0a9bbc4eab41a5dfc108233, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1102719569
 GameObject:
   m_ObjectHideFlags: 0
@@ -39896,6 +39927,7 @@ GameObject:
   - component: {fileID: 1197524077}
   - component: {fileID: 1197524076}
   - component: {fileID: 1197524075}
+  - component: {fileID: 1197524079}
   m_Layer: 5
   m_Name: Item 4
   m_TagString: Untagged
@@ -39939,9 +39971,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   data: {fileID: 11400000, guid: ad2f057a5b2b4ef4d81652f13e9fce65, type: 2}
-  Itemlevel: 0
+  itemLevel: 0
   weapon: {fileID: 0}
   gear: {fileID: 0}
+  itemPV: {fileID: 1197524079}
 --- !u!114 &1197524076
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -40036,6 +40069,29 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1197524073}
   m_CullTransparentMesh: 1
+--- !u!114 &1197524079
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1197524073}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 0
+  ObservedComponents:
+  - {fileID: 1197524075}
+  sceneViewId: 6
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
 --- !u!1 &1214258291
 GameObject:
   m_ObjectHideFlags: 0
@@ -41108,6 +41164,7 @@ MonoBehaviour:
   gameTime: 0
   maxGameTime: 300
   gameManagerPV: {fileID: 1383446452}
+  num: 0
   playerId: 0
   health: 0
   maxHealth: 100
@@ -41119,9 +41176,12 @@ MonoBehaviour:
   player: {fileID: 0}
   uiLevelUp: {fileID: 388469697}
   uiResult: {fileID: 2021725441}
+  uiGameStart: {fileID: 830426604}
   uiJoy: {fileID: 1085187955}
   enemyCleaner: {fileID: 1693453985}
   spawnPoint: {fileID: 101672802}
+  spawner: {fileID: 1590695608}
+  poolManager: {fileID: 860527868}
 --- !u!114 &1383446452
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -41141,6 +41201,7 @@ MonoBehaviour:
   OwnershipTransfer: 0
   observableSearch: 0
   ObservedComponents:
+  - {fileID: 1383446451}
   - {fileID: 1383446453}
   sceneViewId: 1
   InstantiationId: 0
@@ -41262,18 +41323,6 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 830426603}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
       - m_Target: {fileID: 122712408}
         m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
         m_MethodName: SetActive
@@ -41456,7 +41505,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bgmClip: {fileID: 8300000, guid: 4559935c00ef8e94b846e2e03e39f0d0, type: 3}
-  bgmVolume: 0.2
+  bgmVolume: 0
   sfxClips:
   - {fileID: 8300000, guid: 291608b8d286e2a4580ff36324455ce2, type: 3}
   - {fileID: 8300000, guid: 0bddcb411d826e14bb26d40ae45d8e22, type: 3}
@@ -41468,7 +41517,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 6f0c572d865b4664db7a460972bc4768, type: 3}
   - {fileID: 8300000, guid: 4b294d59d2399014daa718b35c9de73b, type: 3}
   - {fileID: 8300000, guid: 2c4bc183a5df5aa4baf7c4fcf236a2de, type: 3}
-  sfxVolume: 0.5
+  sfxVolume: 0
   channels: 16
 --- !u!1 &1423074549
 GameObject:
@@ -41901,6 +41950,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e447737139ef8447ac6cc2876723d9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  levelUpPV: {fileID: 0}
 --- !u!1 &1475504249
 GameObject:
   m_ObjectHideFlags: 0
@@ -41915,7 +41965,6 @@ GameObject:
   - component: {fileID: 1475504253}
   - component: {fileID: 1475504252}
   - component: {fileID: 1475504251}
-  - component: {fileID: 1475504256}
   m_Layer: 0
   m_Name: Tilemap (3)
   m_TagString: Ground
@@ -58179,18 +58228,6 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
---- !u!114 &1475504256
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1475504249}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b00c5f8e0a9bbc4eab41a5dfc108233, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &1478973509
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -59023,6 +59060,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1578850540}
   m_CullTransparentMesh: 1
+--- !u!1 &1590695608 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7185575206557553387, guid: 8a41a600d6039914c930f2f7b30a0896, type: 3}
+  m_PrefabInstance: {fileID: 1932888393}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1614439625
 GameObject:
   m_ObjectHideFlags: 0
@@ -59877,9 +59919,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   data: {fileID: 11400000, guid: ad2f057a5b2b4ef4d81652f13e9fce65, type: 2}
-  Itemlevel: 0
+  itemLevel: 0
   weapon: {fileID: 0}
   gear: {fileID: 0}
+  itemPV: {fileID: 0}
 --- !u!114 &1750810860
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -60300,9 +60343,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   data: {fileID: 11400000, guid: 4981fbcc6db012e44bf42bd6511c3951, type: 2}
-  Itemlevel: 0
+  itemLevel: 0
   weapon: {fileID: 0}
   gear: {fileID: 0}
+  itemPV: {fileID: 0}
 --- !u!114 &1801633362
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -60571,6 +60615,7 @@ GameObject:
   - component: {fileID: 1854378352}
   - component: {fileID: 1854378351}
   - component: {fileID: 1854378350}
+  - component: {fileID: 1854378354}
   m_Layer: 5
   m_Name: Item 0
   m_TagString: Untagged
@@ -60614,9 +60659,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   data: {fileID: 11400000, guid: a7db7dd96bd54b645bce9756beb2e30c, type: 2}
-  Itemlevel: 0
+  itemLevel: 0
   weapon: {fileID: 0}
   gear: {fileID: 0}
+  itemPV: {fileID: 1854378354}
 --- !u!114 &1854378351
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -60711,6 +60757,29 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1854378348}
   m_CullTransparentMesh: 1
+--- !u!114 &1854378354
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1854378348}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 0
+  ObservedComponents:
+  - {fileID: 1854378350}
+  sceneViewId: 4
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
 --- !u!1 &1856827778
 GameObject:
   m_ObjectHideFlags: 0
@@ -61485,6 +61554,75 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1927790891}
   m_CullTransparentMesh: 1
+--- !u!1001 &1932888393
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 2692797424264722961, guid: 8a41a600d6039914c930f2f7b30a0896, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2692797424264722961, guid: 8a41a600d6039914c930f2f7b30a0896, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2692797424264722961, guid: 8a41a600d6039914c930f2f7b30a0896, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2692797424264722961, guid: 8a41a600d6039914c930f2f7b30a0896, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2692797424264722961, guid: 8a41a600d6039914c930f2f7b30a0896, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2692797424264722961, guid: 8a41a600d6039914c930f2f7b30a0896, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2692797424264722961, guid: 8a41a600d6039914c930f2f7b30a0896, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2692797424264722961, guid: 8a41a600d6039914c930f2f7b30a0896, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2692797424264722961, guid: 8a41a600d6039914c930f2f7b30a0896, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2692797424264722961, guid: 8a41a600d6039914c930f2f7b30a0896, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3048995431844120110, guid: 8a41a600d6039914c930f2f7b30a0896, type: 3}
+      propertyPath: sceneViewId
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7185575206557553387, guid: 8a41a600d6039914c930f2f7b30a0896, type: 3}
+      propertyPath: m_Name
+      value: Spawner
+      objectReference: {fileID: 0}
+    - target: {fileID: 7185575206557553387, guid: 8a41a600d6039914c930f2f7b30a0896, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7185575206557553387, guid: 8a41a600d6039914c930f2f7b30a0896, type: 3}
+      propertyPath: m_TagString
+      value: Spawner
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 8a41a600d6039914c930f2f7b30a0896, type: 3}
 --- !u!1 &1933717467
 GameObject:
   m_ObjectHideFlags: 0
@@ -61753,18 +61891,6 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 830426603}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
       - m_Target: {fileID: 122712408}
         m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
         m_MethodName: SetActive
@@ -62619,7 +62745,6 @@ GameObject:
   - component: {fileID: 2100936446}
   - component: {fileID: 2100936445}
   - component: {fileID: 2100936444}
-  - component: {fileID: 2100936449}
   m_Layer: 0
   m_Name: Tilemap (1)
   m_TagString: Ground
@@ -78883,18 +79008,6 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
---- !u!114 &2100936449
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2100936442}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b00c5f8e0a9bbc4eab41a5dfc108233, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &2108704621
 GameObject:
   m_ObjectHideFlags: 0
@@ -79057,9 +79170,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   data: {fileID: 11400000, guid: a7db7dd96bd54b645bce9756beb2e30c, type: 2}
-  Itemlevel: 0
+  itemLevel: 0
   weapon: {fileID: 0}
   gear: {fileID: 0}
+  itemPV: {fileID: 0}
 --- !u!1 &2117375796
 GameObject:
   m_ObjectHideFlags: 0
@@ -79073,6 +79187,7 @@ GameObject:
   - component: {fileID: 2117375800}
   - component: {fileID: 2117375799}
   - component: {fileID: 2117375798}
+  - component: {fileID: 2117375802}
   m_Layer: 5
   m_Name: Item 1
   m_TagString: Untagged
@@ -79116,9 +79231,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   data: {fileID: 11400000, guid: df4e6c2a0bfe3e948b9f356d40f8c431, type: 2}
-  Itemlevel: 0
+  itemLevel: 0
   weapon: {fileID: 0}
   gear: {fileID: 0}
+  itemPV: {fileID: 2117375802}
 --- !u!114 &2117375799
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -79213,6 +79329,29 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2117375796}
   m_CullTransparentMesh: 1
+--- !u!114 &2117375802
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2117375796}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 0
+  ObservedComponents:
+  - {fileID: 2117375798}
+  sceneViewId: 5
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
 --- !u!1 &2126635785
 GameObject:
   m_ObjectHideFlags: 0
@@ -79573,6 +79712,7 @@ SceneRoots:
   - {fileID: 1833145266}
   - {fileID: 1383446450}
   - {fileID: 860527869}
+  - {fileID: 1932888393}
   - {fileID: 554262863}
   - {fileID: 411125870}
   - {fileID: 243875355}

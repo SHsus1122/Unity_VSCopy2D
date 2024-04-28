@@ -3,9 +3,11 @@ using Photon.Realtime;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using System.Threading;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
 {
@@ -25,13 +27,22 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
         //player = GetComponentInParent<Player>();
 
         // [변경된 방식] 플레이어 초기화에 매개변수가 들어감으로 인해 처음 초기화는 게임 매니저를 활용하는 것으로 변경합니다.
-        player = GameManager.Instance.player;
-        transform.parent = player.GetComponentsInChildren<Transform>()[0];
+        //if (!weaponPV.IsMine)
+        //    return;
     }
+
+
+
+    private void Start()
+    {
+        //player = GameManager.Instance.player;
+    }
+
+
 
     void Update()
     {
-        if (!GameManager.Instance.isLive)
+        if (!GameManager.Instance.isLive && !weaponPV.IsMine)
             return;
 
         switch (id)
@@ -47,17 +58,13 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
                 {
                     timer = 0f;
                     Fire();
-                } 
+                }
                 break;
-        }
-
-        // 강화 시스템 테스트 코드
-        if (Input.GetButtonDown("Jump"))
-        {
-            WeaponLevelUp(10, 1);
         }
     }
 
+
+    [PunRPC]
     public void WeaponLevelUp(float damage, int count)
     {
         this.damage = damage * Character.Damage;
@@ -72,13 +79,31 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
 
     // 초기화 함수에 만들어둔 스크립트블 오브젝트를 매개변수로 받아서 활용합니다.
     [PunRPC]
-    public void Init(ItemData data)
+    public void Init(ItemData data, Weapon weapon)
     {
-        Debug.Log("[ Weapon ] Init Call");
+        Debug.Log("[ Weapon ] IsLocalPlayer : " + PhotonNetwork.LocalPlayer.IsLocal);
+        if (!PhotonNetwork.LocalPlayer.IsLocal && !weaponPV.IsMine)
+            return;
+
+        string ownerName = weapon.weaponPV.Owner.NickName;
+        foreach (Player pl in GameManager.Instance.playerList)
+        {
+            if (pl.playerPV.Owner.NickName == ownerName)
+            {
+                weapon.transform.parent = pl.transform;
+                player = pl;
+            }
+        }
+
+        weapon.transform.localPosition = Vector3.zero;
+
+        Debug.Log("[ Weapon ] weapon is : " + weapon.name);
+        Debug.Log("[ Weapon ] player is : " + player.name);
+
         // Basic Set
         name = "Weapon " + data.itemId;         // Weapon 이름 설정, 클래스 자체 변수
-        transform.parent = player.transform;    // 위에서 만든 Player변수는 Weapon을 소유중인 부모 오브젝트를 지정
-        transform.localPosition = Vector3.zero; // 플레이어 안에서 생성되기에 지역 위치에 해당하는 localposition을 사용
+        //transform.parent = player.transform;    // 위에서 만든 Player변수는 Weapon을 소유중인 부모 오브젝트를 지정
+        //transform.localPosition = Vector3.zero; // 플레이어 안에서 생성되기에 지역 위치에 해당하는 localposition을 사용
 
         // Property Set
         // 각종 무기 속성들은 스크립트블 오브젝트의 데이터로 초기화 작업(셋팅값을 가져오기 위해서)
@@ -163,14 +188,9 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
         }
     }
 
+
+
     [PunRPC]
-    void BatchRPC()
-    {
-        
-    }
-
-
-
     void Fire()
     {
         if (!player.scanner.nearestTarget)
@@ -196,6 +216,15 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
-    
+        if (stream.IsWriting)   // IsMine == true
+        {
+            stream.SendNext(transform.position);
+            stream.SendNext(transform.rotation);
+        }
+        else  // IsMine == false
+        {
+            transform.position = (Vector3)stream.ReceiveNext();
+            transform.rotation = (Quaternion)stream.ReceiveNext();
+        }
     }
 }

@@ -17,16 +17,11 @@ public class Bullet : MonoBehaviourPunCallbacks, IPunObservable
         rigid = GetComponent<Rigidbody2D>();
     }
 
-    
-    public void Init(float damage, int per, Vector3 dir)
-    {
-        bulletPV.RPC("InitRPC", RpcTarget.AllBuffered, damage, per, dir);
-    }
+
 
     [PunRPC]
-    public void InitRPC(float damage, int per, Vector3 dir)
+    public void Init(float damage, int per, Vector3 dir)
     {
-        
         this.damage = damage;
         this.per = per;
 
@@ -41,8 +36,9 @@ public class Bullet : MonoBehaviourPunCallbacks, IPunObservable
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (!collision.CompareTag("Enemy") || per == -100)
+        if (!collision.CompareTag("Enemy") || per <= -100)
             return;
+        Debug.Log("[ Bullet ] OnTriggerEnter2D Target is : " + collision.name);
 
         CheckTriggerEnter2D();
 
@@ -72,7 +68,7 @@ public class Bullet : MonoBehaviourPunCallbacks, IPunObservable
     // 총알이 플레이어가 가지고있는 Area영역 밖으로 벗어나면 날아가던 투사체를 비활성화 해줍니다.
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (!collision.CompareTag("Area") || per == -100)
+        if (!collision.CompareTag("Area") || per <= -100)
             return;
 
         gameObject.SetActive(false);
@@ -82,6 +78,15 @@ public class Bullet : MonoBehaviourPunCallbacks, IPunObservable
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
-
+        if (stream.IsWriting)
+        {
+            stream.SendNext(transform.position);
+            stream.SendNext(transform.rotation);
+        }
+        else
+        {
+            transform.position = (Vector3)stream.ReceiveNext();
+            transform.rotation = (Quaternion)stream.ReceiveNext();
+        }
     }
 }

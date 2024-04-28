@@ -1,4 +1,6 @@
 ﻿using Photon.Pun;
+using Photon.Pun.Demo.PunBasics;
+using Photon.Realtime;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,6 +16,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     public float gameTime;
     public float maxGameTime = 2 * 10f; // 20초
     public PhotonView gameManagerPV;
+    public int num = 0;
 
     [Header("# Player Info")]
     public int playerId;
@@ -27,11 +30,15 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     [Header("# Game Object")]
     public PoolManager pool;
     public Player player;
+    public List<Player> playerList = new List<Player>();
     public LevelUp uiLevelUp;
     public Result uiResult;
+    public Transform uiGameStart;
     public Transform uiJoy;
     public GameObject enemyCleaner;
     public Transform spawnPoint;
+    public GameObject spawner;
+    public GameObject poolManager;
 
     void Awake()
     {
@@ -43,22 +50,31 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
 
     // ========================================== [ 게임 시작 ]
+    //public void GameStart(int id)
+    //{
+    //    gameManagerPV.RPC("GameStartRPC", RpcTarget.All, id);
+    //}
+
+    //[PunRPC]
     public void GameStart(int id)
     {
-        gameManagerPV.RPC("GameStartRPC", RpcTarget.All, id);
-    }
+        if (!PhotonNetwork.LocalPlayer.IsLocal && !PhotonNetwork.IsMasterClient)
+            return;
 
-    [PunRPC]
-    public void GameStartRPC(int id)
-    {
         playerId = id;                      // 캐릭터 종류 ID
         health = maxHealth;                 // 초기 체력 설정
 
-        GameObject playerPrefab = PhotonNetwork.Instantiate("Player", spawnPoint.transform.position, Quaternion.identity);
-        player = playerPrefab.GetComponent<Player>();
+        //GameObject playerPrefab = PhotonNetwork.Instantiate("Player", spawnPoint.transform.position, Quaternion.identity);
+        //player = playerPrefab.GetComponent<Player>();
+        //player.transform.name = "Player" + player.playerPV.OwnerActorNr;
+        playerList.Add(player);
+
+        poolManager.SetActive(true);
+        spawner.SetActive(true);
 
         uiLevelUp.Show();
         uiLevelUp.Select(playerId % 2);     // 기존 무기 지급을 위한 함수 호출 -> 캐릭터 ID로 변경
+        uiGameStart.localScale = Vector3.zero;
         gameManagerPV.RPC("Resume", RpcTarget.All);
 
         AudioManager.instance.PlayBgm(true);                    // 게임 배경음 재생
@@ -100,7 +116,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
         // UI 활성화 및 승리 UI 표시
         uiResult.gameObject.SetActive(true);
-        uiResult.Win(); 
+        uiResult.Win();
         Stop();
 
         AudioManager.instance.PlayBgm(false);                  // 게임 배경음 재생
@@ -171,7 +187,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     {
         isLive = false;
         Time.timeScale = 0; // 유니티의 시간 속도(배율)
-        uiJoy.localScale = Vector3.zero;
+        //uiJoy.localScale = Vector3.zero;
     }
 
     [PunRPC]
@@ -180,7 +196,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         Debug.Log("=============== Call Resume ===============");
         isLive = true;
         Time.timeScale = 1;
-        uiJoy.localScale = Vector3.one;
+        //uiJoy.localScale = Vector3.one;
     }
 
 

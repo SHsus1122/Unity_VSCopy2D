@@ -1,16 +1,18 @@
-﻿using Photon.Pun;
+﻿using ExitGames.Client.Photon;
+using Photon.Pun;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Item : MonoBehaviourPunCallbacks
+public class Item : MonoBehaviourPunCallbacks, IPunObservable
 {
     public ItemData data;
-    public int Itemlevel;
+    public int itemLevel;
     public Weapon weapon;
     public Gear gear;
+    public PhotonView itemPV;
 
     Image icon;
     Text textLevel;
@@ -30,6 +32,9 @@ public class Item : MonoBehaviourPunCallbacks
         textDesc = texts[2];
 
         textName.text = data.itemName;
+
+        itemPV = GetComponent<PhotonView>();
+        //PhotonPeer.RegisterType(typeof(ItemData), 0, ItemData.Ser, ItemData.Deserialize);
     }
 
     private void OnEnable()
@@ -39,18 +44,18 @@ public class Item : MonoBehaviourPunCallbacks
 
     void ItemInfoUpdate()
     {
-        nowLevel = Itemlevel - 1;
+        nowLevel = itemLevel - 1;
 
         switch (data.itemType)
         {
             case ItemData.ItemType.Melee:
             case ItemData.ItemType.Range:
-                textLevel.text = "Lv." + Itemlevel;
+                textLevel.text = "Lv." + itemLevel;
                 textDesc.text = string.Format(data.itemDesc, data.damages[nowLevel] * 100, data.counts[nowLevel]);
                 break;
             case ItemData.ItemType.Glove:
             case ItemData.ItemType.Shoe:
-                textLevel.text = "Lv." + Itemlevel;
+                textLevel.text = "Lv." + itemLevel;
                 textDesc.text = string.Format(data.itemDesc, data.damages[nowLevel] * 100);
                 break;
             case ItemData.ItemType.Heal:
@@ -59,8 +64,9 @@ public class Item : MonoBehaviourPunCallbacks
         }
     }
 
+
+
     // 사용자가 Button UI 를 통해서 클릭 이벤트로 레벨업을 통해 능력치 활성화 및 강화에 사용할 함수입니다.
-    [PunRPC]
     public void OnClick()
     {
         if (GameManager.Instance.player.Cost < 1) 
@@ -74,7 +80,10 @@ public class Item : MonoBehaviourPunCallbacks
             // 아래처럼 case문 두 개를 동시에 사용하는 방법도 있습니다.
             case ItemData.ItemType.Melee:
             case ItemData.ItemType.Range:
-                if (Itemlevel == 0)
+                if (PhotonNetwork.LocalPlayer.ActorNumber != GameManager.Instance.player.playerPV.Owner.ActorNumber)
+                    return;
+
+                if (itemLevel == 0)
                 {
                     Debug.Log("==== [ Item ] level.Melee, Range 0 으로 첫 시작부");
                     // level이 0인 즉, 처음 초기값의 실행부입니다. 
@@ -82,7 +91,14 @@ public class Item : MonoBehaviourPunCallbacks
                     //weapon = newWeapon.AddComponent<Weapon>();  // 새롭게 컴포넌트를 추가해서 현재 무기에 대입
 
                     weapon = PhotonNetwork.Instantiate("Weapon", transform.position, Quaternion.identity).GetComponent<Weapon>();
-                    weapon.Init(data);
+                    //weapon.transform.name = "Weapon" + GameManager.Instance.num;
+                    //GameManager.Instance.num++;
+                    //weapon.transform.parent = GameManager.Instance.player.transform;
+                    //weapon.transform.localPosition = Vector3.zero;
+
+                    //Debug.Log("[ Item ] parent is : " + weapon.transform.parent.name);
+                    //Debug.Log("[ Item ] weapon is : " + GameManager.Instance.player.transform.name);
+                    weapon.Init(data, weapon);
                 }
                 else
                 {
@@ -91,19 +107,19 @@ public class Item : MonoBehaviourPunCallbacks
                     int nextCount = 0;
 
                     // 처음 이후의 레벨업은 데미지와 횟수를 계산해서 적용합니다. 결과는 백분율이기에 곱하기 계산입니다.
-                    Debug.Log("data.baseDamage : " + data.baseDamage + ", data.damages : " + data.damages[Itemlevel]);
-                    nextDamage += data.baseDamage * data.damages[Itemlevel];    // 데미지 관련
-                    nextCount += data.counts[Itemlevel];                        // 횟수와 관통 관련
+                    Debug.Log("data.baseDamage : " + data.baseDamage + ", data.damages : " + data.damages[itemLevel]);
+                    nextDamage += data.baseDamage * data.damages[itemLevel];    // 데미지 관련
+                    nextCount += data.counts[itemLevel];                        // 횟수와 관통 관련
 
                     weapon.WeaponLevelUp(nextDamage, nextCount);
                 }
 
                 // 위의 과정을 거치고 나면 level업 처리를 진행합니다.
-                Itemlevel++;
+                itemLevel++;
                 break;
             case ItemData.ItemType.Glove:
             case ItemData.ItemType.Shoe:
-                if (Itemlevel == 0)
+                if (itemLevel == 0)
                 {
                     Debug.Log("==== [ Item ] level.Glove, Shoe 0 으로 첫 시작부");
                     GameObject newGear = new GameObject();
@@ -113,12 +129,12 @@ public class Item : MonoBehaviourPunCallbacks
                 else
                 {
                     Debug.Log("==== [ Item ] level.Glove, Shoe 레벨업 이후 시작부");
-                    float nextRate = data.damages[Itemlevel];
+                    float nextRate = data.damages[itemLevel];
                     gear.GearLevelUp(nextRate);
                 }
 
                 // 위의 과정을 거치고 나면 level업 처리를 진행합니다.
-                Itemlevel++;
+                itemLevel++;
                 break;
             case ItemData.ItemType.Heal:
                 Debug.Log("==== [ Item ] level.Heal 호출");
@@ -134,5 +150,11 @@ public class Item : MonoBehaviourPunCallbacks
             GetComponent<Button>().interactable = false;
         }*/
         ItemInfoUpdate();
+    }
+
+
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        
     }
 }

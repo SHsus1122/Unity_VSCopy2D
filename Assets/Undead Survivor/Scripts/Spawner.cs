@@ -1,4 +1,5 @@
 ﻿using Photon.Pun;
+using Photon.Pun.UtilityScripts;
 using Photon.Realtime;
 using System.Collections;
 using System.Collections.Generic;
@@ -18,8 +19,13 @@ public class Spawner : MonoBehaviourPunCallbacks, IPunObservable
     {
         // 마찬가지로 초기화 작업 선행
         spawnPoint = GetComponentsInChildren<Transform>();
+        SpawnerPV = GetComponent<PhotonView>();
+    }
 
+    private void Start()
+    {
         // 최대 시간에 따라 몬스터 데이터 크기로 나누어 자동으로 구간 시간 계산을 합니다.
+        Debug.Log("[ Spawner ] GameManager.Instance.maxGameTime : " + GameManager.Instance.maxGameTime);
         levelTime = GameManager.Instance.maxGameTime / spawnData.Length;
     }
 
@@ -35,20 +41,28 @@ public class Spawner : MonoBehaviourPunCallbacks, IPunObservable
         if (timer > spawnData[level].spawnTime)
         {
             timer = 0f;
-            SpawnerPV.RPC("SpawnRPC", RpcTarget.MasterClient);
+            Spawn();
         }
     }
 
-    [PunRPC]
-    void SpawnRPC()
+    void Spawn()
     {
+        if (!PhotonNetwork.IsMasterClient)
+            return;
+
         // 0~1 사이의 랜덤 숫자를 이용
         GameObject enemy = GameManager.Instance.pool.Get(0);
-        Debug.Log("enemy is name : " + enemy.name);
+        Debug.Log("[ Spawner ] enemy is name : " + enemy.name);
 
         // 자식 오브젝트에서만 선택되도록 랜덤 시작은 1로 지정합니다.(Spanwer의 자식으로 포인트가 존재하기에 0번째는 Spanwer입니다)
         enemy.transform.position = spawnPoint[Random.Range(1, spawnPoint.Length)].position;
-        enemy.GetComponent<Enemy>().Init(spawnData[level]);
+        enemy.GetComponent<Enemy>().enemyPV.RPC("InitRPC", RpcTarget.All, 
+            spawnData[level].spawnTime,
+            spawnData[level].spriteType,
+            spawnData[level].health,
+            spawnData[level].speed);
+
+        Debug.Log("[ Spawner ] Sprite Type is : " + spawnData[level].spriteType);
     }
 
 

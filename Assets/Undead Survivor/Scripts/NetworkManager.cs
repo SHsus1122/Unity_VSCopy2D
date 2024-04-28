@@ -4,10 +4,7 @@ using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine.UI;
-using UnityEditor;
-using System;
-using UnityEngine.SceneManagement;
-using System.Text;
+using Photon.Pun.Demo.PunBasics;
 
 // MonoBehaviourPunCallbacks 를 사용하기 위한 선행 using Photon.Pun, Realtime
 public class NetworkManager : MonoBehaviourPunCallbacks
@@ -91,16 +88,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public void LeaveRoom() => PhotonNetwork.LeaveRoom();
 
 
-    public override void OnPlayerEnteredRoom(Player newPlayer)
-    {
-        Debug.Log("OnPlayerEnteredRoom Call");
-    }
-
-    public override void OnPlayerLeftRoom(Player otherPlayer)
-    {
-        Debug.Log("OnPlayerLeftRoom Call");
-    }
-
     public override void OnLeftRoom()
     {
         uiRoom.SetActive(false);
@@ -120,6 +107,15 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         print("방 참가 완료");
         uiLobby.SetActive(false);
         uiRoom.SetActive(true);
+        uiRoom.transform.localScale = Vector3.one;
+
+        if (PlayerManager.LocalPlayerInstance == null)
+        {
+            GameObject playerPrefab = PhotonNetwork.Instantiate("Player", spawnPoint.transform.position, Quaternion.identity);
+            Player player = playerPrefab.GetComponent<Player>();
+            player.transform.name = "Player" + player.playerPV.OwnerActorNr;
+            GameManager.Instance.player = player;
+        }
     }
 
 

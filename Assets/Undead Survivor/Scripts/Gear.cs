@@ -1,12 +1,14 @@
-﻿using System.Collections;
+﻿using Photon.Pun;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 // 장갑 관련 클래스
-public class Gear : MonoBehaviour
+public class Gear : MonoBehaviourPunCallbacks
 {
     public ItemData.ItemType type;
     public float rate;
+
 
     public void Init(ItemData data)
     {
