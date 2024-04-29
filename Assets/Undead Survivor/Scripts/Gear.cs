@@ -8,13 +8,15 @@ public class Gear : MonoBehaviourPunCallbacks
 {
     public ItemData.ItemType type;
     public float rate;
+    public Player player;
 
 
-    public void Init(ItemData data)
+    public void Init(ItemData data, Player newPlayer)
     {
         // Basic Set
+        player = newPlayer;
         name = "Gear " + data.itemId;
-        transform.parent = GameManager.Instance.player.transform;
+        transform.parent = player.transform;
         transform.localPosition = Vector3.zero;
 
         // Property Set
@@ -55,11 +57,11 @@ public class Gear : MonoBehaviourPunCallbacks
             {
                 // case 0번은 근접무기인 Melee
                 case 0:
-                    float speed = 150 * Character.WeaponSpeed;
+                    float speed = 150 * player.character.GetWeaponSpeed();
                     weapon.speed = speed + (speed * rate);  // 회전 속도 
                     break;
                 default:
-                    speed = 0.5f * Character.WeaponRate;
+                    speed = 0.5f * player.character.GetWeaponRate();
                     weapon.speed = speed * (1f - rate);  // 원거리 무기 발사 속도
                     break;
             }
@@ -69,7 +71,7 @@ public class Gear : MonoBehaviourPunCallbacks
     // 신발의 기능인 플레이어의 이동속도를 올리는 함수
     void SpeedUp()
     {
-        float speed = 3 * Character.Speed;  // 캐릭터 고유속성 함께 적용
-        GameManager.Instance.player.speed = speed + (speed * rate);
+        float speed = 3 * player.character.GetSpeed();  // 캐릭터 고유속성 함께 적용
+        player.speed = speed + (speed * rate);
     }
 }

@@ -12,6 +12,7 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
     public RuntimeAnimatorController[] animCon; // Sprite 즉, 적의 종류(타입) 변경을 위한 변수
     public Rigidbody2D target;
     public PhotonView enemyPV;
+    public ScannerPlayer scanner;
 
     bool isLive;
 
@@ -30,14 +31,26 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
         coll = GetComponent<Collider2D>();
         anim = GetComponent<Animator>();
         spriter = GetComponent<SpriteRenderer>();
+        scanner = GetComponent<ScannerPlayer>();
         wait = new WaitForFixedUpdate();
     }
 
 
 
+    void FindNearestTarget()
+    {
+
+    }
+
+    private void Update()
+    {
+        if (target == null && isLive)
+            target = scanner.nearestTarget.GetComponent<Rigidbody2D>();
+    }
+
     void FixedUpdate()
     {
-        if (!GameManager.Instance.isLive)
+        if (!GameManager.instance.isGameLive)
             return;
 
         enemyPV.RPC("UpdatePosRPC", RpcTarget.AllBuffered);
@@ -71,7 +84,7 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
 
     void LateUpdate()
     {
-        if (!isLive || !GameManager.Instance.isLive)
+        if (!isLive || !GameManager.instance.isGameLive)
             return;
 
         enemyPV.RPC("UpdateFlipXRPC", RpcTarget.AllBuffered);
@@ -90,8 +103,9 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
     // 스크립트가 활성화 될 때, 호출되는 함수
     void OnEnable()
     {
-        // 기존에 계층구조에서 Player에 지정하던 것이 현재는 프리펩으로 변경되었기에 이처럼 지정해줍니다.
-        target = GameManager.Instance.player.GetComponent<Rigidbody2D>();
+        Player targetPlayer = PlayerManager.instance.playerList[Random.Range(0, GameManager.instance.playerList.Count)];
+        target = targetPlayer.GetComponent<Rigidbody2D>();
+        
         isLive = true;                  // 생존 상태 변경
         coll.enabled = true;            // 콜라이더 비활성화
         rigid.simulated = true;         // 물리(움직임) 비활성화
@@ -129,12 +143,13 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
         enemyMaxHealth = health;
         enemyHealth = health;
 
-        transform.parent = GameManager.Instance.poolManager.gameObject.transform;
+        this.transform.parent = GameManager.instance.poolManager.gameObject.transform;
     }
 
 
 
     // 적의 충돌 이벤트 관련 처리용 함수
+    [PunRPC]
     private void OnTriggerEnter2D(Collider2D collision)
     {
         // 사망 로직이 연달아 실행되는 것을 방지하기 위해서 !isLive 조건을 추가
@@ -142,14 +157,9 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
         if (!collision.CompareTag("Bullet") || !isLive)
             return;
 
-        enemyHealth -= collision.GetComponent<Bullet>().damage;  // 데미지 처리
-        enemyPV.RPC("OnTriggerEnter2DRPC", RpcTarget.AllBuffered);
-    }
+        enemyHealth -= collision.GetComponent<Bullet>().damage; // 데미지 처리
 
-    [PunRPC]
-    void OnTriggerEnter2DRPC()
-    {
-        StartCoroutine(KnockBack());                        // 물리력 발생 함수 호출
+        StartCoroutine(KnockBack(collision));                   // 물리력 발생 함수 호출
 
         if (enemyHealth > 0)
         {
@@ -165,23 +175,53 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
             anim.SetBool("Dead", true); // 애니메이터 파라메터 상태 변경
 
             // 경험치 적용을 위한 코드
-            GameManager.Instance.kill++;
-            GameManager.Instance.GetExp();
+            collision.GetComponentInParent<Player>().kill++;
+            collision.GetComponentInParent<Player>().GetExp(collision.GetComponentInParent<Player>());
 
             // 분기문으로 플레이어가 생존함에 따라 최종 결과에서 몬스터들이 전부 사망시 다량의 사망 효과음 재생을 방지합니다.
-            if (GameManager.Instance.isLive)
+            if (collision.GetComponentInParent<Player>().isPlayerLive)
                 AudioManager.instance.PlaySfx(AudioManager.Sfx.Dead);   // 사망 효과음 재생
         }
     }
 
+    //[PunRPC]
+    //void OnTriggerEnter2DRPC()
+    //{
+    //    StartCoroutine(KnockBack());                        // 물리력 발생 함수 호출
+
+    //    if (enemyHealth > 0)
+    //    {
+    //        anim.SetTrigger("Hit");
+    //        AudioManager.instance.PlaySfx(AudioManager.Sfx.Hit);   // 피격 효과음 재생
+    //    }
+    //    else
+    //    {
+    //        isLive = false;             // 생존 상태 변경
+    //        coll.enabled = false;       // 콜라이더 비활성화
+    //        rigid.simulated = false;    // 물리(움직임) 비활성화
+    //        spriter.sortingOrder = 1;   // 표현 우선순위 변경
+    //        anim.SetBool("Dead", true); // 애니메이터 파라메터 상태 변경
+
+    //        // 경험치 적용을 위한 코드
+    //        GameManager.Instance.kill++;
+    //        GameManager.Instance.GetExp();
+
+    //        // 분기문으로 플레이어가 생존함에 따라 최종 결과에서 몬스터들이 전부 사망시 다량의 사망 효과음 재생을 방지합니다.
+    //        if (GameManager.Instance.isLive)
+    //            AudioManager.instance.PlaySfx(AudioManager.Sfx.Dead);   // 사망 효과음 재생
+    //    }
+    //}
+
 
 
     // 코루틴만의 반환형 인터페이스
-    IEnumerator KnockBack()
+
+
+    IEnumerator KnockBack(Collider2D collision)
     {
         // null 을 리턴할 경우 1 프레임 쉬기
         yield return null;  // 다음 하나의 물리 프레임까지 기다리는 딜레이
-        Vector3 playerPos = GameManager.Instance.player.transform.position;
+        Vector3 playerPos = collision.GetComponentInParent<Player>().transform.position;
         Vector3 dirVec = transform.position - playerPos;    // 플레이어로부터 반대의 방향
         rigid.AddForce(dirVec.normalized * 3f, ForceMode2D.Impulse);    // Impulse : 즉시 발동(물리력)
     }

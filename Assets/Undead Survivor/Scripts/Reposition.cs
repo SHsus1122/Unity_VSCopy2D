@@ -4,11 +4,13 @@ using UnityEngine;
 
 public class Reposition : MonoBehaviour
 {
+    public Player player;
     Collider2D coll;
 
     void Awake()
     {
         coll = GetComponent<Collider2D>();
+        player = GetComponent<Player>();
     }
 
     /*void Start()
@@ -25,7 +27,7 @@ public class Reposition : MonoBehaviour
             return;
 
         // 플레이어 위치와 타일맵 위치
-        Vector3 playerPos = GameManager.Instance.player.transform.position;
+        Vector3 playerPos = player.transform.position;
         Vector3 myPos = transform.position;
 
         // 스위치문을 통해서 태그에 따라 처리를 다르게 가져갑니다.

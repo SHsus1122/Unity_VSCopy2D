@@ -1,13 +1,6 @@
 ﻿using Photon.Pun;
 using Photon.Realtime;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Security.Cryptography;
-using System.Threading;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
 {
@@ -17,9 +10,11 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
     public int count;       // 개수
     public float speed;     // 속도
     public PhotonView weaponPV;
+    //public Player player;
+    public GameObject playerObject;
+    public Player player;
 
     float timer;
-    Player player;
 
     void Awake()
     {
@@ -32,17 +27,12 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
     }
 
 
-
-    private void Start()
-    {
-        //player = GameManager.Instance.player;
-    }
-
-
-
     void Update()
     {
-        if (!GameManager.Instance.isLive && !weaponPV.IsMine)
+        if (player == null)
+            return;
+
+        if (!player.isPlayerLive && !weaponPV.IsMine)
             return;
 
         switch (id)
@@ -67,7 +57,7 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
     [PunRPC]
     public void WeaponLevelUp(float damage, int count)
     {
-        this.damage = damage * Character.Damage;
+        this.damage = damage * player.character.GetDamage();
         this.count += count;
 
         if (id == 0)
@@ -85,16 +75,7 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
         if (!PhotonNetwork.LocalPlayer.IsLocal && !weaponPV.IsMine)
             return;
 
-        string ownerName = weapon.weaponPV.Owner.NickName;
-        foreach (Player pl in GameManager.Instance.playerList)
-        {
-            if (pl.playerPV.Owner.NickName == ownerName)
-            {
-                weapon.transform.parent = pl.transform;
-                player = pl;
-            }
-        }
-
+        weapon.transform.parent = player.transform;
         weapon.transform.localPosition = Vector3.zero;
 
         Debug.Log("[ Weapon ] weapon is : " + weapon.name);
@@ -108,14 +89,14 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
         // Property Set
         // 각종 무기 속성들은 스크립트블 오브젝트의 데이터로 초기화 작업(셋팅값을 가져오기 위해서)
         id = data.itemId;
-        damage = data.baseDamage * Character.Damage;
-        count = data.baseCount + Character.Count;
+        damage = data.baseDamage * player.character.GetDamage();
+        count = data.baseCount + player.character.GetCount();
 
         // prefabId 를 찾기위한 반복문입니다.
         // 프리펩의 종류만큼 들고와서 순회시킵니다.(즉, 등록된 모든 프리펩을 순회합니다)
-        for (int index = 0; index < GameManager.Instance.pool.prefabs.Length; index++)
+        for (int index = 0; index < GameManager.instance.pool.prefabs.Length; index++)
         {
-            if (data.projectile == GameManager.Instance.pool.prefabs[index])
+            if (data.projectile == GameManager.instance.pool.prefabs[index])
             {
                 prefabId = index;
                 break;
@@ -126,12 +107,12 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
         {
             case 0:
                 // speed : 회전방향 및 속도
-                speed = 150 * Character.WeaponSpeed;
+                speed = 150 * player.character.GetWeaponSpeed();
                 Batch();
                 break;
             default:
                 // 발사 속도
-                speed = 0.5f * Character.WeaponRate;
+                speed = 0.5f * player.character.GetWeaponRate();
                 break;
         }
 
@@ -152,6 +133,7 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
     [PunRPC]
     void Batch()
     {
+        Debug.Log("[ Weapon ] Batch Call");
         for (int index = 0; index < count; index++)
         {
             Transform bullet;
@@ -164,7 +146,8 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
             }
             else
             {
-                bullet = GameManager.Instance.pool.Get(prefabId).transform;
+                Debug.Log("[ Weapon ] Batch prefabId is : " + prefabId);
+                bullet = GameManager.instance.pool.Get(prefabId).transform;
                 bullet.parent = transform;
                 Debug.Log(bullet.name + "'s parent is " + bullet.parent.name);
             }
@@ -202,7 +185,7 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
         dir = dir.normalized;   // 현재 벡터의 방향은 유지하고 크기를 1로 변환(정규화)
 
         // 총알 생성 및 스폰 위치 지정(플레이어 자신 위치)
-        Transform bullet = GameManager.Instance.pool.Get(prefabId).transform;
+        Transform bullet = GameManager.instance.pool.Get(prefabId).transform;
         bullet.position = transform.position;
 
         // FromToRotation : 지정된 축을 중심으로 목표를 향해 회전하는 함수

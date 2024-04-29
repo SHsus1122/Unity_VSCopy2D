@@ -6,13 +6,12 @@ using UnityEngine;
 // 업적 관련 매니저 클래스
 public class AchiveManager : MonoBehaviour
 {
-    public GameObject[] lockCharacter;
-    public GameObject[] unlockCharacter;
+    public List<GameObject> lockCharacter = new List<GameObject>();
+    public List<GameObject> unlockCharacter = new List<GameObject>();
     public GameObject uiNotice;
-
-    // unlockPotato : 감자 농부, unlockBean : 콩 농부
-    enum Achive { unlockPotato, unlockBean }
-    Achive[] achives;               // 업적 데이터 저장용 배열
+    
+    enum Achive { unlockPotato, unlockBean }    // unlockPotato : 감자 농부, unlockBean : 콩 농부
+    Achive[] achives;                           // 업적 데이터 저장용 배열
     WaitForSecondsRealtime wait;
 
     private void Awake()
@@ -51,7 +50,7 @@ public class AchiveManager : MonoBehaviour
 
     void UnlockCharacter()
     {
-        for (int index = 0; index < lockCharacter.Length; index++)
+        for (int index = 0; index < lockCharacter.Count; index++)
         {
             string achiveName = achives[index].ToString();
             bool isUnlock = PlayerPrefs.GetInt(achiveName) == 1;    // 업적 달성 유무에 따라 bool값 변동
@@ -60,40 +59,43 @@ public class AchiveManager : MonoBehaviour
         }
     }
 
-    void LateUpdate()
-    {
-        foreach (Achive achive in achives)
-        {
-            CheckAchive(achive);
-        }
-    }
+    //void LateUpdate()
+    //{
+    //    foreach (Achive achive in achives)
+    //    {
+    //        CheckAchive(achive);
+    //    }
+    //}
 
-    void CheckAchive(Achive achive)
+    public void CheckAchive(Player player)
     {
         bool isAchive = false;  // 업적 달성 확인용 변수
 
-        // 스위치문을 통해 확인용 변수의 상태를 변화시킵니다.
-        switch (achive)
-        { 
-            case Achive.unlockPotato:
-                isAchive = GameManager.Instance.kill >= 10;
-                break;
-            case Achive.unlockBean:
-                isAchive = GameManager.Instance.gameTime == GameManager.Instance.maxGameTime;
-                break;
-        }
-
-        // 업적 달성 확인, 만약 달성이 확인되면 해금합니다.
-        if (isAchive && PlayerPrefs.GetInt(achive.ToString()) == 0)
+        foreach (Achive achive in achives)
         {
-            PlayerPrefs.SetInt(achive.ToString(), 1);   // 업적 해금
-
-            for (int index = 0; index < uiNotice.transform.childCount; index++)
+            // 스위치문을 통해 확인용 변수의 상태를 변화시킵니다.
+            switch (achive)
             {
-                bool isActive = index == (int)achive;
-                uiNotice.transform.GetChild(index).gameObject.SetActive(isActive);
+                case Achive.unlockPotato:
+                    isAchive = player.kill >= 10;
+                    break;
+                case Achive.unlockBean:
+                    isAchive = GameManager.instance.gameTime == GameManager.instance.maxGameTime;
+                    break;
             }
-            StartCoroutine(NoticeRoutine());
+
+            // 업적 달성 확인, 만약 달성이 확인되면 해금합니다.
+            if (isAchive && PlayerPrefs.GetInt(achive.ToString()) == 0)
+            {
+                PlayerPrefs.SetInt(achive.ToString(), 1);   // 업적 해금
+
+                for (int index = 0; index < uiNotice.transform.childCount; index++)
+                {
+                    bool isActive = index == (int)achive;
+                    uiNotice.transform.GetChild(index).gameObject.SetActive(isActive);
+                }
+                StartCoroutine(NoticeRoutine());
+            }
         }
     }
 

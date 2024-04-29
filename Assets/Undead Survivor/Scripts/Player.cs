@@ -1,23 +1,34 @@
 ﻿using Cinemachine;
 using Photon.Pun;
 using Photon.Realtime;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 public class Player : MonoBehaviourPunCallbacks, IPunObservable
 {
+    [Header("# Player Info")]
     public Vector2 inputVec;
     public Vector2 resultVec;
-    public float speed;
     public Scanner scanner;
     public Hand[] hands;
     public RuntimeAnimatorController[] animCon;
     public PhotonView playerPV;
+    public AchiveManager achiveManager;
+    public Character character;
+
+    [Header("# Player Status")]
     public Text NickNameText;
+    public int typeId;
+    public int level;
     public int Cost;
+    public int kill;
+    public int exp;
+    public float health;
+    public float speed;
+    public bool isPlayerLive;
+
+    [Header("# UI")]
+    public LevelUp uiLevelUp;
 
     Rigidbody2D rigid;
     SpriteRenderer spriter;
@@ -32,6 +43,9 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         anim = GetComponent<Animator>();
         scanner = GetComponent<Scanner>();
         hands = GetComponentsInChildren<Hand>(true);    // 인자값에 true를 넣을 시 Active상태가 아닌 오브젝트도 가져옵니다.
+        achiveManager = GetComponent<AchiveManager>();
+        character = GetComponent<Character>();
+        isPlayerLive = true;
         Cost = 1;
         
         NickNameText.text = playerPV.IsMine ? PhotonNetwork.NickName.ToString() : playerPV.Owner.NickName.ToString();
@@ -47,22 +61,38 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     }
 
 
-    /*private void Start()
+    public void Init(int playerTypeId)
     {
-        PV.RPC("SetInfo", RpcTarget.All);
-    }*/
+        Debug.Log("[ Player ] playerTypeId is : " + playerTypeId);
+        transform.name = "Player" + playerPV.OwnerActorNr;
+        typeId = playerTypeId;                          // 캐릭터 종류 ID
+        health = PlayerManager.instance.maxHealth;      // 초기 체력 설정
+        speed *= character.GetSpeed();                  // 캐릭터 고유 속성값 적용
+        anim.runtimeAnimatorController = animCon[typeId];
 
+        uiLevelUp.player = transform.GetComponent<Player>();
+        uiLevelUp.Show();
+        Debug.Log("[ Player ] Player TypeID is : " + typeId % 2);
+        uiLevelUp.Select(typeId % 2);
+        achiveManager.uiNotice = GameManager.instance.uiNotice;
 
-    private void OnEnable()
-    {
-        speed *= Character.Speed;   // 캐릭터 고유 속성값 적용
-        anim.runtimeAnimatorController = animCon[GameManager.Instance.playerId];
+        Transform[] childArray = GameManager.instance.CharacterGroup.GetComponentsInChildren<Transform>(true);
+        for (int i = 0; i < childArray.Length; i++)
+        {
+            if (childArray[i].name.Contains("(Lock)"))
+            {
+                achiveManager.lockCharacter.Add(childArray[i].gameObject);
+            } else if (!childArray[i].gameObject.activeSelf)
+            {
+                achiveManager.unlockCharacter.Add(childArray[i].gameObject);
+            }
+        }
     }
 
 
     void Update()
     {
-        if (!GameManager.Instance.isLive)
+        if (!GameManager.instance.isGameLive)
             return;
 
         // 예전 방식의 컨트롤러 적용법 코드
@@ -88,7 +118,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         // 속도 제어
         rigid.velocity = inputVec;
         */
-        if (!GameManager.Instance.isLive)
+        if (!GameManager.instance.isGameLive)
             return;
 
         // normalized 를 통해서 어떠한 방향으로 나아가도 벡터의 크기가 1이 되도록 수정, deltaTime 을 사용해서 프레임에 따른 차이를 방지
@@ -118,9 +148,11 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     // 프레임이 종료 되기 전 실행되는 생명주기 함수(즉, 업데이트가 끝나고 다음 프레임으로 넘어가기 직전에 실행)
     void LateUpdate()
     {
-        if (!GameManager.Instance.isLive)
+        if (!GameManager.instance.isGameLive)
             return;
 
+        achiveManager.CheckAchive(transform.GetComponent<Player>());
+     
         playerPV.RPC("FlipXRPC", RpcTarget.AllBuffered);
     }
 
@@ -150,9 +182,9 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         //if (!GameManager.Instance.isLive)
         return;
 
-        GameManager.Instance.health -= Time.deltaTime * 10;
+        health -= Time.deltaTime * 10;
 
-        if (GameManager.Instance.health < 0)
+        if (health < 0)
         {
             for (int index = 2; index < transform.childCount; index++)
             {
@@ -161,7 +193,26 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             }
 
             anim.SetTrigger("Dead_t");
-            GameManager.Instance.GameOver();
+            GameManager.instance.GameOver();
+        }
+    }
+
+
+    // ========================================== [ 경험치 획득 ]
+    public void GetExp(Player player)
+    {
+        if (!player.isPlayerLive)
+            return;
+
+        player.exp++;
+
+        // Mathf.Min(level, nextExp.Length - 1) 를 통해서 에러방지(초과) 및 마지막 레벨만 나오게 합니다.
+        if (player.exp == PlayerManager.instance.nextExp[Mathf.Min(player.level, PlayerManager.instance.nextExp.Length - 1)])
+        {
+            player.level++;     // 레벨업 적용
+            player.exp = 0;     // 경험치 초기화
+            player.Cost++;      // Player 레벨업 스킬 강화용 코스트 추가
+            uiLevelUp.CallLevelUp();
         }
     }
 

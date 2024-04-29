@@ -7,8 +7,8 @@ using UnityEngine;
 
 public class Spawner : MonoBehaviourPunCallbacks, IPunObservable
 {
-    public Transform[] spawnPoint;
-    public SpawnData[] spawnData;
+    public Transform[] enemySpawnPoint;
+    public SpawnData[] enemySpawnData;
     public float levelTime;
     public PhotonView SpawnerPV;
 
@@ -18,27 +18,27 @@ public class Spawner : MonoBehaviourPunCallbacks, IPunObservable
     void Awake()
     {
         // 마찬가지로 초기화 작업 선행
-        spawnPoint = GetComponentsInChildren<Transform>();
+        enemySpawnPoint = GetComponentsInChildren<Transform>();
         SpawnerPV = GetComponent<PhotonView>();
     }
 
     private void Start()
     {
         // 최대 시간에 따라 몬스터 데이터 크기로 나누어 자동으로 구간 시간 계산을 합니다.
-        Debug.Log("[ Spawner ] GameManager.Instance.maxGameTime : " + GameManager.Instance.maxGameTime);
-        levelTime = GameManager.Instance.maxGameTime / spawnData.Length;
+        Debug.Log("[ Spawner ] GameManager.Instance.maxGameTime : " + GameManager.instance.maxGameTime);
+        levelTime = GameManager.instance.maxGameTime / enemySpawnData.Length;
     }
 
     void Update()
     {
-        if (!GameManager.Instance.isLive)
+        if (!GameManager.instance.isGameLive)
             return;
 
         timer += Time.deltaTime;
         // FloorToInt : 소수점 아래는 버리고 int형으로 변환(올림은 CeilToInt)
-        level = Mathf.Min(Mathf.FloorToInt(GameManager.Instance.gameTime / levelTime), spawnData.Length - 1);
+        level = Mathf.Min(Mathf.FloorToInt(GameManager.instance.gameTime / levelTime), enemySpawnData.Length - 1);
 
-        if (timer > spawnData[level].spawnTime)
+        if (timer > enemySpawnData[level].spawnTime)
         {
             timer = 0f;
             Spawn();
@@ -51,18 +51,18 @@ public class Spawner : MonoBehaviourPunCallbacks, IPunObservable
             return;
 
         // 0~1 사이의 랜덤 숫자를 이용
-        GameObject enemy = GameManager.Instance.pool.Get(0);
+        GameObject enemy = GameManager.instance.pool.Get(0);
         Debug.Log("[ Spawner ] enemy is name : " + enemy.name);
 
         // 자식 오브젝트에서만 선택되도록 랜덤 시작은 1로 지정합니다.(Spanwer의 자식으로 포인트가 존재하기에 0번째는 Spanwer입니다)
-        enemy.transform.position = spawnPoint[Random.Range(1, spawnPoint.Length)].position;
+        enemy.transform.position = enemySpawnPoint[Random.Range(1, enemySpawnPoint.Length)].position;
         enemy.GetComponent<Enemy>().enemyPV.RPC("InitRPC", RpcTarget.All, 
-            spawnData[level].spawnTime,
-            spawnData[level].spriteType,
-            spawnData[level].health,
-            spawnData[level].speed);
+            enemySpawnData[level].spawnTime,
+            enemySpawnData[level].spriteType,
+            enemySpawnData[level].health,
+            enemySpawnData[level].speed);
 
-        Debug.Log("[ Spawner ] Sprite Type is : " + spawnData[level].spriteType);
+        Debug.Log("[ Spawner ] Sprite Type is : " + enemySpawnData[level].spriteType);
     }
 
 

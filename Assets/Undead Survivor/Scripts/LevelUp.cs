@@ -9,6 +9,7 @@ using UnityEngine.UI;
 public class LevelUp : MonoBehaviourPunCallbacks
 {
     public PhotonView levelUpPV;
+    public Player player;
 
     RectTransform rect;
     Item[] items;
@@ -26,6 +27,7 @@ public class LevelUp : MonoBehaviourPunCallbacks
     private void Start()
     {
         buttons = GetComponentsInChildren<Button>();
+        //player = GetComponent<Player>();
         for (int i = 0; i < items.Length; i++)
         {
             buttons[i] = items[i].GetComponent<Button>();
@@ -64,11 +66,14 @@ public class LevelUp : MonoBehaviourPunCallbacks
 
     public void Select(int index)
     {
-        Debug.Log("==== [ LevelUp ] Select : " + index);
-        Debug.Log("==== [ LevelUp ] Player Cost is : " + GameManager.Instance.player.Cost);
-
+        Debug.Log("[ LevelUp ] Select index is : " + index);
+        if (items[index].player == null)
+        {
+            items[index].player = player;
+        }
+        
         items[index].OnClick();
-        GameManager.Instance.player.Cost--;
+        player.Cost--;
         InfoUpdate();
     }
 
@@ -111,12 +116,13 @@ public class LevelUp : MonoBehaviourPunCallbacks
 
     void InfoUpdate()
     {
-        textCost.text = "Cost\n" + GameManager.Instance.player.Cost;
+        Debug.Log("[ LevelUp ] Now Cost is : " + player.Cost);
+        textCost.text = "Cost\n" + player.Cost;
 
         // 1. 모든 아이템 비활성화
         foreach (Item item in items)
         {
-            if (item.itemLevel == item.data.damages.Length || GameManager.Instance.player.Cost < 1)
+            if (item.itemLevel == item.data.damages.Length || player.Cost < 1)
             {
                 item.GetComponentsInChildren<Button>()[0].interactable = false;
             }

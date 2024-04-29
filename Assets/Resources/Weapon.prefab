@@ -53,6 +53,8 @@ MonoBehaviour:
   count: 0
   speed: 0
   weaponPV: {fileID: -271835598332304405}
+  playerObject: {fileID: 0}
+  player: {fileID: 0}
 --- !u!50 &8529449559587022324
 Rigidbody2D:
   serializedVersion: 4

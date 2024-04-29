@@ -68,7 +68,7 @@ public class PoolManager : MonoBehaviourPunCallbacks, IPunObservable
         select = PhotonNetwork.Instantiate(prefabs[index].name, transform.position, Quaternion.identity);
         string ownerName = select.GetPhotonView().Owner.NickName;
 
-        foreach (Player pl in GameManager.Instance.playerList)
+        foreach (Player pl in PlayerManager.instance.playerList)
         {
             if (pl.playerPV.Owner.NickName == ownerName)
             {

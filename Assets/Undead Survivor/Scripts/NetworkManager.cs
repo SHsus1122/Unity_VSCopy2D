@@ -108,14 +108,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         uiLobby.SetActive(false);
         uiRoom.SetActive(true);
         uiRoom.transform.localScale = Vector3.one;
-
-        if (PlayerManager.LocalPlayerInstance == null)
-        {
-            GameObject playerPrefab = PhotonNetwork.Instantiate("Player", spawnPoint.transform.position, Quaternion.identity);
-            Player player = playerPrefab.GetComponent<Player>();
-            player.transform.name = "Player" + player.playerPV.OwnerActorNr;
-            GameManager.Instance.player = player;
-        }
     }
 
 

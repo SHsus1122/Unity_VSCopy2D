@@ -8,72 +8,63 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 {
-    public static GameManager Instance;
+    public static GameManager instance;
 
     // Header 인스펙터의 속성들을 구분시켜주는 타이틀
     [Header("# Game Control")]
-    public bool isLive;
+    public bool isGameLive;
     public float gameTime;
     public float maxGameTime = 2 * 10f; // 20초
-    public PhotonView gameManagerPV;
     public int num = 0;
-
-    [Header("# Player Info")]
-    public int playerId;
-    public float health;
-    public float maxHealth = 100;
-    public int Playerlevel;
-    public int kill;
-    public int exp;
-    public int[] nextExp = { 3, 5, 10, 100, 150, 210, 280, 360, 450, 600 };
+    public PhotonView gameManagerPV;
 
     [Header("# Game Object")]
     public PoolManager pool;
-    public Player player;
     public List<Player> playerList = new List<Player>();
-    public LevelUp uiLevelUp;
+    public Transform spawnPoint;
+    public GameObject enemyCleaner;
+    public GameObject spawner;
+    public GameObject poolManager;
+    public GameObject CharacterGroup;
+
+    [Header("# Game UI")]
     public Result uiResult;
     public Transform uiGameStart;
     public Transform uiJoy;
-    public GameObject enemyCleaner;
-    public Transform spawnPoint;
-    public GameObject spawner;
-    public GameObject poolManager;
+    public GameObject uiNotice;
 
-    void Awake()
+
+
+    private void Awake()
     {
         // 생명 주기에서 인스턴스 변수를 자기 자신으로 초기화 
-        Instance = this;
+        instance = this;
         Application.targetFrameRate = 60;   // 게임 프레임 강제 지정
     }
 
 
 
     // ========================================== [ 게임 시작 ]
-    //public void GameStart(int id)
-    //{
-    //    gameManagerPV.RPC("GameStartRPC", RpcTarget.All, id);
-    //}
-
-    //[PunRPC]
     public void GameStart(int id)
+    {
+        gameManagerPV.RPC("GameStartRPC", RpcTarget.All, id);
+    }
+
+    [PunRPC]
+    public void GameStartRPC(int id)
     {
         if (!PhotonNetwork.LocalPlayer.IsLocal && !PhotonNetwork.IsMasterClient)
             return;
 
-        playerId = id;                      // 캐릭터 종류 ID
-        health = maxHealth;                 // 초기 체력 설정
-
-        //GameObject playerPrefab = PhotonNetwork.Instantiate("Player", spawnPoint.transform.position, Quaternion.identity);
-        //player = playerPrefab.GetComponent<Player>();
-        //player.transform.name = "Player" + player.playerPV.OwnerActorNr;
-        playerList.Add(player);
-
+        Debug.Log("[ GameManager ] Call Char Index : " + id);
         poolManager.SetActive(true);
         spawner.SetActive(true);
 
-        uiLevelUp.Show();
-        uiLevelUp.Select(playerId % 2);     // 기존 무기 지급을 위한 함수 호출 -> 캐릭터 ID로 변경
+        PlayerManager.instance.SpawnPlayer(id);
+
+        //uiLevelUp.Show();
+        //uiLevelUp.Select(playerId % 2);     // 기존 무기 지급을 위한 함수 호출 -> 캐릭터 ID로 변경
+
         uiGameStart.localScale = Vector3.zero;
         gameManagerPV.RPC("Resume", RpcTarget.All);
 
@@ -86,7 +77,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     // ========================================== [ 게임 종료 ]
     IEnumerator GameOverRoutine()       // 코루틴 활용
     {
-        isLive = false;
+        isGameLive = false;
 
         yield return new WaitForSeconds(0.5f);
 
@@ -109,7 +100,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     // ========================================== [ 게임 승리 ]
     IEnumerator GameVictoryRoutine()    // 코루틴 활용
     {
-        isLive = false;
+        isGameLive = false;
         enemyCleaner.SetActive(true);
 
         yield return new WaitForSeconds(0.5f);
@@ -147,7 +138,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
     void Update()
     {
-        if (!isLive)
+        if (!isGameLive)
             return;
 
         gameTime += Time.deltaTime;
@@ -161,23 +152,23 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
 
 
-    // ========================================== [ 경험치 획득 ]
-    public void GetExp()
-    {
-        if (!isLive)
-            return;
+    //// ========================================== [ 경험치 획득 ]
+    //public void GetExp()
+    //{
+    //    if (!isLive)
+    //        return;
 
-        exp++;
+    //    exp++;
 
-        // Mathf.Min(level, nextExp.Length - 1) 를 통해서 에러방지(초과) 및 마지막 레벨만 나오게 합니다.
-        if (exp == nextExp[Mathf.Min(Playerlevel, nextExp.Length - 1)])
-        {
-            Playerlevel++;      // 레벨업 적용
-            exp = 0;            // 경험치 초기화
-            player.Cost++;      // Player 레벨업 스킬 강화용 코스트 추가
-            uiLevelUp.CallLevelUp();
-        }
-    }
+    //    // Mathf.Min(level, nextExp.Length - 1) 를 통해서 에러방지(초과) 및 마지막 레벨만 나오게 합니다.
+    //    if (exp == nextExp[Mathf.Min(Playerlevel, nextExp.Length - 1)])
+    //    {
+    //        Playerlevel++;      // 레벨업 적용
+    //        exp = 0;            // 경험치 초기화
+    //        player.Cost++;      // Player 레벨업 스킬 강화용 코스트 추가
+    //        uiLevelUp.CallLevelUp();
+    //    }
+    //}
 
 
 
@@ -185,7 +176,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     [PunRPC]
     public void Stop()
     {
-        isLive = false;
+        isGameLive = false;
         Time.timeScale = 0; // 유니티의 시간 속도(배율)
         //uiJoy.localScale = Vector3.zero;
     }
@@ -194,7 +185,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     public void Resume()
     {
         Debug.Log("=============== Call Resume ===============");
-        isLive = true;
+        isGameLive = true;
         Time.timeScale = 1;
         //uiJoy.localScale = Vector3.one;
     }
@@ -206,11 +197,11 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     {
         if (stream.IsWriting)
         {
-            stream.SendNext(isLive);
+            stream.SendNext(isGameLive);
         }
         else
         {
-            isLive = (bool)stream.ReceiveNext();
+            isGameLive = (bool)stream.ReceiveNext();
         }
     }
 }
