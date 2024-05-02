@@ -46,17 +46,6 @@ public class Bullet : MonoBehaviourPunCallbacks, IPunObservable
         }
     }
 
-    //void SetParent()
-    //{
-    //    for (int i = 0; i < PlayerManager.instance.playerList.Count; i++)
-    //    {
-    //        if (PlayerManager.instance.playerList[i].playerPV.Owner.NickName == this.bulletPV.Owner.NickName)
-    //        {
-    //            this.transform.parent = PlayerManager.instance.playerList[i].transform;
-    //        }
-    //    }
-    //}
-
     public void Init(float damage, int per, Vector3 dir, string weaponName)
     {
         this.damage = damage;
@@ -110,18 +99,21 @@ public class Bullet : MonoBehaviourPunCallbacks, IPunObservable
     }
 
 
-
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
         if (stream.IsWriting)
         {
             stream.SendNext(transform.position);
             stream.SendNext(transform.rotation);
+            stream.SendNext(damage);
+            stream.SendNext(per);
         }
         else
         {
             transform.position = (Vector3)stream.ReceiveNext();
             transform.rotation = (Quaternion)stream.ReceiveNext();
+            damage = (float)stream.ReceiveNext();
+            per = (int)stream.ReceiveNext();
         }
     }
 }

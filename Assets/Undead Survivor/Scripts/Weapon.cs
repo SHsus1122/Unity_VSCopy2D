@@ -143,22 +143,22 @@ public class Weapon : MonoBehaviourPunCallbacks
     }
 
 
-    [PunRPC]
-    void InitRPC(string ownName, string weaponName, int newId, float newDamage, int newCount, int newPrefabId, float newSpeed)
-    {
-        Player nowPlayer = PlayerManager.instance.FindPlayer(ownName);
-        
-        transform.parent = nowPlayer.transform;
-        transform.localPosition = Vector3.zero;
-        name = weaponName;
-        id = newId;
-        damage = newDamage;
-        count = newCount;
-        prefabId = newPrefabId;
-        speed = newSpeed;
+    //[PunRPC]
+    //void InitRPC(string ownName, float newDamage, int newCount, int newPrefabId, float newSpeed)
+    //{
+    //    Player nowPlayer = PlayerManager.instance.FindPlayer(ownName);
+    //    foreach ()
+    //    {
 
-        nowPlayer.BroadcastMessage("ApplyGear", SendMessageOptions.DontRequireReceiver);
-    }
+    //    }
+
+    //    damage = newDamage;
+    //    count = newCount;
+    //    prefabId = newPrefabId;
+    //    speed = newSpeed;
+
+    //    nowPlayer.BroadcastMessage("ApplyGear", SendMessageOptions.DontRequireReceiver);
+    //}
 
 
 
@@ -228,17 +228,32 @@ public class Weapon : MonoBehaviourPunCallbacks
 
 
 
-    //public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
-    //{
-    //    if (stream.IsWriting)   // IsMine == true
-    //    {
-    //        stream.SendNext(transform.position);
-    //        stream.SendNext(transform.rotation);
-    //    }
-    //    else  // IsMine == false
-    //    {
-    //        transform.position = (Vector3)stream.ReceiveNext();
-    //        transform.rotation = (Quaternion)stream.ReceiveNext();
-    //    }
-    //}
+    //public int id;          // 무기 ID
+    //public int prefabId;    // 프리펩 ID(종류)
+    //public float damage;    // 데미지
+    //public int count;       // 개수
+    //public float speed;     // 속도
+    //public PhotonView weaponPV;
+    //public GameObject playerObject;
+    //public Player player;
+
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        if (stream.IsWriting)   // IsMine == true
+        {
+            stream.SendNext(transform.position);
+            stream.SendNext(transform.rotation);
+            stream.SendNext(damage);
+            stream.SendNext(count);
+            stream.SendNext(speed);
+        }
+        else  // IsMine == false
+        {
+            transform.position = (Vector3)stream.ReceiveNext();
+            transform.rotation = (Quaternion)stream.ReceiveNext();
+            damage = (float)stream.ReceiveNext();
+            count = (int)stream.ReceiveNext();
+            speed = (float)stream.ReceiveNext();
+        }
+    }
 }
