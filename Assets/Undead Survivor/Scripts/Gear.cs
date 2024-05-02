@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // 장갑 관련 클래스
-public class Gear : MonoBehaviourPunCallbacks
+public class Gear : MonoBehaviour
 {
     public ItemData.ItemType type;
     public float rate;

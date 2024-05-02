@@ -1,5 +1,6 @@
 ﻿using Cinemachine;
 using Photon.Pun;
+using Photon.Pun.Demo.PunBasics;
 using Photon.Realtime;
 using UnityEngine;
 using UnityEngine.UI;
@@ -20,14 +21,15 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     public Text NickNameText;
     public int typeId;
     public int level;
-    public int Cost;
+    public int Cost = 1;
     public int kill;
     public int exp;
     public float health;
     public float speed;
-    public bool isPlayerLive;
+    public bool isPlayerLive = true;
 
-    [Header("# UI")]
+    [Header("# Player UI")]
+    public GameObject uiHud;
     public LevelUp uiLevelUp;
 
     Rigidbody2D rigid;
@@ -45,9 +47,10 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         hands = GetComponentsInChildren<Hand>(true);    // 인자값에 true를 넣을 시 Active상태가 아닌 오브젝트도 가져옵니다.
         achiveManager = GetComponent<AchiveManager>();
         character = GetComponent<Character>();
-        isPlayerLive = true;
-        Cost = 1;
-        
+        uiHud = GameObject.Find("HUD");
+        uiLevelUp = GameObject.Find("LevelUp").GetComponent<LevelUp>();
+        PlayerManager.instance.AddPlayer(this);
+
         NickNameText.text = playerPV.IsMine ? PhotonNetwork.NickName.ToString() : playerPV.Owner.NickName.ToString();
         NickNameText.color = playerPV.IsMine ? Color.green : Color.red;
 
@@ -60,33 +63,50 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         }
     }
 
-
+    [PunRPC]
     public void Init(int playerTypeId)
     {
-        Debug.Log("[ Player ] playerTypeId is : " + playerTypeId);
-        transform.name = "Player" + playerPV.OwnerActorNr;
+        //transform.name = "Player " + playerPV.OwnerActorNr;
         typeId = playerTypeId;                          // 캐릭터 종류 ID
         health = PlayerManager.instance.maxHealth;      // 초기 체력 설정
         speed *= character.GetSpeed();                  // 캐릭터 고유 속성값 적용
         anim.runtimeAnimatorController = animCon[typeId];
 
-        uiLevelUp.player = transform.GetComponent<Player>();
-        uiLevelUp.Show();
-        Debug.Log("[ Player ] Player TypeID is : " + typeId % 2);
-        uiLevelUp.Select(typeId % 2);
         achiveManager.uiNotice = GameManager.instance.uiNotice;
+        uiHud.transform.localScale = Vector3.one;
+        uiLevelUp.player = this;
+        uiLevelUp.Show();
 
-        Transform[] childArray = GameManager.instance.CharacterGroup.GetComponentsInChildren<Transform>(true);
-        for (int i = 0; i < childArray.Length; i++)
+        Transform[] hudArr = uiHud.GetComponentsInChildren<Transform>(true);
+        foreach (Transform Child in hudArr)
         {
-            if (childArray[i].name.Contains("(Lock)"))
-            {
-                achiveManager.lockCharacter.Add(childArray[i].gameObject);
-            } else if (!childArray[i].gameObject.activeSelf)
-            {
-                achiveManager.unlockCharacter.Add(childArray[i].gameObject);
-            }
+            if (Child.GetComponent<HUD>())
+                Child.GetComponent<HUD>().player = this;
+
+            if (Child.GetComponent<Follow>())
+                Child.GetComponent<Follow>().player = this;
         }
+
+        Transform[] levelUpArr = uiLevelUp.GetComponentsInChildren<Transform>();
+        foreach (Transform Child in levelUpArr)
+        {
+            if (Child.GetComponent<Item>())
+                Child.GetComponent<Item>().player = this;
+        }
+
+        photonView.RPC("InitRPC", RpcTarget.All, NickNameText.text.ToString(), typeId, health, speed);
+        uiLevelUp.Select(playerTypeId % 2);
+    }
+
+
+    [PunRPC]
+    public void InitRPC(string owName, int newTypeId, float newHealth, float newSpeed)
+    {
+        Player player = PlayerManager.instance.FindPlayer(owName);
+        player.NickNameText.text = owName;
+        player.typeId = newTypeId;
+        player.health = newHealth;
+        player.speed = newSpeed;
     }
 
 
@@ -152,7 +172,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             return;
 
         achiveManager.CheckAchive(transform.GetComponent<Player>());
-     
+
         playerPV.RPC("FlipXRPC", RpcTarget.AllBuffered);
     }
 
@@ -222,10 +242,14 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         if (stream.IsWriting)
         {
             stream.SendNext(new Vector2(transform.position.x, transform.position.y));
+            stream.SendNext(health);
+            stream.SendNext(kill);
         }
         else
         {
             resultVec = (Vector2)stream.ReceiveNext();
+            health = (float)stream.ReceiveNext();
+            kill = (int)stream.ReceiveNext();
         }
     }
 }

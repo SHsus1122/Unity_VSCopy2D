@@ -6,13 +6,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Item : MonoBehaviourPunCallbacks, IPunObservable
+public class Item : MonoBehaviourPun, IPunObservable
 {
     public ItemData data;
     public int itemLevel;
     public Weapon weapon;
     public Gear gear;
-    public PhotonView itemPV;
     public Player player;
 
     Image icon;
@@ -24,7 +23,7 @@ public class Item : MonoBehaviourPunCallbacks, IPunObservable
     private void Awake()
     {
         // 자식 오브젝트의 컴포넌트가 필요하며 배열의 첫 번째는 자기 자신이기에 순번은 두번째인 1로 지정
-        player = GetComponent<Player>();
+        //player = GetComponent<Player>();
         icon = GetComponentsInChildren<Image>()[1];
         icon.sprite = data.itemIcon;
 
@@ -37,15 +36,7 @@ public class Item : MonoBehaviourPunCallbacks, IPunObservable
         //textName = texts[1];
         //textDesc = texts[2];
 
-        textName.text = data.itemName;
-
-        itemPV = GetComponent<PhotonView>();
-        
-    }
-
-    private void OnEnable()
-    {
-        //ItemInfoUpdate();
+        //textName.text = data.itemName;
     }
 
     void ItemInfoUpdate()
@@ -98,9 +89,8 @@ public class Item : MonoBehaviourPunCallbacks, IPunObservable
                     //weapon = newWeapon.AddComponent<Weapon>();  // 새롭게 컴포넌트를 추가해서 현재 무기에 대입
 
                     weapon = PhotonNetwork.Instantiate("Weapon", transform.position, Quaternion.identity).GetComponent<Weapon>();
-                    weapon.player = player;
+                    //weapon.player = player;
 
-                    Debug.Log("[ Item ] Player Name is : " + player.name);
                     weapon.Init(data, weapon);
                 }
                 else
@@ -155,9 +145,15 @@ public class Item : MonoBehaviourPunCallbacks, IPunObservable
         ItemInfoUpdate();
     }
 
-
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
-        
+        if (stream.IsWriting)
+        {
+            stream.SendNext(itemLevel);
+        }
+        else
+        {
+            itemLevel = (int)stream.ReceiveNext();
+        }
     }
 }

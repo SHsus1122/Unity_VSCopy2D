@@ -27,6 +27,9 @@ public class Scanner : MonoBehaviour
 
         foreach (RaycastHit2D target in targets)
         {
+            if (!target.transform.CompareTag("Enemy"))
+                continue;
+
             Vector3 myPos = transform.position;                     // 스캐너 사용자 위치
             Vector3 targetPos = target.transform.position;          // 타겟의 위치
             float curDiff = Vector3.Distance(myPos, targetPos);     // 벡터 A와 B의 거리를 계산해주는 함수

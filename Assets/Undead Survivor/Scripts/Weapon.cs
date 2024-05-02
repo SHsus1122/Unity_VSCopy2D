@@ -1,8 +1,9 @@
 ﻿using Photon.Pun;
 using Photon.Realtime;
+using System.Collections.Generic;
 using UnityEngine;
 
-public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
+public class Weapon : MonoBehaviourPunCallbacks
 {
     public int id;          // 무기 ID
     public int prefabId;    // 프리펩 ID(종류)
@@ -10,7 +11,6 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
     public int count;       // 개수
     public float speed;     // 속도
     public PhotonView weaponPV;
-    //public Player player;
     public GameObject playerObject;
     public Player player;
 
@@ -24,8 +24,22 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
         // [변경된 방식] 플레이어 초기화에 매개변수가 들어감으로 인해 처음 초기화는 게임 매니저를 활용하는 것으로 변경합니다.
         //if (!weaponPV.IsMine)
         //    return;
+        weaponPV = photonView;
+
+        SetPlayerWithParent();
     }
 
+    void SetPlayerWithParent()
+    {
+        for (int i = 0; i < PlayerManager.instance.playerList.Count; i++)
+        {
+            if (this.weaponPV.Owner.NickName == PlayerManager.instance.playerList[i].playerPV.Owner.NickName)
+            {
+                player = PlayerManager.instance.playerList[i];
+                this.transform.parent = PlayerManager.instance.playerList[i].transform;
+            }
+        }
+    }
 
     void Update()
     {
@@ -53,8 +67,6 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
         }
     }
 
-
-    [PunRPC]
     public void WeaponLevelUp(float damage, int count)
     {
         this.damage = damage * player.character.GetDamage();
@@ -68,23 +80,20 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
     }
 
     // 초기화 함수에 만들어둔 스크립트블 오브젝트를 매개변수로 받아서 활용합니다.
-    [PunRPC]
     public void Init(ItemData data, Weapon weapon)
     {
         Debug.Log("[ Weapon ] IsLocalPlayer : " + PhotonNetwork.LocalPlayer.IsLocal);
-        if (!PhotonNetwork.LocalPlayer.IsLocal && !weaponPV.IsMine)
-            return;
+        //if (!PhotonNetwork.LocalPlayer.IsLocal && !weaponPV.IsMine)
+        //    return;
+        
 
-        weapon.transform.parent = player.transform;
-        weapon.transform.localPosition = Vector3.zero;
+        this.transform.localPosition = Vector3.zero;
 
         Debug.Log("[ Weapon ] weapon is : " + weapon.name);
         Debug.Log("[ Weapon ] player is : " + player.name);
 
         // Basic Set
         name = "Weapon " + data.itemId;         // Weapon 이름 설정, 클래스 자체 변수
-        //transform.parent = player.transform;    // 위에서 만든 Player변수는 Weapon을 소유중인 부모 오브젝트를 지정
-        //transform.localPosition = Vector3.zero; // 플레이어 안에서 생성되기에 지역 위치에 해당하는 localposition을 사용
 
         // Property Set
         // 각종 무기 속성들은 스크립트블 오브젝트의 데이터로 초기화 작업(셋팅값을 가져오기 위해서)
@@ -99,6 +108,7 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
             if (data.projectile == GameManager.instance.pool.prefabs[index])
             {
                 prefabId = index;
+                Debug.Log("[ Weapon ] Perfab ID : " + prefabId);
                 break;
             }
         }
@@ -125,12 +135,33 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
         // 즉, Player가 가지고 있는 모든 Gear에 한해서 실행시키게 하는게 목적입니다.
         // 이를 하는 이유는 이미 레벨업이 되어있는 상태에서 새롭게 Weapon이 추가되면 Gear가 이미 활성화 되어 있을 경우 이 수치가 적용되지 않습니다.
         // 그래서 초기화가 들어가는 즉, 초기 실행 시점에도 ApplyGear를 실행시키도록 해줍니다.
+
+        //photonView.RPC("InitRPC", RpcTarget.AllBuffered, photonView.Owner.NickName, id.ToString(),
+        //    id, damage, count, prefabId, speed);
+
         player.BroadcastMessage("ApplyGear", SendMessageOptions.DontRequireReceiver);
     }
 
 
-
     [PunRPC]
+    void InitRPC(string ownName, string weaponName, int newId, float newDamage, int newCount, int newPrefabId, float newSpeed)
+    {
+        Player nowPlayer = PlayerManager.instance.FindPlayer(ownName);
+        
+        transform.parent = nowPlayer.transform;
+        transform.localPosition = Vector3.zero;
+        name = weaponName;
+        id = newId;
+        damage = newDamage;
+        count = newCount;
+        prefabId = newPrefabId;
+        speed = newSpeed;
+
+        nowPlayer.BroadcastMessage("ApplyGear", SendMessageOptions.DontRequireReceiver);
+    }
+
+
+
     void Batch()
     {
         Debug.Log("[ Weapon ] Batch Call");
@@ -167,7 +198,7 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
             bullet.Translate(bullet.up * 1.5f, Space.World);
 
             // 근접 무기의 경우 관통에 제한을 주지 않습니다.(무한), -1 is Infinity Per.
-            bullet.GetComponent<Bullet>().Init(damage, -100, Vector3.zero);
+            bullet.GetComponent<Bullet>().Init(damage, -100, Vector3.zero, transform.name);
         }
     }
 
@@ -190,24 +221,24 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
 
         // FromToRotation : 지정된 축을 중심으로 목표를 향해 회전하는 함수
         bullet.rotation = Quaternion.FromToRotation(Vector3.up, dir);   // 축 지정, 위에서 구한 방향 지정
-        bullet.GetComponent<Bullet>().Init(damage, count, dir);         // 원하는 값들로 초기화 작업, count가 관통 값
+        bullet.GetComponent<Bullet>().Init(damage, count, dir, transform.name);         // 원하는 값들로 초기화 작업, count가 관통 값
 
         AudioManager.instance.PlaySfx(AudioManager.Sfx.Range);          // 발사 효과음 재생
     }
 
 
 
-    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
-    {
-        if (stream.IsWriting)   // IsMine == true
-        {
-            stream.SendNext(transform.position);
-            stream.SendNext(transform.rotation);
-        }
-        else  // IsMine == false
-        {
-            transform.position = (Vector3)stream.ReceiveNext();
-            transform.rotation = (Quaternion)stream.ReceiveNext();
-        }
-    }
+    //public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    //{
+    //    if (stream.IsWriting)   // IsMine == true
+    //    {
+    //        stream.SendNext(transform.position);
+    //        stream.SendNext(transform.rotation);
+    //    }
+    //    else  // IsMine == false
+    //    {
+    //        transform.position = (Vector3)stream.ReceiveNext();
+    //        transform.rotation = (Quaternion)stream.ReceiveNext();
+    //    }
+    //}
 }

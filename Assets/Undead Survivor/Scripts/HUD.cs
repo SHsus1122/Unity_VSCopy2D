@@ -22,6 +22,9 @@ public class HUD : MonoBehaviour
 
     private void LateUpdate()
     {
+        if (player == null)
+            return;
+
         switch (type)
         {
             case InfoType.Exp:

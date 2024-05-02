@@ -12,7 +12,7 @@ public class Follow : MonoBehaviour
     void Start()
     {
         rect = GetComponent<RectTransform>();
-        player = GetComponent<Player>();
+        //player = GetComponent<Player>();
     }
 
     // Update is called once per frame

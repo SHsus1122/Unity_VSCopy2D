@@ -4,18 +4,21 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PoolManager : MonoBehaviourPunCallbacks, IPunObservable
+public class PoolManager : MonoBehaviourPun
 {
+    public static PoolManager instance;
+
     // 프리펩들을 보관할 변수
     public GameObject[] prefabs;
-    public PhotonView poolManagerPV;
 
     // 풀 담당을 하는 리스트
     public List<GameObject>[] pools;
-    public GameObject newObj;
 
     void Awake()
     {
+        instance = this;
+
+        
         pools = new List<GameObject>[prefabs.Length];
 
         // 위에서 생성한 리스트는 초기화 전이기 때문에 아래처럼 반복문을 통해 초기화 작업을 선행합니다.
@@ -29,8 +32,11 @@ public class PoolManager : MonoBehaviourPunCallbacks, IPunObservable
     // 오브젝트 반환용 함수
     public GameObject Get(int index)
     {
-        Debug.Log("[ PoolManager ] Get Call With index : " + index + ", [ PoolManager ] pools size : " + pools[index].Count);
+        //Debug.Log("[ PoolManager ] Get Call With index : " + index + ", [ PoolManager ] pools size : " + pools[index].Count);
         GameObject select = null;
+
+        Debug.Log("[ PoolManager ] index is null : " + index == null);
+        Debug.Log("[ PoolManager ] index pools is null : " + pools[index].Count);
 
         // 선택한 Pool의 놀고 있는 게임오브젝트에 접근
         foreach (GameObject item in pools[index])
@@ -58,7 +64,6 @@ public class PoolManager : MonoBehaviourPunCallbacks, IPunObservable
         return select;
     }
 
-    [PunRPC]
     public GameObject GetRPC(int index)
     {
         GameObject select = null;
@@ -66,31 +71,10 @@ public class PoolManager : MonoBehaviourPunCallbacks, IPunObservable
         Debug.Log("[ PoolManager ] GetRPC Call Prefab ID : " + prefabs[index].name);
         // 존재하지 않는 즉, 비활성화 된 모두 사용중인 경우에는 새롭게 생성해서 select 변수에 할당합니다.
         select = PhotonNetwork.Instantiate(prefabs[index].name, transform.position, Quaternion.identity);
-        string ownerName = select.GetPhotonView().Owner.NickName;
-
-        foreach (Player pl in PlayerManager.instance.playerList)
-        {
-            if (pl.playerPV.Owner.NickName == ownerName)
-            {
-                select.transform.parent = pl.transform;
-            }
-        }
 
         //select = Instantiate(prefabs[index], transform);    // transform은 부모로 여기서는 PoolManager의 자식으로 넣는다는 의미
         pools[index].Add(select);   // 오브젝트 풀 리스트에 새롭게 생성된 것을 추가(등록)
 
         return select;
-    }
-
-    [PunRPC]
-    public void SetParent(GameObject obj)
-    {
-        obj.transform.SetParent(transform);
-    }
-
-
-    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
-    {
-
     }
 }

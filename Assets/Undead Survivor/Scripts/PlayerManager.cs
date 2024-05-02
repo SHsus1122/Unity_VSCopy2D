@@ -22,14 +22,27 @@ public class PlayerManager : MonoBehaviourPunCallbacks
 
     public void SpawnPlayer(int typeId)
     {
+        Debug.Log("[ PlayerManager ] Spawn Player !");
+
         GameObject playerPrefab = PhotonNetwork.Instantiate("Player", playerSpawnPoint[Random.Range(0, playerSpawnPoint.Length)].transform.position, Quaternion.identity);
         Player player = playerPrefab.GetComponent<Player>();
-        AddPlayer(player);
         player.Init(typeId);
     }
 
     public void AddPlayer(Player newPlayer)
     {
         playerList.Add(newPlayer);
+    }
+
+    public Player FindPlayer(string name)
+    {
+        for (int i = 0; i < playerList.Count; i++)
+        {
+            if (playerList[i].playerPV.Owner.NickName == name)
+            {
+                return playerList[i];
+            }
+        }
+        return null;
     }
 }

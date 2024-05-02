@@ -486,7 +486,6 @@ MonoBehaviour:
   itemLevel: 0
   weapon: {fileID: 0}
   gear: {fileID: 0}
-  itemPV: {fileID: 4419911121180160408}
   player: {fileID: 0}
 --- !u!114 &4419911121180160408
 MonoBehaviour:
@@ -886,7 +885,6 @@ MonoBehaviour:
   itemLevel: 0
   weapon: {fileID: 0}
   gear: {fileID: 0}
-  itemPV: {fileID: 1656307765664545316}
   player: {fileID: 0}
 --- !u!114 &1656307765664545316
 MonoBehaviour:
@@ -1753,7 +1751,6 @@ MonoBehaviour:
   itemLevel: 0
   weapon: {fileID: 0}
   gear: {fileID: 0}
-  itemPV: {fileID: 5857526621945556588}
   player: {fileID: 0}
 --- !u!114 &5857526621945556588
 MonoBehaviour:
@@ -2165,7 +2162,6 @@ MonoBehaviour:
   itemLevel: 0
   weapon: {fileID: 0}
   gear: {fileID: 0}
-  itemPV: {fileID: 1208514907045877674}
   player: {fileID: 0}
 --- !u!114 &1208514907045877674
 MonoBehaviour:
@@ -2202,7 +2198,6 @@ GameObject:
   - component: {fileID: 9039169915014678359}
   - component: {fileID: 6820559072305578234}
   - component: {fileID: 1440862881867216831}
-  - component: {fileID: 6200658787326701627}
   m_Layer: 5
   m_Name: LevelUp
   m_TagString: Untagged
@@ -2281,30 +2276,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e447737139ef8447ac6cc2876723d9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  levelUpPV: {fileID: 6200658787326701627}
   player: {fileID: 0}
---- !u!114 &6200658787326701627
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7021857538735788140}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ObservedComponentsFoldoutOpen: 1
-  Group: 0
-  prefixField: -1
-  Synchronization: 3
-  OwnershipTransfer: 0
-  observableSearch: 2
-  ObservedComponents: []
-  sceneViewId: 0
-  InstantiationId: 0
-  isRuntimeInstantiated: 0
 --- !u!1 &7355480372499124847
 GameObject:
   m_ObjectHideFlags: 0
@@ -2538,7 +2510,6 @@ MonoBehaviour:
   itemLevel: 0
   weapon: {fileID: 0}
   gear: {fileID: 0}
-  itemPV: {fileID: 5182482026847080818}
   player: {fileID: 0}
 --- !u!114 &5182482026847080818
 MonoBehaviour:

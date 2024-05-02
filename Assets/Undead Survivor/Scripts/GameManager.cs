@@ -20,7 +20,6 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
     [Header("# Game Object")]
     public PoolManager pool;
-    public List<Player> playerList = new List<Player>();
     public Transform spawnPoint;
     public GameObject enemyCleaner;
     public GameObject spawner;
@@ -47,18 +46,15 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     // ========================================== [ 게임 시작 ]
     public void GameStart(int id)
     {
-        gameManagerPV.RPC("GameStartRPC", RpcTarget.All, id);
-    }
-
-    [PunRPC]
-    public void GameStartRPC(int id)
-    {
         if (!PhotonNetwork.LocalPlayer.IsLocal && !PhotonNetwork.IsMasterClient)
             return;
 
-        Debug.Log("[ GameManager ] Call Char Index : " + id);
         poolManager.SetActive(true);
         spawner.SetActive(true);
+
+        Debug.Log("[ GameManager ] Call Char Index : " + id);
+        //poolManager.SetActive(true);
+        //spawner.SetActive(true);
 
         PlayerManager.instance.SpawnPlayer(id);
 
@@ -173,6 +169,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
 
     // ========================================== [ 게임 정지, 시작 ]
+
     [PunRPC]
     public void Stop()
     {

@@ -2,6 +2,7 @@
 using Photon.Realtime;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Bullet : MonoBehaviourPunCallbacks, IPunObservable
@@ -14,13 +15,49 @@ public class Bullet : MonoBehaviourPunCallbacks, IPunObservable
 
     void Awake()
     {
+        bulletPV = photonView;
         rigid = GetComponent<Rigidbody2D>();
+
+        SetParent();
     }
 
+    void SetParent()
+    {
+        for (int i = 0; i < PlayerManager.instance.playerList.Count; i++)
+        {
+            if (this.bulletPV.Owner.NickName == PlayerManager.instance.playerList[i].playerPV.Owner.NickName)
+            {
+                Transform[] list = PlayerManager.instance.playerList[i].gameObject.GetComponentsInChildren<Transform>();
+                for (int j = 0; j < list.Length; j++)
+                {
+                    if (list[j].CompareTag("Weapon"))
+                    {
+                        Debug.Log("[ Bullet ] prefabId is : " + list[j].GetComponent<Weapon>().id.ToString());
+                        Debug.Log("[ Bullet ] this split is : " + this.name.Split(' ')[1]);
+                    }
 
+                    if (list[j].CompareTag("Weapon") && list[j].GetComponent<Weapon>().id.ToString() == this.name.Split(' ')[1].Split('(')[0])
+                    {
+                        Debug.Log("[ Bullet ] Parent name is : " + list[j].name);
+                        this.transform.parent = list[j].transform;
+                    }
+                }
+            }
+        }
+    }
 
-    [PunRPC]
-    public void Init(float damage, int per, Vector3 dir)
+    //void SetParent()
+    //{
+    //    for (int i = 0; i < PlayerManager.instance.playerList.Count; i++)
+    //    {
+    //        if (PlayerManager.instance.playerList[i].playerPV.Owner.NickName == this.bulletPV.Owner.NickName)
+    //        {
+    //            this.transform.parent = PlayerManager.instance.playerList[i].transform;
+    //        }
+    //    }
+    //}
+
+    public void Init(float damage, int per, Vector3 dir, string weaponName)
     {
         this.damage = damage;
         this.per = per;
@@ -31,8 +68,6 @@ public class Bullet : MonoBehaviourPunCallbacks, IPunObservable
             rigid.velocity = dir * 15f;   // Velocity : 속도
         }
     }
-
-
 
     private void OnTriggerEnter2D(Collider2D collision)
     {

@@ -6,9 +6,8 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class LevelUp : MonoBehaviourPunCallbacks
+public class LevelUp : MonoBehaviour
 {
-    public PhotonView levelUpPV;
     public Player player;
 
     RectTransform rect;
@@ -66,16 +65,16 @@ public class LevelUp : MonoBehaviourPunCallbacks
 
     public void Select(int index)
     {
+        if (!player.gameObject.GetPhotonView().IsMine)
+            return;
+
         Debug.Log("[ LevelUp ] Select index is : " + index);
-        if (items[index].player == null)
-        {
-            items[index].player = player;
-        }
         
         items[index].OnClick();
         player.Cost--;
         InfoUpdate();
     }
+
 
     /*void Next()
     {

@@ -5,12 +5,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Spawner : MonoBehaviourPunCallbacks, IPunObservable
+public class Spawner : MonoBehaviourPun
 {
     public Transform[] enemySpawnPoint;
     public SpawnData[] enemySpawnData;
     public float levelTime;
-    public PhotonView SpawnerPV;
 
     int level;
     float timer;
@@ -19,7 +18,6 @@ public class Spawner : MonoBehaviourPunCallbacks, IPunObservable
     {
         // 마찬가지로 초기화 작업 선행
         enemySpawnPoint = GetComponentsInChildren<Transform>();
-        SpawnerPV = GetComponent<PhotonView>();
     }
 
     private void Start()
@@ -63,13 +61,6 @@ public class Spawner : MonoBehaviourPunCallbacks, IPunObservable
             enemySpawnData[level].speed);
 
         Debug.Log("[ Spawner ] Sprite Type is : " + enemySpawnData[level].spriteType);
-    }
-
-
-
-    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
-    {
-        
     }
 }
 

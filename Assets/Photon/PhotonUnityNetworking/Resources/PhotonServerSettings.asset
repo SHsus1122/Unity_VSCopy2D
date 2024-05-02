@@ -66,6 +66,7 @@ MonoBehaviour:
   - WeaponLevelUp
   - Get
   - SetParent
+  - test
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1
