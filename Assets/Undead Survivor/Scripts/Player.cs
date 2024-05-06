@@ -10,6 +10,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     [Header("# Player Info")]
     public Vector2 inputVec;
     public Vector2 resultVec;
+    public Vector3 curPos;
     public Scanner scanner;
     public Hand[] hands;
     public RuntimeAnimatorController[] animCon;
@@ -94,7 +95,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
                 Child.GetComponent<Item>().player = this;
         }
 
-        photonView.RPC("InitRPC", RpcTarget.All, NickNameText.text.ToString(), typeId, health, speed);
+        photonView.RPC("InitRPC", RpcTarget.AllBuffered, NickNameText.text.ToString(), typeId, health, speed);
         uiLevelUp.Select(playerTypeId % 2);
     }
 
@@ -154,6 +155,10 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
 
             // 위치 이동(World 기준의 위치), 현재 위치를 기준으로 나아갈 방향(nextVec 활용)
             rigid.MovePosition(rigid.position + resultVec);
+        }
+        else
+        {
+            transform.position = Vector3.Lerp(transform.position, curPos, 10 * Time.deltaTime);
         }
     }
 
@@ -241,15 +246,17 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     {
         if (stream.IsWriting)
         {
-            stream.SendNext(new Vector2(transform.position.x, transform.position.y));
+            stream.SendNext(transform.position);
             stream.SendNext(health);
             stream.SendNext(kill);
+            stream.SendNext(speed);
         }
         else
         {
-            resultVec = (Vector2)stream.ReceiveNext();
+            curPos = (Vector3)stream.ReceiveNext();
             health = (float)stream.ReceiveNext();
             kill = (int)stream.ReceiveNext();
+            speed = (float)stream.ReceiveNext();
         }
     }
 }

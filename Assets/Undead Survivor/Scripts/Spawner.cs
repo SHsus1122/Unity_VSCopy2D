@@ -3,6 +3,7 @@ using Photon.Pun.UtilityScripts;
 using Photon.Realtime;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Spawner : MonoBehaviourPun
@@ -17,7 +18,7 @@ public class Spawner : MonoBehaviourPun
     void Awake()
     {
         // 마찬가지로 초기화 작업 선행
-        enemySpawnPoint = GetComponentsInChildren<Transform>();
+        enemySpawnPoint = GetComponentsInChildren<Transform>().Where(t => t != transform).ToArray();
     }
 
     private void Start()
@@ -54,7 +55,7 @@ public class Spawner : MonoBehaviourPun
 
         // 자식 오브젝트에서만 선택되도록 랜덤 시작은 1로 지정합니다.(Spanwer의 자식으로 포인트가 존재하기에 0번째는 Spanwer입니다)
         enemy.transform.position = enemySpawnPoint[Random.Range(1, enemySpawnPoint.Length)].position;
-        enemy.GetComponent<Enemy>().enemyPV.RPC("InitRPC", RpcTarget.All, 
+        enemy.GetComponent<Enemy>().enemyPV.RPC("InitRPC", RpcTarget.AllBuffered, 
             enemySpawnData[level].spawnTime,
             enemySpawnData[level].spriteType,
             enemySpawnData[level].health,

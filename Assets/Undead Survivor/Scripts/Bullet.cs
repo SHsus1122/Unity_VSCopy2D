@@ -12,6 +12,8 @@ public class Bullet : MonoBehaviourPunCallbacks, IPunObservable
     public PhotonView bulletPV;
 
     Rigidbody2D rigid;
+    Vector3 curPos;
+    Quaternion curRot;
 
     void Awake()
     {
@@ -55,6 +57,15 @@ public class Bullet : MonoBehaviourPunCallbacks, IPunObservable
         if (per >= 0)
         {
             rigid.velocity = dir * 15f;   // Velocity : 속도
+        }
+    }
+
+    private void Update()
+    {
+        if (!bulletPV.IsMine)
+        {
+            transform.position = Vector3.Lerp(transform.position, curPos, Time.deltaTime * 10);
+            transform.rotation = Quaternion.Lerp(transform.rotation, curRot, Time.deltaTime * 10);
         }
     }
 
@@ -110,8 +121,8 @@ public class Bullet : MonoBehaviourPunCallbacks, IPunObservable
         }
         else
         {
-            transform.position = (Vector3)stream.ReceiveNext();
-            transform.rotation = (Quaternion)stream.ReceiveNext();
+            curPos = (Vector3)stream.ReceiveNext();
+            curRot = (Quaternion)stream.ReceiveNext();
             damage = (float)stream.ReceiveNext();
             per = (int)stream.ReceiveNext();
         }

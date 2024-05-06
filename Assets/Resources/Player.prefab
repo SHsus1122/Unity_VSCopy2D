@@ -573,7 +573,6 @@ GameObject:
   - component: {fileID: 5175468597423561234}
   - component: {fileID: 5825622529715855626}
   - component: {fileID: 332030927433768054}
-  - component: {fileID: -3580318470202688793}
   - component: {fileID: 4496831392737602703}
   - component: {fileID: 3384754861038764315}
   - component: {fileID: -847337665541382343}
@@ -780,6 +779,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   inputVec: {x: 0, y: 0}
   resultVec: {x: 0, y: 0}
+  curPos: {x: 0, y: 0, z: 0}
   scanner: {fileID: 0}
   hands: []
   animCon:
@@ -822,7 +822,7 @@ MonoBehaviour:
   ObservedComponents:
   - {fileID: 5175468597423561234}
   - {fileID: 332030927433768054}
-  - {fileID: -3580318470202688793}
+  - {fileID: 0}
   - {fileID: 4496831392737602703}
   sceneViewId: 0
   InstantiationId: 0
@@ -843,22 +843,6 @@ MonoBehaviour:
   m_SynchronizeAngularVelocity: 0
   m_TeleportEnabled: 0
   m_TeleportIfDistanceGreaterThan: 3
---- !u!114 &-3580318470202688793
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6795932912850234857}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 627855c7f81362d41938ffe0b1475957, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_SynchronizePosition: 1
-  m_SynchronizeRotation: 1
-  m_SynchronizeScale: 0
-  m_UseLocal: 1
 --- !u!114 &4496831392737602703
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -49,17 +49,19 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         if (!PhotonNetwork.LocalPlayer.IsLocal && !PhotonNetwork.IsMasterClient)
             return;
 
+        PhotonNetwork.SerializationRate = 60;   // OnPhotonSerializeView 호출 빈도
+        PhotonNetwork.SendRate = 60;            // RPC 원격 프로시저 호출 빈도 // 단발성 원할 때 한번
+
         poolManager.SetActive(true);
         spawner.SetActive(true);
+        if (!PhotonNetwork.IsMasterClient)
+        {
+            spawner = GameObject.FindWithTag("Spawner");
+        }
 
         Debug.Log("[ GameManager ] Call Char Index : " + id);
-        //poolManager.SetActive(true);
-        //spawner.SetActive(true);
 
         PlayerManager.instance.SpawnPlayer(id);
-
-        //uiLevelUp.Show();
-        //uiLevelUp.Select(playerId % 2);     // 기존 무기 지급을 위한 함수 호출 -> 캐릭터 ID로 변경
 
         uiGameStart.localScale = Vector3.zero;
         gameManagerPV.RPC("Resume", RpcTarget.All);
@@ -145,26 +147,6 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
             GameVictory();
         }
     }
-
-
-
-    //// ========================================== [ 경험치 획득 ]
-    //public void GetExp()
-    //{
-    //    if (!isLive)
-    //        return;
-
-    //    exp++;
-
-    //    // Mathf.Min(level, nextExp.Length - 1) 를 통해서 에러방지(초과) 및 마지막 레벨만 나오게 합니다.
-    //    if (exp == nextExp[Mathf.Min(Playerlevel, nextExp.Length - 1)])
-    //    {
-    //        Playerlevel++;      // 레벨업 적용
-    //        exp = 0;            // 경험치 초기화
-    //        player.Cost++;      // Player 레벨업 스킬 강화용 코스트 추가
-    //        uiLevelUp.CallLevelUp();
-    //    }
-    //}
 
 
 

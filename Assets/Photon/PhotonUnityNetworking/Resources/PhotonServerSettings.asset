@@ -67,6 +67,8 @@ MonoBehaviour:
   - Get
   - SetParent
   - test
+  - KnockBack
+  - TriggerEventRPC
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

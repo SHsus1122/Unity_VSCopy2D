@@ -1,9 +1,10 @@
 ﻿using Photon.Pun;
 using Photon.Realtime;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
 
-public class Weapon : MonoBehaviourPunCallbacks
+public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
 {
     public int id;          // 무기 ID
     public int prefabId;    // 프리펩 ID(종류)
@@ -15,6 +16,9 @@ public class Weapon : MonoBehaviourPunCallbacks
     public Player player;
 
     float timer;
+
+    Vector3 curPos;
+    Quaternion curRot;
 
     void Awake()
     {
@@ -43,10 +47,7 @@ public class Weapon : MonoBehaviourPunCallbacks
 
     void Update()
     {
-        if (player == null)
-            return;
-
-        if (!player.isPlayerLive && !weaponPV.IsMine)
+        if (player == null && !player.isPlayerLive)
             return;
 
         switch (id)
@@ -64,6 +65,12 @@ public class Weapon : MonoBehaviourPunCallbacks
                     Fire();
                 }
                 break;
+        }
+
+        if (!weaponPV.IsMine)
+        {
+            transform.position = Vector3.Lerp(transform.position, curPos, Time.deltaTime * 10);
+            transform.rotation = Quaternion.Lerp(transform.rotation, curRot, Time.deltaTime * 10);
         }
     }
 
@@ -85,7 +92,7 @@ public class Weapon : MonoBehaviourPunCallbacks
         Debug.Log("[ Weapon ] IsLocalPlayer : " + PhotonNetwork.LocalPlayer.IsLocal);
         //if (!PhotonNetwork.LocalPlayer.IsLocal && !weaponPV.IsMine)
         //    return;
-        
+
 
         this.transform.localPosition = Vector3.zero;
 
@@ -141,24 +148,6 @@ public class Weapon : MonoBehaviourPunCallbacks
 
         player.BroadcastMessage("ApplyGear", SendMessageOptions.DontRequireReceiver);
     }
-
-
-    //[PunRPC]
-    //void InitRPC(string ownName, float newDamage, int newCount, int newPrefabId, float newSpeed)
-    //{
-    //    Player nowPlayer = PlayerManager.instance.FindPlayer(ownName);
-    //    foreach ()
-    //    {
-
-    //    }
-
-    //    damage = newDamage;
-    //    count = newCount;
-    //    prefabId = newPrefabId;
-    //    speed = newSpeed;
-
-    //    nowPlayer.BroadcastMessage("ApplyGear", SendMessageOptions.DontRequireReceiver);
-    //}
 
 
 
@@ -228,15 +217,6 @@ public class Weapon : MonoBehaviourPunCallbacks
 
 
 
-    //public int id;          // 무기 ID
-    //public int prefabId;    // 프리펩 ID(종류)
-    //public float damage;    // 데미지
-    //public int count;       // 개수
-    //public float speed;     // 속도
-    //public PhotonView weaponPV;
-    //public GameObject playerObject;
-    //public Player player;
-
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
         if (stream.IsWriting)   // IsMine == true
@@ -249,8 +229,8 @@ public class Weapon : MonoBehaviourPunCallbacks
         }
         else  // IsMine == false
         {
-            transform.position = (Vector3)stream.ReceiveNext();
-            transform.rotation = (Quaternion)stream.ReceiveNext();
+            curPos = (Vector3)stream.ReceiveNext();
+            curRot = (Quaternion)stream.ReceiveNext();
             damage = (float)stream.ReceiveNext();
             count = (int)stream.ReceiveNext();
             speed = (float)stream.ReceiveNext();

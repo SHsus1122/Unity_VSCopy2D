@@ -26,6 +26,9 @@ public class ScannerPlayer : MonoBehaviour
         Transform result = null;
         float diff = 100;
 
+        if (targets.Length == 0)
+            return PlayerManager.instance.playerList[0].transform;
+
         foreach (RaycastHit2D target in targets)
         {
             if (!target.transform.CompareTag("Player"))

@@ -15,14 +15,13 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
     public ScannerPlayer scanner;
 
     bool isLive;
+    float timer;
 
     Rigidbody2D rigid;
     Collider2D coll;
     Animator anim;
     SpriteRenderer spriter;
-    WaitForFixedUpdate wait;
-    SpawnData enemyData;
-    Vector2 nowPos;
+    Vector3 nowPos;
 
     // Start is called before the first frame update
     void Awake()
@@ -32,7 +31,6 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
         anim = GetComponent<Animator>();
         spriter = GetComponent<SpriteRenderer>();
         scanner = GetComponent<ScannerPlayer>();
-        wait = new WaitForFixedUpdate();
     }
 
     private void Start()
@@ -50,13 +48,12 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
     #region Update 관련 로직
     private void Update()
     {
-        if (isLive)
+        if (isLive && timer > 0.2f)
         {
             target = scanner.nearestTarget.GetComponent<Rigidbody2D>();
-
-            if (target == null)
-                target = PlayerManager.instance.playerList[0].GetComponent<Rigidbody2D>();
+            timer = 0;
         }
+        timer += Time.deltaTime;
     }
 
     void FixedUpdate()
@@ -124,8 +121,42 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
     }
 
 
-    // 적의 충돌 이벤트 관련 처리용 함수
-    [PunRPC]
+    //// 적의 충돌 이벤트 관련 처리용 함수
+    //[PunRPC]
+    //private void OnTriggerEnter2D(Collider2D collision)
+    //{
+    //    // 사망 로직이 연달아 실행되는 것을 방지하기 위해서 !isLive 조건을 추가
+    //    // 즉, 너무 짧은 순간에 두 번 일어나는 경우를 방지하는 것입니다.
+    //    if (!collision.CompareTag("Bullet") || !isLive)
+    //        return;
+
+    //    enemyHealth -= collision.GetComponent<Bullet>().damage; // 데미지 처리
+
+    //    StartCoroutine(KnockBack(collision));                   // 물리력 발생 함수 호출
+
+    //    if (enemyHealth > 0)
+    //    {
+    //        anim.SetTrigger("Hit");
+    //        AudioManager.instance.PlaySfx(AudioManager.Sfx.Hit);   // 피격 효과음 재생
+    //    }
+    //    else
+    //    {
+    //        isLive = false;             // 생존 상태 변경
+    //        coll.enabled = false;       // 콜라이더 비활성화
+    //        rigid.simulated = false;    // 물리(움직임) 비활성화
+    //        spriter.sortingOrder = 1;   // 표현 우선순위 변경
+    //        anim.SetBool("Dead", true); // 애니메이터 파라메터 상태 변경
+
+    //        // 경험치 적용을 위한 코드
+    //        collision.GetComponentInParent<Player>().kill++;
+    //        collision.GetComponentInParent<Player>().GetExp(collision.GetComponentInParent<Player>());
+
+    //        // 분기문으로 플레이어가 생존함에 따라 최종 결과에서 몬스터들이 전부 사망시 다량의 사망 효과음 재생을 방지합니다.
+    //        if (collision.GetComponentInParent<Player>().isPlayerLive)
+    //            AudioManager.instance.PlaySfx(AudioManager.Sfx.Dead);   // 사망 효과음 재생
+    //    }
+    //}
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         // 사망 로직이 연달아 실행되는 것을 방지하기 위해서 !isLive 조건을 추가
@@ -133,9 +164,16 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
         if (!collision.CompareTag("Bullet") || !isLive)
             return;
 
-        enemyHealth -= collision.GetComponent<Bullet>().damage; // 데미지 처리
+        enemyPV.RPC("TriggerEventRPC", RpcTarget.AllBuffered, collision.gameObject.GetPhotonView().ViewID);
+    }
 
-        StartCoroutine(KnockBack(collision));                   // 물리력 발생 함수 호출
+    [PunRPC]
+    void TriggerEventRPC(int senderViewid)
+    {
+        Collider2D sender = PhotonView.Find(senderViewid).transform.GetComponent<Collider2D>();
+
+        enemyHealth -= sender.GetComponent<Bullet>().damage;
+        StartCoroutine(KnockBack(sender));
 
         if (enemyHealth > 0)
         {
@@ -151,15 +189,17 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
             anim.SetBool("Dead", true); // 애니메이터 파라메터 상태 변경
 
             // 경험치 적용을 위한 코드
-            collision.GetComponentInParent<Player>().kill++;
-            collision.GetComponentInParent<Player>().GetExp(collision.GetComponentInParent<Player>());
+            sender.GetComponentInParent<Player>().kill++;
+            sender.GetComponentInParent<Player>().GetExp(sender.GetComponentInParent<Player>());
 
             // 분기문으로 플레이어가 생존함에 따라 최종 결과에서 몬스터들이 전부 사망시 다량의 사망 효과음 재생을 방지합니다.
-            if (collision.GetComponentInParent<Player>().isPlayerLive)
+            if (sender.GetComponentInParent<Player>().isPlayerLive)
                 AudioManager.instance.PlaySfx(AudioManager.Sfx.Dead);   // 사망 효과음 재생
         }
     }
 
+
+    [PunRPC]
     IEnumerator KnockBack(Collider2D collision)
     {
         // null 을 리턴할 경우 1 프레임 쉬기
@@ -174,15 +214,25 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
         gameObject.SetActive(false);
     }
 
+
+
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
         if (stream.IsWriting)
         {
             stream.SendNext(transform.position);
+            stream.SendNext(enemySpeed);
+            stream.SendNext(enemyHealth);
+            stream.SendNext(enemyMaxHealth);
+            stream.SendNext(isLive);
         }
         else
         {
             nowPos = (Vector3)stream.ReceiveNext();
+            enemySpeed = (float)stream.ReceiveNext();
+            enemyHealth = (float)stream.ReceiveNext();
+            enemyMaxHealth = (float)stream.ReceiveNext();
+            isLive = (bool)stream.ReceiveNext();
         }
     }
 }
