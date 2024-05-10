@@ -9,9 +9,9 @@ using UnityEngine.UI;
 public class LevelUp : MonoBehaviour
 {
     public Player player;
+    public Item[] items;
 
     RectTransform rect;
-    Item[] items;
     Button[] buttons;
     Text textCost;
 

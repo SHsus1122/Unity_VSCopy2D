@@ -204,8 +204,8 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     // 플레이어와 몬스터가 충돌하고 있는 상태면 지속적으로 체력 감소
     private void OnCollisionStay2D(Collision2D collision)
     {
-        //if (!GameManager.Instance.isLive)
-        return;
+        if (!GameManager.instance.isGameLive)
+            return;
 
         health -= Time.deltaTime * 10;
 

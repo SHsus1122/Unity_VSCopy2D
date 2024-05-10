@@ -91,6 +91,7 @@ public class Item : MonoBehaviourPun, IPunObservable
                     weapon = PhotonNetwork.Instantiate("Weapon", transform.position, Quaternion.identity).GetComponent<Weapon>();
                     //weapon.player = player;
 
+                    Debug.Log("==== [ Item ] data id : " + data.itemId);
                     weapon.Init(data, weapon);
                 }
                 else

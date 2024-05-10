@@ -1,5 +1,6 @@
 ﻿using Photon.Pun;
 using Photon.Realtime;
+using System.Collections;
 using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
@@ -25,25 +26,25 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
         // [기존 방식] 자기자신 말고 부모 오브젝트로부터 가져오는 방법
         //player = GetComponentInParent<Player>();
 
-        // [변경된 방식] 플레이어 초기화에 매개변수가 들어감으로 인해 처음 초기화는 게임 매니저를 활용하는 것으로 변경합니다.
+        // [변경된 방식] 플레이어 초기화에 매개변4수가 들어감으로 인해 처음 초기화는 게임 매니저를 활용하는 것으로 변경합니다.
         //if (!weaponPV.IsMine)
         //    return;
         weaponPV = photonView;
 
-        SetPlayerWithParent();
+        SetPlayerWithParent(weaponPV.Owner.NickName);
     }
 
-    void SetPlayerWithParent()
+
+
+    void SetPlayerWithParent(string owName)
     {
-        for (int i = 0; i < PlayerManager.instance.playerList.Count; i++)
-        {
-            if (this.weaponPV.Owner.NickName == PlayerManager.instance.playerList[i].playerPV.Owner.NickName)
-            {
-                player = PlayerManager.instance.playerList[i];
-                this.transform.parent = PlayerManager.instance.playerList[i].transform;
-            }
-        }
+        Player owPlayer = PlayerManager.instance.FindPlayer(owName);
+
+        player = owPlayer;
+        this.transform.parent = owPlayer.transform;
     }
+
+
 
     void Update()
     {
@@ -62,7 +63,7 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
                 if (timer > speed)
                 {
                     timer = 0f;
-                    Fire();
+                    weaponPV.RPC("Fire", RpcTarget.AllBuffered);
                 }
                 break;
         }
@@ -74,17 +75,21 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
         }
     }
 
+
+
     public void WeaponLevelUp(float damage, int count)
     {
         this.damage = damage * player.character.GetDamage();
         this.count += count;
 
         if (id == 0)
-            Batch();
+            weaponPV.RPC("Batch", RpcTarget.AllBuffered);
 
         // 물론 레벨업을 하는 경우에도 레벨업에 대한 Gear데미지를 올려 달라는 의미로 여기서 호출시켜 줍니다.
         player.BroadcastMessage("ApplyGear", SendMessageOptions.DontRequireReceiver);
     }
+
+
 
     // 초기화 함수에 만들어둔 스크립트블 오브젝트를 매개변수로 받아서 활용합니다.
     public void Init(ItemData data, Weapon weapon)
@@ -93,14 +98,7 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
         //if (!PhotonNetwork.LocalPlayer.IsLocal && !weaponPV.IsMine)
         //    return;
 
-
         this.transform.localPosition = Vector3.zero;
-
-        Debug.Log("[ Weapon ] weapon is : " + weapon.name);
-        Debug.Log("[ Weapon ] player is : " + player.name);
-
-        // Basic Set
-        name = "Weapon " + data.itemId;         // Weapon 이름 설정, 클래스 자체 변수
 
         // Property Set
         // 각종 무기 속성들은 스크립트블 오브젝트의 데이터로 초기화 작업(셋팅값을 가져오기 위해서)
@@ -115,7 +113,6 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
             if (data.projectile == GameManager.instance.pool.prefabs[index])
             {
                 prefabId = index;
-                Debug.Log("[ Weapon ] Perfab ID : " + prefabId);
                 break;
             }
         }
@@ -125,7 +122,7 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
             case 0:
                 // speed : 회전방향 및 속도
                 speed = 150 * player.character.GetWeaponSpeed();
-                Batch();
+                weaponPV.RPC("Batch", RpcTarget.AllBuffered);
                 break;
             default:
                 // 발사 속도
@@ -134,9 +131,9 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
         }
 
         // Hand Set
-        Hand hand = player.hands[(int)data.itemType];   // itemType(열거형)을 이용해서 가져옵니다.
-        hand.spriter.sprite = data.hand;
-        hand.gameObject.SetActive(true);
+        /*        Hand hand = player.hands[(int)data.itemType];   // itemType(열거형)을 이용해서 가져옵니다.
+                hand.spriter.sprite = data.hand;
+                hand.gameObject.SetActive(true);*/
 
         // 특정 함수 호출을 모든 자식에게 방송하는 역할인 BroadcastMessage를 사용합니다.
         // 즉, Player가 가지고 있는 모든 Gear에 한해서 실행시키게 하는게 목적입니다.
@@ -147,10 +144,54 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
         //    id, damage, count, prefabId, speed);
 
         player.BroadcastMessage("ApplyGear", SendMessageOptions.DontRequireReceiver);
+
+        weaponPV.RPC("InitObjName", RpcTarget.AllBuffered, data.itemId, weaponPV.Owner.NickName, (int)data.itemType);
+
+        //weaponPV.RPC("InitObjCheck", RpcTarget.AllBuffered, data.itemId, weaponPV.Owner.NickName, (int)data.itemType);
     }
 
 
 
+    [PunRPC]
+    void InitObjName(int itemId, string owName, int itemTypeNum)
+    {
+        Player owPlayer = PlayerManager.instance.FindPlayer(owName);
+        Transform[] objList = owPlayer.GetComponentsInChildren<Transform>();
+
+        foreach (Transform obj in objList)
+        {
+            if (obj.CompareTag("Weapon"))
+                Debug.Log("[ Weapon ] obj.GetComponent<Weapon>().id : " + (obj.GetComponent<Weapon>().id) + ", itemId : " + (itemId) + ", owName : " + (owPlayer.playerPV.Owner.NickName) + ", itemTypeNum : " + (itemTypeNum));
+
+            if (obj.CompareTag("Weapon") && obj.GetComponent<Weapon>().id == itemId)
+            {
+                Debug.Log("[ Weapon ] InitObjName Owner Name : " + owPlayer.playerPV.Owner.NickName);
+                obj.gameObject.name = "Weapon " + itemId;
+                Hand hand = owPlayer.hands[itemTypeNum];
+                hand.spriter.sprite = owPlayer.uiLevelUp.items[itemTypeNum].data.hand;
+                hand.gameObject.SetActive(true);
+            }
+        }
+
+        foreach (Transform obj in objList)
+        {
+            if (obj.CompareTag("Weapon") && obj.GetComponent<Weapon>().gameObject.name.Contains("Clone"))
+            {
+                StartCoroutine(TestRoutine(itemId, owName, itemTypeNum));
+                break;
+            }
+        }
+    }
+
+    IEnumerator TestRoutine(int itemId, string owName, int itemTypeNum)
+    {
+        yield return new WaitForSeconds(0.1f);
+        Debug.Log("[ Weapon ] Start Coroutine");
+        weaponPV.RPC("InitObjName", RpcTarget.AllBuffered, itemId, owName, itemTypeNum);
+    }
+
+
+    [PunRPC]
     void Batch()
     {
         Debug.Log("[ Weapon ] Batch Call");
@@ -169,7 +210,7 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
                 Debug.Log("[ Weapon ] Batch prefabId is : " + prefabId);
                 bullet = GameManager.instance.pool.Get(prefabId).transform;
                 bullet.parent = transform;
-                Debug.Log(bullet.name + "'s parent is " + bullet.parent.name);
+                Debug.Log("[ Weapon ] " + bullet.name + "'s parent is " + bullet.parent.name);
             }
 
             // 초기 스폰시 위치 지정을 위해서 해주는 작업입니다.
@@ -223,17 +264,21 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
         {
             stream.SendNext(transform.position);
             stream.SendNext(transform.rotation);
+            stream.SendNext(id);
             stream.SendNext(damage);
             stream.SendNext(count);
             stream.SendNext(speed);
+            stream.SendNext(prefabId);
         }
         else  // IsMine == false
         {
             curPos = (Vector3)stream.ReceiveNext();
             curRot = (Quaternion)stream.ReceiveNext();
+            id = (int)stream.ReceiveNext();
             damage = (float)stream.ReceiveNext();
             count = (int)stream.ReceiveNext();
             speed = (float)stream.ReceiveNext();
+            prefabId = (int)stream.ReceiveNext();
         }
     }
 }

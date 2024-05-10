@@ -164,16 +164,19 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
         if (!collision.CompareTag("Bullet") || !isLive)
             return;
 
+        Debug.Log("[ Enemy ] TriggerEvent Damage ViewID : " + collision.gameObject.GetPhotonView().ViewID);
         enemyPV.RPC("TriggerEventRPC", RpcTarget.AllBuffered, collision.gameObject.GetPhotonView().ViewID);
+        StartCoroutine(KnockBack(collision));
     }
 
     [PunRPC]
     void TriggerEventRPC(int senderViewid)
     {
         Collider2D sender = PhotonView.Find(senderViewid).transform.GetComponent<Collider2D>();
+        Debug.Log("[ Enemy ] TriggerEvent Sender Name : " + sender.name);
 
         enemyHealth -= sender.GetComponent<Bullet>().damage;
-        StartCoroutine(KnockBack(sender));
+        //StartCoroutine(KnockBack(sender));
 
         if (enemyHealth > 0)
         {
@@ -199,13 +202,14 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
     }
 
 
-    [PunRPC]
     IEnumerator KnockBack(Collider2D collision)
     {
         // null 을 리턴할 경우 1 프레임 쉬기
         yield return null;  // 다음 하나의 물리 프레임까지 기다리는 딜레이
+        Debug.Log("[ Enemy ] KnockBack Collision Name: " + collision.name);
+        Debug.Log("[ Enemy ] KnockBack Collision Name: " + collision.GetComponentInParent<Player>().playerPV.Owner.NickName);
         Vector3 playerPos = collision.GetComponentInParent<Player>().transform.position;
-        Vector3 dirVec = transform.position - playerPos;    // 플레이어로부터 반대의 방향
+        Vector3 dirVec = transform.position - playerPos;                // 플레이어로부터 반대의 방향
         rigid.AddForce(dirVec.normalized * 3f, ForceMode2D.Impulse);    // Impulse : 즉시 발동(물리력)
     }
 
