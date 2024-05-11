@@ -281,6 +281,8 @@ MonoBehaviour:
   target: {fileID: 0}
   enemyPV: {fileID: -3505616672198633876}
   scanner: {fileID: 0}
+  spriter: {fileID: 0}
+  isLive: 0
 --- !u!114 &-3505616672198633876
 MonoBehaviour:
   m_ObjectHideFlags: 0

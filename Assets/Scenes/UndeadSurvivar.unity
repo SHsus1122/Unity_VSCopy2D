@@ -19944,9 +19944,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1383446451}
-        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: GameStart
+      - m_Target: {fileID: 1181887881}
+        m_TargetAssemblyTypeName: GameRoom, Assembly-CSharp
+        m_MethodName: Ready
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -20404,9 +20404,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1383446451}
-        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: GameStart
+      - m_Target: {fileID: 1181887881}
+        m_TargetAssemblyTypeName: GameRoom, Assembly-CSharp
+        m_MethodName: Ready
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -38016,6 +38016,77 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1174988370}
   m_CullTransparentMesh: 1
+--- !u!1 &1181887879
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1181887880}
+  - component: {fileID: 1181887881}
+  - component: {fileID: 1181887882}
+  m_Layer: 0
+  m_Name: GameRoom
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &1181887880
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1181887879}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1181887881
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1181887879}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b24f225128fc01a42bcfe4f1ba1a6e43, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerName: 
+  playerType: 0
+  isReady: 0
+  gameRoomPV: {fileID: 0}
+--- !u!114 &1181887882
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1181887879}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents: []
+  sceneViewId: 2
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
 --- !u!1 &1226430209
 GameObject:
   m_ObjectHideFlags: 0
@@ -39466,6 +39537,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 0}
+  items: []
 --- !u!1 &1475504249
 GameObject:
   m_ObjectHideFlags: 0
@@ -57811,6 +57883,7 @@ MonoBehaviour:
   uiLogin: {fileID: 1307547947}
   uiLobby: {fileID: 1864214504}
   uiRoom: {fileID: 830426603}
+  gameRoom: {fileID: 1181887879}
   roomButtonPrefab: {fileID: 3612920202843243314, guid: 7dc22db69309e8e4692247a8212bf132, type: 3}
   roomContent: {fileID: 626899799}
   spawnPoint: {fileID: 101672802}
@@ -58402,6 +58475,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4278134576725912680, guid: 8a41a600d6039914c930f2f7b30a0896, type: 3}
+      propertyPath: enemyLayer.m_Bits
+      value: 64
+      objectReference: {fileID: 0}
+    - target: {fileID: 4278134576725912680, guid: 8a41a600d6039914c930f2f7b30a0896, type: 3}
       propertyPath: enemySpawnData.Array.size
       value: 5
       objectReference: {fileID: 0}
@@ -58472,6 +58549,14 @@ PrefabInstance:
     - target: {fileID: 4278134576725912680, guid: 8a41a600d6039914c930f2f7b30a0896, type: 3}
       propertyPath: enemySpawnData.Array.data[2].spriteType
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4278134576725912680, guid: 8a41a600d6039914c930f2f7b30a0896, type: 3}
+      propertyPath: enemySpawnData.Array.data[3].spriteType
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4278134576725912680, guid: 8a41a600d6039914c930f2f7b30a0896, type: 3}
+      propertyPath: enemySpawnData.Array.data[4].spriteType
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 7185575206557553387, guid: 8a41a600d6039914c930f2f7b30a0896, type: 3}
       propertyPath: m_Name
@@ -75844,5 +75929,6 @@ SceneRoots:
   - {fileID: 243875355}
   - {fileID: 894159855}
   - {fileID: 1693453986}
+  - {fileID: 1181887880}
   - {fileID: 1419864811}
   - {fileID: 851311122}

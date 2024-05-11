@@ -41,6 +41,9 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     // Start is called before the first frame update
     void Awake()
     {
+        if (!PhotonNetwork.LocalPlayer.IsLocal && !PhotonNetwork.IsMasterClient)
+            return;
+
         rigid = GetComponent<Rigidbody2D>();
         spriter = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
@@ -64,19 +67,57 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         }
     }
 
-    [PunRPC]
+    //[PunRPC]
     public void Init(int playerTypeId)
     {
         //transform.name = "Player " + playerPV.OwnerActorNr;
         typeId = playerTypeId;                          // 캐릭터 종류 ID
         health = PlayerManager.instance.maxHealth;      // 초기 체력 설정
         speed *= character.GetSpeed();                  // 캐릭터 고유 속성값 적용
-        anim.runtimeAnimatorController = animCon[typeId];
+        //anim.runtimeAnimatorController = animCon[typeId];
 
-        achiveManager.uiNotice = GameManager.instance.uiNotice;
-        uiHud.transform.localScale = Vector3.one;
-        uiLevelUp.player = this;
-        uiLevelUp.Show();
+        //achiveManager.uiNotice = GameManager.instance.uiNotice;
+        //uiHud.transform.localScale = Vector3.one;
+        //uiLevelUp.player = this;
+        //uiLevelUp.Show();
+
+        //Transform[] hudArr = uiHud.GetComponentsInChildren<Transform>(true);
+        //foreach (Transform Child in hudArr)
+        //{
+        //    if (Child.GetComponent<HUD>())
+        //        Child.GetComponent<HUD>().player = this;
+
+        //    if (Child.GetComponent<Follow>())
+        //        Child.GetComponent<Follow>().player = this;
+        //}
+
+        //Transform[] levelUpArr = uiLevelUp.GetComponentsInChildren<Transform>();
+        //foreach (Transform Child in levelUpArr)
+        //{
+        //    if (Child.GetComponent<Item>())
+        //        Child.GetComponent<Item>().player = this;
+        //}
+
+        photonView.RPC("InitRPC", RpcTarget.AllBuffered, NickNameText.text.ToString(), typeId, health, speed);
+        //uiLevelUp.Select(playerTypeId % 2);
+    }
+
+
+    [PunRPC]
+    public void InitRPC(string owName, int newTypeId, float newHealth, float newSpeed)
+    {
+        Player player = PlayerManager.instance.FindPlayer(owName);
+
+        player.NickNameText.text = owName;
+        player.typeId = newTypeId;
+        player.anim.runtimeAnimatorController = animCon[typeId];
+        player.health = newHealth;
+        player.speed = newSpeed;
+
+        player.achiveManager.uiNotice = GameManager.instance.uiNotice;
+        player.uiHud.transform.localScale = Vector3.one;
+        player.uiLevelUp.player = this;
+        player.uiLevelUp.Show();
 
         Transform[] hudArr = uiHud.GetComponentsInChildren<Transform>(true);
         foreach (Transform Child in hudArr)
@@ -94,20 +135,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             if (Child.GetComponent<Item>())
                 Child.GetComponent<Item>().player = this;
         }
-
-        photonView.RPC("InitRPC", RpcTarget.AllBuffered, NickNameText.text.ToString(), typeId, health, speed);
-        uiLevelUp.Select(playerTypeId % 2);
-    }
-
-
-    [PunRPC]
-    public void InitRPC(string owName, int newTypeId, float newHealth, float newSpeed)
-    {
-        Player player = PlayerManager.instance.FindPlayer(owName);
-        player.NickNameText.text = owName;
-        player.typeId = newTypeId;
-        player.health = newHealth;
-        player.speed = newSpeed;
+        player.uiLevelUp.Select(typeId % 2);
     }
 
 
@@ -178,7 +206,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
 
         achiveManager.CheckAchive(transform.GetComponent<Player>());
 
-        playerPV.RPC("FlipXRPC", RpcTarget.AllBuffered);
+        playerPV.RPC("FlipXRPC", RpcTarget.All);
     }
 
 

@@ -32,20 +32,26 @@ public class Bullet : MonoBehaviourPunCallbacks, IPunObservable
                 Transform[] list = PlayerManager.instance.playerList[i].gameObject.GetComponentsInChildren<Transform>();
                 for (int j = 0; j < list.Length; j++)
                 {
-                    if (list[j].CompareTag("Weapon"))
-                    {
-                        Debug.Log("[ Bullet ] prefabId is : " + list[j].GetComponent<Weapon>().id.ToString());
-                        Debug.Log("[ Bullet ] this split is : " + this.name.Split(' ')[1]);
-                    }
-
                     if (list[j].CompareTag("Weapon") && list[j].GetComponent<Weapon>().id.ToString() == this.name.Split(' ')[1].Split('(')[0])
                     {
                         Debug.Log("[ Bullet ] Parent name is : " + list[j].name);
                         this.transform.parent = list[j].transform;
+
+                        if (this.transform.parent == null)
+                        {
+                            Debug.Log("[ Bullet ] ReParent Call !!");
+                            StartCoroutine(ReParent());
+                        }
                     }
                 }
             }
         }
+    }
+
+    IEnumerator ReParent()
+    {
+        yield return new WaitForSeconds(0.5f);
+        SetParent();
     }
 
     public void Init(float damage, int per, Vector3 dir, string weaponName)

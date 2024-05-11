@@ -72,6 +72,8 @@ MonoBehaviour:
   - SetObjName
   - InitObjName
   - InitObjCheck
+  - Dead
+  - RoomGameStartRPC
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

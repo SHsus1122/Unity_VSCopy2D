@@ -65,8 +65,8 @@ public class LevelUp : MonoBehaviour
 
     public void Select(int index)
     {
-        if (!player.gameObject.GetPhotonView().IsMine)
-            return;
+        //if (!player.gameObject.GetPhotonView().IsMine)
+        //    return;
 
         Debug.Log("[ LevelUp ] Select index is : " + index);
         

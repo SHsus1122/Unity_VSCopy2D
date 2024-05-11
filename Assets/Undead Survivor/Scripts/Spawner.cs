@@ -11,9 +11,11 @@ public class Spawner : MonoBehaviourPun
     public Transform[] enemySpawnPoint;
     public SpawnData[] enemySpawnData;
     public float levelTime;
+    public LayerMask enemyLayer;
 
     int level;
     float timer;
+    bool startInterval = false;
 
     void Awake()
     {
@@ -26,6 +28,7 @@ public class Spawner : MonoBehaviourPun
         // 최대 시간에 따라 몬스터 데이터 크기로 나누어 자동으로 구간 시간 계산을 합니다.
         Debug.Log("[ Spawner ] GameManager.Instance.maxGameTime : " + GameManager.instance.maxGameTime);
         levelTime = GameManager.instance.maxGameTime / enemySpawnData.Length;
+        StartCoroutine(StartIntervalCall());
     }
 
     void Update()
@@ -37,17 +40,29 @@ public class Spawner : MonoBehaviourPun
         // FloorToInt : 소수점 아래는 버리고 int형으로 변환(올림은 CeilToInt)
         level = Mathf.Min(Mathf.FloorToInt(GameManager.instance.gameTime / levelTime), enemySpawnData.Length - 1);
 
-        if (timer > enemySpawnData[level].spawnTime)
+        if (timer > enemySpawnData[level].spawnTime && startInterval)
         {
             timer = 0f;
             Spawn();
         }
     }
 
+    IEnumerator StartIntervalCall()
+    {
+        yield return new WaitForSeconds(5);
+        startInterval = true;
+    }
+
     void Spawn()
     {
         if (!PhotonNetwork.IsMasterClient)
             return;
+
+        if (Physics2D.OverlapCircle(enemySpawnPoint[Random.Range(1, enemySpawnPoint.Length)].position, 0.6f, enemyLayer))
+        {
+            Debug.Log("[ Spawner ] Spawn Chechk Sphere True");
+            return;
+        }
 
         // 0~1 사이의 랜덤 숫자를 이용
         GameObject enemy = GameManager.instance.pool.Get(0);
@@ -60,6 +75,13 @@ public class Spawner : MonoBehaviourPun
             enemySpawnData[level].spriteType,
             enemySpawnData[level].health,
             enemySpawnData[level].speed);
+        if (!enemy.GetComponent<Enemy>().isLive)
+        {
+            enemy.GetComponent<Enemy>().isLive = true;
+            enemy.GetComponent<Enemy>().spriter.sortingOrder = 2;
+            enemy.GetComponent<Collider2D>().enabled = true;
+            enemy.GetComponent<Rigidbody2D>().simulated = true;
+        }
 
         Debug.Log("[ Spawner ] Sprite Type is : " + enemySpawnData[level].spriteType);
     }

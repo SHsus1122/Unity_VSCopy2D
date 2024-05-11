@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿using ExitGames.Client.Photon;
 using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
@@ -16,6 +16,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public GameObject uiLogin;
     public GameObject uiLobby;
     public GameObject uiRoom;
+    public GameObject gameRoom;
     public List<RoomInfo> rooms = new List<RoomInfo>();
 
     [Header("RoomPanel")]
@@ -62,12 +63,24 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         uiLogin.SetActive(false);
         uiLobby.SetActive(true);
         rooms.Clear();
+
+        gameRoom.SetActive(true);
     }
 
+    void CustomCreateRoom()
+    {
+        RoomOptions roomOptions = new RoomOptions();
+        roomOptions.MaxPlayers = 2;
+        roomOptions.CustomRoomPropertiesForLobby = new string[] { "RoomName", "ReadyCount" };
+        roomOptions.CustomRoomProperties = new Hashtable() { { "RoomName", roomInput.text } };
+        roomOptions.CustomRoomProperties = new Hashtable() { { "ReadyCount", 0 } };
+
+        PhotonNetwork.CreateRoom(roomInput.text, roomOptions);
+    }
 
     public void CreateRoom()
     {
-        PhotonNetwork.CreateRoom(roomInput.text, new RoomOptions { MaxPlayers = 2 });
+        CustomCreateRoom();
 
         Button myInstance = Instantiate(roomButtonPrefab, roomContent);
         myInstance.name = roomInput.text;
@@ -81,8 +94,11 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public void JoinRoom() => PhotonNetwork.JoinRoom(roomInput.text);
 
-    public void JoinOrCreateRoom() => PhotonNetwork.JoinOrCreateRoom(roomInput.text, new RoomOptions { MaxPlayers = 2 }, null);
-
+    public void JoinOrCreateRoom()
+    {
+        //PhotonNetwork.JoinOrCreateRoom(roomInput.text, new RoomOptions { MaxPlayers = 2 }, null);
+        CustomCreateRoom();
+    }
     public void JoinRandomRoom() => PhotonNetwork.JoinRandomRoom();
 
     public void LeaveRoom() => PhotonNetwork.LeaveRoom();

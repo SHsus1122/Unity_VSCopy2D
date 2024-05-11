@@ -63,7 +63,7 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
                 if (timer > speed)
                 {
                     timer = 0f;
-                    weaponPV.RPC("Fire", RpcTarget.AllBuffered);
+                    Fire();
                 }
                 break;
         }
@@ -234,7 +234,6 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
 
 
 
-    [PunRPC]
     void Fire()
     {
         if (!player.scanner.nearestTarget)
