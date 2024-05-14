@@ -22,8 +22,6 @@ public class PlayerManager : MonoBehaviourPunCallbacks
 
     public void SpawnPlayer(int typeId)
     {
-        Debug.Log("[ PlayerManager ] Spawn Player !");
-
         GameObject playerPrefab = PhotonNetwork.Instantiate("Player", playerSpawnPoint[Random.Range(0, playerSpawnPoint.Length)].transform.position, Quaternion.identity);
         Player player = playerPrefab.GetComponent<Player>();
         player.Init(typeId);

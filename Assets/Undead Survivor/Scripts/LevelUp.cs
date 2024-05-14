@@ -30,7 +30,6 @@ public class LevelUp : MonoBehaviour
         for (int i = 0; i < items.Length; i++)
         {
             buttons[i] = items[i].GetComponent<Button>();
-            Debug.Log(items[i].name);
         }
     }
 
@@ -68,7 +67,7 @@ public class LevelUp : MonoBehaviour
         //if (!player.gameObject.GetPhotonView().IsMine)
         //    return;
 
-        Debug.Log("[ LevelUp ] Select index is : " + index);
+        //Debug.Log("[ LevelUp ] Select index is : " + index);
         
         items[index].OnClick();
         player.Cost--;
@@ -115,7 +114,7 @@ public class LevelUp : MonoBehaviour
 
     void InfoUpdate()
     {
-        Debug.Log("[ LevelUp ] Now Cost is : " + player.Cost);
+        //Debug.Log("[ LevelUp ] Now Cost is : " + player.Cost);
         textCost.text = "Cost\n" + player.Cost;
 
         // 1. 모든 아이템 비활성화

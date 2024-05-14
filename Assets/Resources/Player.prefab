@@ -818,11 +818,10 @@ MonoBehaviour:
   prefixField: -1
   Synchronization: 3
   OwnershipTransfer: 0
-  observableSearch: 0
+  observableSearch: 2
   ObservedComponents:
   - {fileID: 5175468597423561234}
   - {fileID: 332030927433768054}
-  - {fileID: 0}
   - {fileID: 4496831392737602703}
   sceneViewId: 0
   InstantiationId: 0

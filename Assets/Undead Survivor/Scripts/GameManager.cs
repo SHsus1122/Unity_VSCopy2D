@@ -59,8 +59,6 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
             spawner = GameObject.FindWithTag("Spawner");
         }
 
-        Debug.Log("[ GameManager ] Call Char Index : " + id);
-
         PlayerManager.instance.SpawnPlayer(id);
 
         uiGameStart.localScale = Vector3.zero;

@@ -251,7 +251,7 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
     {
         // null 을 리턴할 경우 1 프레임 쉬기
         yield return null;  // 다음 하나의 물리 프레임까지 기다리는 딜레이
-        Debug.Log("[ Enemy ] KnockBack Collision Name: " + collision.name);
+        //Debug.Log("[ Enemy ] KnockBack Collision Name: " + collision.name);
         Vector3 playerPos = collision.GetComponentInParent<Player>().transform.position;
         Vector3 dirVec = transform.position - playerPos;                // 플레이어로부터 반대의 방향
         rigid.AddForce(dirVec.normalized * 3f, ForceMode2D.Impulse);    // Impulse : 즉시 발동(물리력)

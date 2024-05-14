@@ -22,7 +22,7 @@ public class GameRoom : MonoBehaviourPunCallbacks
     {
         ExitGames.Client.Photon.Hashtable customProperties = PhotonNetwork.CurrentRoom.CustomProperties;
         playerType = id;
-        Debug.Log("[ GameRoom ] playerType : " + id);
+        //Debug.Log("[ GameRoom ] playerType : " + id);
 
         if (!isReady)
         {

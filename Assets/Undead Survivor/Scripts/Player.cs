@@ -74,32 +74,8 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         typeId = playerTypeId;                          // 캐릭터 종류 ID
         health = PlayerManager.instance.maxHealth;      // 초기 체력 설정
         speed *= character.GetSpeed();                  // 캐릭터 고유 속성값 적용
-        //anim.runtimeAnimatorController = animCon[typeId];
-
-        //achiveManager.uiNotice = GameManager.instance.uiNotice;
-        //uiHud.transform.localScale = Vector3.one;
-        //uiLevelUp.player = this;
-        //uiLevelUp.Show();
-
-        //Transform[] hudArr = uiHud.GetComponentsInChildren<Transform>(true);
-        //foreach (Transform Child in hudArr)
-        //{
-        //    if (Child.GetComponent<HUD>())
-        //        Child.GetComponent<HUD>().player = this;
-
-        //    if (Child.GetComponent<Follow>())
-        //        Child.GetComponent<Follow>().player = this;
-        //}
-
-        //Transform[] levelUpArr = uiLevelUp.GetComponentsInChildren<Transform>();
-        //foreach (Transform Child in levelUpArr)
-        //{
-        //    if (Child.GetComponent<Item>())
-        //        Child.GetComponent<Item>().player = this;
-        //}
 
         photonView.RPC("InitRPC", RpcTarget.AllBuffered, NickNameText.text.ToString(), typeId, health, speed);
-        //uiLevelUp.Select(playerTypeId % 2);
     }
 
 
@@ -210,6 +186,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     }
 
 
+
     [PunRPC]
     void FlipXRPC()
     {
@@ -232,7 +209,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     // 플레이어와 몬스터가 충돌하고 있는 상태면 지속적으로 체력 감소
     private void OnCollisionStay2D(Collision2D collision)
     {
-        if (!GameManager.instance.isGameLive)
+        if (!GameManager.instance.isGameLive || !collision.gameObject.CompareTag("Enemy"))
             return;
 
         health -= Time.deltaTime * 10;

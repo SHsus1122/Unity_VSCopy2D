@@ -1,4 +1,5 @@
 ﻿using Photon.Pun;
+using Photon.Pun.Demo.Asteroids;
 using Photon.Pun.UtilityScripts;
 using Photon.Realtime;
 using System.Collections;
@@ -26,7 +27,6 @@ public class Spawner : MonoBehaviourPun
     private void Start()
     {
         // 최대 시간에 따라 몬스터 데이터 크기로 나누어 자동으로 구간 시간 계산을 합니다.
-        Debug.Log("[ Spawner ] GameManager.Instance.maxGameTime : " + GameManager.instance.maxGameTime);
         levelTime = GameManager.instance.maxGameTime / enemySpawnData.Length;
         StartCoroutine(StartIntervalCall());
     }
@@ -66,7 +66,14 @@ public class Spawner : MonoBehaviourPun
 
         // 0~1 사이의 랜덤 숫자를 이용
         GameObject enemy = GameManager.instance.pool.Get(0);
-        Debug.Log("[ Spawner ] enemy is name : " + enemy.name);
+
+        if (enemy == null)
+        {
+            enemy = PhotonNetwork.Instantiate(GameManager.instance.pool.prefabs[0].name, transform.position, Quaternion.identity);
+
+            Debug.Log("[ PoolManager ] select == null - select owner : " + enemy.GetPhotonView().Owner.NickName);
+            GameManager.instance.pool.pools[0].Add(enemy);   // 오브젝트 풀 리스트에 새롭게 생성된 것을 추가(등록)
+        }
 
         // 자식 오브젝트에서만 선택되도록 랜덤 시작은 1로 지정합니다.(Spanwer의 자식으로 포인트가 존재하기에 0번째는 Spanwer입니다)
         enemy.transform.position = enemySpawnPoint[Random.Range(1, enemySpawnPoint.Length)].position;
@@ -83,7 +90,6 @@ public class Spawner : MonoBehaviourPun
             enemy.GetComponent<Rigidbody2D>().simulated = true;
         }
 
-        Debug.Log("[ Spawner ] Sprite Type is : " + enemySpawnData[level].spriteType);
     }
 }
 

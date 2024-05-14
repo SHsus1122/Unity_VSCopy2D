@@ -28,10 +28,6 @@ public class Item : MonoBehaviourPun, IPunObservable
         icon.sprite = data.itemIcon;
 
         Text[] texts = GetComponentsInChildren<Text>();
-        for (int i = 0; i < texts.Length; i++)
-        {
-            Debug.Log("[ Item ] child is : " + texts[i].transform.name);
-        }
         textLevel = texts[0];   // 인스펙터 창의 순서대로 순번을 지정해줍니다.
         //textName = texts[1];
         //textDesc = texts[2];
@@ -66,11 +62,10 @@ public class Item : MonoBehaviourPun, IPunObservable
     // 사용자가 Button UI 를 통해서 클릭 이벤트로 레벨업을 통해 능력치 활성화 및 강화에 사용할 함수입니다.
     public void OnClick()
     {
-        Debug.Log("[ Item ] OnClick Call");
         if (player.Cost < 1) 
             return;
 
-        Debug.Log("==== [ Item ] OnClick : " + data.itemType);
+        //Debug.Log("==== [ Item ] OnClick : " + data.itemType);
 
         // 능력(아이템)에 타입에 따라 각각 다르게 처리합니다.
         switch (data.itemType)
@@ -83,7 +78,6 @@ public class Item : MonoBehaviourPun, IPunObservable
 
                 if (itemLevel == 0)
                 {
-                    Debug.Log("==== [ Item ] level.Melee, Range 0 으로 첫 시작부");
                     // level이 0인 즉, 처음 초기값의 실행부입니다. 
                     //GameObject newWeapon = new GameObject();    // 무기를 담을 빈 오브젝트 생성
                     //weapon = newWeapon.AddComponent<Weapon>();  // 새롭게 컴포넌트를 추가해서 현재 무기에 대입
@@ -91,7 +85,6 @@ public class Item : MonoBehaviourPun, IPunObservable
                     weapon = PhotonNetwork.Instantiate("Weapon", transform.position, Quaternion.identity).GetComponent<Weapon>();
                     //weapon.player = player;
 
-                    Debug.Log("==== [ Item ] data id : " + data.itemId);
                     weapon.Init(data, weapon);
                 }
                 else
@@ -101,7 +94,6 @@ public class Item : MonoBehaviourPun, IPunObservable
                     int nextCount = 0;
 
                     // 처음 이후의 레벨업은 데미지와 횟수를 계산해서 적용합니다. 결과는 백분율이기에 곱하기 계산입니다.
-                    Debug.Log("data.baseDamage : " + data.baseDamage + ", data.damages : " + data.damages[itemLevel]);
                     nextDamage += data.baseDamage * data.damages[itemLevel];    // 데미지 관련
                     nextCount += data.counts[itemLevel];                        // 횟수와 관통 관련
 
@@ -115,14 +107,12 @@ public class Item : MonoBehaviourPun, IPunObservable
             case ItemData.ItemType.Shoe:
                 if (itemLevel == 0)
                 {
-                    Debug.Log("==== [ Item ] level.Glove, Shoe 0 으로 첫 시작부");
                     GameObject newGear = new GameObject();
                     gear = newGear.AddComponent<Gear>();
                     gear.Init(data, player);
                 }
                 else
                 {
-                    Debug.Log("==== [ Item ] level.Glove, Shoe 레벨업 이후 시작부");
                     float nextRate = data.damages[itemLevel];
                     gear.GearLevelUp(nextRate);
                 }
@@ -131,7 +121,6 @@ public class Item : MonoBehaviourPun, IPunObservable
                 itemLevel++;
                 break;
             case ItemData.ItemType.Heal:
-                Debug.Log("==== [ Item ] level.Heal 호출");
                 player.health = PlayerManager.instance.maxHealth;
                 break;
         }

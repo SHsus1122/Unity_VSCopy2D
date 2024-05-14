@@ -17,44 +17,42 @@ public class Bullet : MonoBehaviourPunCallbacks, IPunObservable
 
     void Awake()
     {
-        bulletPV = photonView;
+        //bulletPV = photonView;
+        Debug.Log("[ Bullet ] bulletPV Owner Name : " + bulletPV.Owner.NickName);
         rigid = GetComponent<Rigidbody2D>();
 
-        SetParent();
+        SetParent(bulletPV.Owner.NickName);
     }
 
-    void SetParent()
+    void SetParent(string owName)
     {
-        for (int i = 0; i < PlayerManager.instance.playerList.Count; i++)
-        {
-            if (this.bulletPV.Owner.NickName == PlayerManager.instance.playerList[i].playerPV.Owner.NickName)
-            {
-                Transform[] list = PlayerManager.instance.playerList[i].gameObject.GetComponentsInChildren<Transform>();
-                for (int j = 0; j < list.Length; j++)
-                {
-                    if (list[j].CompareTag("Weapon") && list[j].GetComponent<Weapon>().id.ToString() == this.name.Split(' ')[1].Split('(')[0])
-                    {
-                        Debug.Log("[ Bullet ] Parent name is : " + list[j].name);
-                        this.transform.parent = list[j].transform;
+        Player player = PlayerManager.instance.FindPlayer(owName);
 
-                        if (this.transform.parent == null)
-                        {
-                            Debug.Log("[ Bullet ] ReParent Call !!");
-                            StartCoroutine(ReParent());
-                        }
-                    }
+        Transform[] list = player.gameObject.GetComponentsInChildren<Transform>();
+        for (int j = 0; j < list.Length; j++)
+        {
+            if (list[j].CompareTag("Weapon") && list[j].GetComponent<Weapon>().id.ToString() == this.name.Split(' ')[1].Split('(')[0])
+            {
+                Debug.Log("[ Bullet ] Parent name is : " + list[j].name);
+                transform.parent = list[j].transform;
+
+                if (transform.parent == null)
+                {
+                    Debug.Log("[ Bullet ] SetParent in Re Call !!");
+                    StartCoroutine(ReParent(owName));
                 }
             }
         }
     }
 
-    IEnumerator ReParent()
+    IEnumerator ReParent(string owName)
     {
+        Debug.Log("[ Bullet ] ReParent Call !!");
         yield return new WaitForSeconds(0.5f);
-        SetParent();
+        SetParent(owName);
     }
 
-    public void Init(float damage, int per, Vector3 dir, string weaponName)
+    public void Init(float damage, int per, Vector3 dir)
     {
         this.damage = damage;
         this.per = per;
@@ -81,9 +79,23 @@ public class Bullet : MonoBehaviourPunCallbacks, IPunObservable
             return;
         Debug.Log("[ Bullet ] OnTriggerEnter2D Target is : " + collision.name);
 
-        CheckTriggerEnter2D();
+        per--;
 
-        bulletPV.RPC("OnTriggerEnter2DRPC", RpcTarget.AllBuffered);
+        // 관통력을 상실했을 경우
+        if (per < 0)
+        {
+            rigid.velocity = Vector2.zero;  // 물리 초기화
+            gameObject.SetActive(false);    // 풀링 오브젝트 비활성화
+        }
+
+        //CheckTriggerEnter2D();
+        //bulletPV.RPC("OnTriggerEnter2DRPC", RpcTarget.AllBuffered);
+    }
+
+    [PunRPC]
+    void OnTriggerEnter2DRPC()
+    {
+        CheckTriggerEnter2D();
     }
 
     void CheckTriggerEnter2D()
@@ -98,11 +110,7 @@ public class Bullet : MonoBehaviourPunCallbacks, IPunObservable
         }
     }
 
-    [PunRPC]
-    void OnTriggerEnter2DRPC()
-    {
-        CheckTriggerEnter2D();
-    }
+
 
 
 
