@@ -1,8 +1,10 @@
 ﻿using Photon.Pun;
+using Photon.Pun.Demo.Asteroids;
 using Photon.Realtime;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Xml.Linq;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -59,13 +61,13 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
                 transform.Rotate(Vector3.back * speed * Time.deltaTime);
                 break;
             case 1:
-                if (!PhotonNetwork.IsMasterClient)
-                    return;
-
                 timer += Time.deltaTime;
 
                 if (timer > speed)
                 {
+                    if (!weaponPV.IsMine)
+                        return;
+
                     timer = 0f;
                     Fire(player.playerPV.Owner.NickName);
                     //weaponPV.RPC("Fire", RpcTarget.All, player.playerPV.Owner.NickName);
@@ -97,11 +99,11 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
 
 
     // 초기화 함수에 만들어둔 스크립트블 오브젝트를 매개변수로 받아서 활용합니다.
-    public void Init(ItemData data, Weapon weapon)
+    public void Init(ItemData data, Weapon weapon, string owName)
     {
         Debug.Log("[ Weapon ] IsLocalPlayer : " + PhotonNetwork.LocalPlayer.IsLocal);
 
-        this.transform.localPosition = Vector3.zero;
+        transform.position = PlayerManager.instance.FindPlayer(owName).transform.position;
 
         // Property Set
         // 각종 무기 속성들은 스크립트블 오브젝트의 데이터로 초기화 작업(셋팅값을 가져오기 위해서)
@@ -159,6 +161,8 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
     void InitObjName(int itemId, string owName, int itemTypeNum)
     {
         Player owPlayer = PlayerManager.instance.FindPlayer(owName);
+
+        transform.position = PlayerManager.instance.FindPlayer(owName).transform.position;
         Transform[] objList = owPlayer.GetComponentsInChildren<Transform>();
 
         foreach (Transform obj in objList)
@@ -212,15 +216,6 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
             {
                 Debug.Log("[ Weapon ] Batch prefabId is : " + prefabId);
                 bullet = GameManager.instance.pool.Get(prefabId);
-
-                if (bullet == null)
-                {
-                    bullet = PhotonNetwork.Instantiate(GameManager.instance.pool.prefabs[prefabId].name, transform.position, Quaternion.identity);
-
-                    GameManager.instance.pool.pools[prefabId].Add(bullet.gameObject);   // 오브젝트 풀 리스트에 새롭게 생성된 것을 추가(등록)
-                }
-
-                //Debug.Log("[ Weapon ] " + bullet.name + "'s parent is " + bullet.parent.name);
             }
 
             // 초기 스폰시 위치 지정을 위해서 해주는 작업입니다.
@@ -238,7 +233,7 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
             bullet.transform.Translate(bullet.transform.up * 1.5f, Space.World);
 
             // 근접 무기의 경우 관통에 제한을 주지 않습니다.(무한), -1 is Infinity Per.
-            bullet.GetComponent<Bullet>().Init(damage, -100, Vector3.zero);
+            bullet.GetComponent<Bullet>().Init(damage, -100, Vector3.zero, weaponPV.Owner.NickName);
         }
     }
 
@@ -246,10 +241,10 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
 
     void Fire(string owName)
     {
-        if (!player.scanner.nearestTarget)
+        if (!player.scanner.nearestTarget || id != 1)
             return;
 
-        Debug.Log("[ Weapon ] string owName : " + owName);
+        Debug.Log("[ Weapon ] string owName : " + (owName) + ", prefabId : " + (prefabId));
 
         GameObject bullet = GameManager.instance.pool.Get(prefabId);
         Debug.Log("[ Weapon ] Fire Call, bullet Owner : " + player.playerPV.Owner.NickName + ", Weapon View Id : " + weaponPV.ViewID);
@@ -258,28 +253,45 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
         Vector3 targetPos = player.scanner.nearestTarget.position;
         Vector3 dir = targetPos - player.transform.position;
         dir = dir.normalized;   // 현재 벡터의 방향은 유지하고 크기를 1로 변환(정규화)
-        
-        if (bullet == null)
-        {
-            Debug.Log("[ Weapon ] Fire() - bullet is null");
-            bullet = PhotonNetwork.Instantiate(GameManager.instance.pool.prefabs[prefabId].name, transform.position, Quaternion.identity);
-
-            Debug.Log("[ Weapon ] select == null - select owner : " + bullet.GetPhotonView().Owner.NickName);
-            GameManager.instance.pool.pools[prefabId].Add(bullet);   // 오브젝트 풀 리스트에 새롭게 생성된 것을 추가(등록)
-        }
 
         Debug.Log("[ Weapon ] transform name : " + transform.name);
         Debug.Log("[ Weapon ] bullet is null : " + (bullet == null));
 
-        // FromToRotation : 지정된 축을 중심으로 목표를 향해 회전하는 함수
-        bullet.transform.position = transform.position;
-        bullet.transform.rotation = Quaternion.FromToRotation(Vector3.up, dir);   // 축 지정, 위에서 구한 방향 지정
+        //// FromToRotation : 지정된 축을 중심으로 목표를 향해 회전하는 함수
+        //bullet.transform.position = transform.position;
+        //bullet.transform.rotation = Quaternion.FromToRotation(Vector3.up, dir);   // 축 지정, 위에서 구한 방향 지정
 
-        bullet.GetComponent<Bullet>().Init(damage, count, dir);         // 원하는 값들로 초기화 작업, count가 관통 값
+        bullet.transform.position = transform.position;
+        bullet.transform.rotation = Quaternion.FromToRotation(Vector3.up, dir);
+
+        bullet.GetComponent<Bullet>().curPos = targetPos;
+        bullet.GetComponent<Bullet>().Init(damage, count, dir, owName);     // 원하는 값들로 초기화 작업, count가 관통 값
+
+        weaponPV.RPC("BulletRPC", RpcTarget.Others, prefabId, bullet.GetPhotonView().ViewID, dir, targetPos, owName);
 
         AudioManager.instance.PlaySfx(AudioManager.Sfx.Range);          // 발사 효과음 재생
     }
 
+    
+
+    [PunRPC]
+    void BulletRPC(int bulletId, int viewId, Vector3 dir, Vector3 targetPos, string owName)
+    {
+        Player owPlayer = PlayerManager.instance.FindPlayer(owName);
+        foreach (GameObject obj in GameManager.instance.pool.pools[bulletId])
+        {
+            if (obj.GetPhotonView().ViewID == viewId)
+            {
+                obj.SetActive(true);
+
+                Debug.Log("[ Weapon ] Bullet name : " + (obj.name));
+                Vector3 localPos = owPlayer.transform.TransformPoint(targetPos);
+                obj.GetComponent<Bullet>().curPos = localPos;
+                obj.transform.position = localPos;
+                obj.transform.rotation = Quaternion.FromToRotation(Vector3.up, dir);
+            }
+        }
+    }
 
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)

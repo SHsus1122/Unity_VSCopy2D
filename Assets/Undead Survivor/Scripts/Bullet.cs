@@ -11,9 +11,10 @@ public class Bullet : MonoBehaviourPunCallbacks, IPunObservable
     public int per;         // 관통력
     public PhotonView bulletPV;
 
+    public Vector3 curPos;
+    public Quaternion curRot;
+
     Rigidbody2D rigid;
-    Vector3 curPos;
-    Quaternion curRot;
 
     void Awake()
     {
@@ -52,7 +53,7 @@ public class Bullet : MonoBehaviourPunCallbacks, IPunObservable
         SetParent(owName);
     }
 
-    public void Init(float damage, int per, Vector3 dir)
+    public void Init(float damage, int per, Vector3 dir, string owName)
     {
         this.damage = damage;
         this.per = per;
@@ -66,10 +67,9 @@ public class Bullet : MonoBehaviourPunCallbacks, IPunObservable
 
     private void Update()
     {
-        if (!bulletPV.IsMine)
+        if (!bulletPV.IsMine && gameObject.activeSelf)
         {
             transform.position = Vector3.Lerp(transform.position, curPos, Time.deltaTime * 10);
-            transform.rotation = Quaternion.Lerp(transform.rotation, curRot, Time.deltaTime * 10);
         }
     }
 
@@ -86,32 +86,17 @@ public class Bullet : MonoBehaviourPunCallbacks, IPunObservable
         {
             rigid.velocity = Vector2.zero;  // 물리 초기화
             gameObject.SetActive(false);    // 풀링 오브젝트 비활성화
+            bulletPV.RPC("ObjActiveToggle", RpcTarget.Others, bulletPV.ViewID);
         }
-
-        //CheckTriggerEnter2D();
-        //bulletPV.RPC("OnTriggerEnter2DRPC", RpcTarget.AllBuffered);
     }
+
 
     [PunRPC]
-    void OnTriggerEnter2DRPC()
+    void ObjActiveToggle(int viewId)
     {
-        CheckTriggerEnter2D();
+        PhotonView.Find(viewId).gameObject.SetActive(false);
+        Debug.Log("[ Bullet ] ObjActiveToggle");
     }
-
-    void CheckTriggerEnter2D()
-    {
-        per--;
-
-        // 관통력을 상실했을 경우
-        if (per < 0)
-        {
-            rigid.velocity = Vector2.zero;  // 물리 초기화
-            gameObject.SetActive(false);    // 풀링 오브젝트 비활성화
-        }
-    }
-
-
-
 
 
     // 총알이 플레이어가 가지고있는 Area영역 밖으로 벗어나면 날아가던 투사체를 비활성화 해줍니다.
@@ -136,7 +121,7 @@ public class Bullet : MonoBehaviourPunCallbacks, IPunObservable
         else
         {
             curPos = (Vector3)stream.ReceiveNext();
-            curRot = (Quaternion)stream.ReceiveNext();
+            transform.rotation = (Quaternion)stream.ReceiveNext();
             damage = (float)stream.ReceiveNext();
             per = (int)stream.ReceiveNext();
         }

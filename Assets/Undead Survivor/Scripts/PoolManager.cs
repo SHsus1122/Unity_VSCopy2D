@@ -1,6 +1,7 @@
 ﻿using Photon.Pun;
 using Photon.Pun.Demo.Asteroids;
 using Photon.Realtime;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,6 +9,7 @@ using UnityEngine;
 public class PoolManager : MonoBehaviourPun
 {
     public static PoolManager instance;
+    public PhotonView poolPV;
 
     // 프리펩들을 보관할 변수
     public GameObject[] prefabs;
@@ -18,8 +20,8 @@ public class PoolManager : MonoBehaviourPun
     void Awake()
     {
         instance = GameManager.instance.pool;
-
         pools = new List<GameObject>[prefabs.Length];
+        poolPV = photonView;
 
         // 위에서 생성한 리스트는 초기화 전이기 때문에 아래처럼 반복문을 통해 초기화 작업을 선행합니다.
         for (int index = 0; index < pools.Length; index++)
@@ -47,20 +49,29 @@ public class PoolManager : MonoBehaviourPun
                 //Debug.Log("[ PoolManager ] 분기문 첫 번째 !item.activeSelf");
                 select = item;          // 변수 할당
                 select.SetActive(true); // 활성화
-                Debug.Log("[ PoolManager ] select name : " + (select.name));
                 return select;
             }
         }
-        
-        //if (select == null)
-        //{
-        //    Debug.Log("[ PoolManager ] 분기문 두 번째 select == null");
-        //    select = PhotonNetwork.Instantiate(prefabs[index].name, transform.position, Quaternion.identity);
 
-        //    Debug.Log("[ PoolManager ] select == null - select owner : " + select.GetPhotonView().Owner.NickName);
-        //    pools[index].Add(select);   // 오브젝트 풀 리스트에 새롭게 생성된 것을 추가(등록)
-        //}
+        if (!select)
+        {
+            Debug.Log("[ PoolManager ] 분기문 두 번째 select == null");
+            select = PhotonNetwork.Instantiate(prefabs[index].name, transform.position, Quaternion.identity);
+
+            Debug.Log("[ PoolManager ] select == null - select owner : " + select.GetPhotonView().Owner.NickName);
+            pools[index].Add(select);   // 오브젝트 풀 리스트에 새롭게 생성된 것을 추가(등록)
+
+            poolPV.RPC("PoolSync", RpcTarget.Others, select.GetPhotonView().ViewID, index);
+        }
 
         return select;
+    }
+
+
+    [PunRPC]
+    void PoolSync(int viewId, int poolListNum)
+    {
+        Transform trs = PhotonView.Find(viewId).GetComponent<Transform>();
+        pools[poolListNum].Add(trs.gameObject);
     }
 }

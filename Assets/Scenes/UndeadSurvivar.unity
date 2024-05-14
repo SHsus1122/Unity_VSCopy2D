@@ -20514,6 +20514,7 @@ GameObject:
   - component: {fileID: 860527869}
   - component: {fileID: 860527870}
   - component: {fileID: 860527874}
+  - component: {fileID: 860527875}
   m_Layer: 0
   m_Name: PoolManager
   m_TagString: Untagged
@@ -20548,6 +20549,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af227d57208dc484fa001a58b00c0f5d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  poolPV: {fileID: 860527875}
   prefabs:
   - {fileID: 2270711029522858002, guid: 57d863bc1ff1f4d47aa773ce625ce7cb, type: 3}
   - {fileID: 6106279653900032370, guid: 92a29554dff5fb34ea8676315cd8c6c1, type: 3}
@@ -20579,6 +20581,28 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 3
+--- !u!114 &860527875
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 860527868}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents: []
+  sceneViewId: 3
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
 --- !u!1 &894159852
 GameObject:
   m_ObjectHideFlags: 0

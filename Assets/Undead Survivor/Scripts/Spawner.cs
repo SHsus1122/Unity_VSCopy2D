@@ -67,13 +67,13 @@ public class Spawner : MonoBehaviourPun
         // 0~1 사이의 랜덤 숫자를 이용
         GameObject enemy = GameManager.instance.pool.Get(0);
 
-        if (enemy == null)
-        {
-            enemy = PhotonNetwork.Instantiate(GameManager.instance.pool.prefabs[0].name, transform.position, Quaternion.identity);
+        //if (enemy == null)
+        //{
+        //    enemy = PhotonNetwork.Instantiate(GameManager.instance.pool.prefabs[0].name, transform.position, Quaternion.identity);
 
-            Debug.Log("[ PoolManager ] select == null - select owner : " + enemy.GetPhotonView().Owner.NickName);
-            GameManager.instance.pool.pools[0].Add(enemy);   // 오브젝트 풀 리스트에 새롭게 생성된 것을 추가(등록)
-        }
+        //    Debug.Log("[ PoolManager ] select == null - select owner : " + enemy.GetPhotonView().Owner.NickName);
+        //    GameManager.instance.pool.pools[0].Add(enemy);   // 오브젝트 풀 리스트에 새롭게 생성된 것을 추가(등록)
+        //}
 
         // 자식 오브젝트에서만 선택되도록 랜덤 시작은 1로 지정합니다.(Spanwer의 자식으로 포인트가 존재하기에 0번째는 Spanwer입니다)
         enemy.transform.position = enemySpawnPoint[Random.Range(1, enemySpawnPoint.Length)].position;
