@@ -94,8 +94,14 @@ public class Bullet : MonoBehaviourPunCallbacks, IPunObservable
     [PunRPC]
     void ObjActiveToggle(int viewId)
     {
-        PhotonView.Find(viewId).gameObject.SetActive(false);
-        Debug.Log("[ Bullet ] ObjActiveToggle");
+        foreach (GameObject obj in GameManager.instance.pool.pools[1])
+        {
+            if (obj.GetPhotonView().ViewID == viewId)
+            {
+                obj.SetActive(false);
+                break;
+            }
+        }
     }
 
 

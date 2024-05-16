@@ -52,7 +52,6 @@ MonoBehaviour:
   count: 0
   speed: 0
   weaponPV: {fileID: 4991078980216970692}
-  playerObject: {fileID: 0}
   player: {fileID: 0}
   timer: 0
 --- !u!50 &8529449559587022324

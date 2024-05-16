@@ -801,6 +801,7 @@ MonoBehaviour:
   isPlayerLive: 1
   uiHud: {fileID: 0}
   uiLevelUp: {fileID: 0}
+  anim: {fileID: 0}
 --- !u!114 &5825622529715855626
 MonoBehaviour:
   m_ObjectHideFlags: 0

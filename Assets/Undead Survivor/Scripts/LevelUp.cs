@@ -40,23 +40,6 @@ public class LevelUp : MonoBehaviour
         //AudioManager.instance.EffectBgm(true);
     }
 
-    /*public void Show()
-    {
-        Next();
-        rect.localScale = Vector3.one;
-        GameManager.Instance.Stop();
-        AudioManager.instance.PlaySfx(AudioManager.Sfx.LevelUp);    // 레벨업 효과음 재생
-        AudioManager.instance.EffectBgm(true);
-    }
-
-    public void Hide()
-    {
-        rect.localScale = Vector3.zero;
-        GameManager.Instance.Resume();
-        AudioManager.instance.PlaySfx(AudioManager.Sfx.Select);     // 선택 효과음 재생
-        AudioManager.instance.EffectBgm(false);
-    }*/
-
     public void Show()
     {
         rect.localScale = Vector3.one;
@@ -67,8 +50,8 @@ public class LevelUp : MonoBehaviour
         //if (!player.gameObject.GetPhotonView().IsMine)
         //    return;
 
-        //Debug.Log("[ LevelUp ] Select index is : " + index);
-        
+        Debug.Log("[ LevelUp ] Select index is : " + index);
+
         items[index].OnClick();
         player.Cost--;
         InfoUpdate();

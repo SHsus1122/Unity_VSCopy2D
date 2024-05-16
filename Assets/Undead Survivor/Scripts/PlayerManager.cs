@@ -24,7 +24,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks
     {
         GameObject playerPrefab = PhotonNetwork.Instantiate("Player", playerSpawnPoint[Random.Range(0, playerSpawnPoint.Length)].transform.position, Quaternion.identity);
         Player player = playerPrefab.GetComponent<Player>();
-        player.Init(typeId);
+        player.Init(typeId, player.playerPV.Owner.NickName);
     }
 
     public void AddPlayer(Player newPlayer)

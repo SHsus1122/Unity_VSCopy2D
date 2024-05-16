@@ -65,7 +65,7 @@ public class Item : MonoBehaviourPun, IPunObservable
         if (player.Cost < 1) 
             return;
 
-        //Debug.Log("==== [ Item ] OnClick : " + data.itemType);
+        Debug.Log("==== [ Item ] OnClick : " + (data.itemType) + ", player : " + (player.playerPV.Owner.NickName));
 
         // 능력(아이템)에 타입에 따라 각각 다르게 처리합니다.
         switch (data.itemType)
@@ -73,15 +73,13 @@ public class Item : MonoBehaviourPun, IPunObservable
             // 아래처럼 case문 두 개를 동시에 사용하는 방법도 있습니다.
             case ItemData.ItemType.Melee:
             case ItemData.ItemType.Range:
-                if (PhotonNetwork.LocalPlayer.ActorNumber != player.playerPV.Owner.ActorNumber)
-                    return;
+                Debug.Log("==== [ Item ] LocalPlayer.ActorNumber : " + (PhotonNetwork.LocalPlayer.ActorNumber) + ", player ActorNum : " + (player.playerPV.Owner.ActorNumber));
 
                 if (itemLevel == 0)
                 {
-                    // level이 0인 즉, 처음 초기값의 실행부입니다. 
-                    //GameObject newWeapon = new GameObject();    // 무기를 담을 빈 오브젝트 생성
-                    //weapon = newWeapon.AddComponent<Weapon>();  // 새롭게 컴포넌트를 추가해서 현재 무기에 대입
+                    // level이 0인 즉, 처음 초기값의 실행부입니다.
 
+                    Debug.Log("==== [ Item ] Lv.0, OnClick : " + data.itemType);
                     weapon = PhotonNetwork.Instantiate("Weapon", transform.position, Quaternion.identity).GetComponent<Weapon>();
                     //weapon.player = player;
 
@@ -90,6 +88,7 @@ public class Item : MonoBehaviourPun, IPunObservable
                 else
                 {
                     // level이 0이 아닌 즉, 한 번이라도 실행했다면 이후 레벨업 관련할 실행부입니다.
+                    Debug.Log("==== [ Item ] Not Lv.0, OnClick : " + data.itemType);
                     float nextDamage = data.baseDamage;
                     int nextCount = 0;
 
@@ -97,7 +96,7 @@ public class Item : MonoBehaviourPun, IPunObservable
                     nextDamage += data.baseDamage * data.damages[itemLevel];    // 데미지 관련
                     nextCount += data.counts[itemLevel];                        // 횟수와 관통 관련
 
-                    weapon.WeaponLevelUp(nextDamage, nextCount);
+                    weapon.WeaponLevelUp(nextDamage, nextCount, player.playerPV.Owner.NickName);
                 }
 
                 // 위의 과정을 거치고 나면 level업 처리를 진행합니다.
