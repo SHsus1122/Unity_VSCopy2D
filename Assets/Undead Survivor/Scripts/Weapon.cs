@@ -282,21 +282,22 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
         if (!player.scanner.nearestTarget || id != 1)
             return;
 
+        Player owPlayer = PlayerManager.instance.FindPlayer(owName);
         Debug.Log("[ Weapon ] string owName : " + (owName) + ", prefabId : " + (prefabId));
 
-        GameObject bullet = GameManager.instance.pool.Get(prefabId);
+        GameObject bullet = GameManager.instance.pool.GetForBullet(prefabId, owName);
         Debug.Log("[ Weapon ] Fire Call, bullet Owner : " + player.playerPV.Owner.NickName + ", Weapon View Id : " + weaponPV.ViewID);
 
         // 타겟의 위치 및 방향 구하기(즉, 총알이 나아가고자 하는 위치, 방향, 속도 구하기)
         Vector3 targetPos = player.scanner.nearestTarget.position;
-        Vector3 dir = targetPos - player.transform.position;
+        Vector3 dir = targetPos - owPlayer.transform.position;
         dir = dir.normalized;   // 현재 벡터의 방향은 유지하고 크기를 1로 변환(정규화)
 
         Debug.Log("[ Weapon ] transform name : " + transform.name);
         Debug.Log("[ Weapon ] bullet is null : " + (bullet == null));
 
         //// FromToRotation : 지정된 축을 중심으로 목표를 향해 회전하는 함수
-        bullet.transform.position = transform.position;
+        bullet.transform.position = owPlayer.transform.position;
         bullet.transform.rotation = Quaternion.FromToRotation(Vector3.up, dir);
 
         bullet.GetComponent<Bullet>().curPos = targetPos;

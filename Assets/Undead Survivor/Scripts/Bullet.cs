@@ -95,15 +95,15 @@ public class Bullet : MonoBehaviourPunCallbacks, IPunObservable
         }
     }
 
-    //private void OnTriggerExit2D(Collider2D collision)
-    //{
-    //    if (!collision.CompareTag("Area") || per <= -100)
-    //        return;
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (!collision.CompareTag("Area") || per <= -100)
+            return;
 
-    //    Debug.LogWarning("[ Bullet ] OnTriggerExit2D Call, Col name : " + collision.name);
-    //    rigid.velocity = Vector2.zero;
-    //    bulletPV.RPC("ObjActiveToggle", RpcTarget.AllBuffered, bulletPV.ViewID, false);
-    //}
+        Debug.LogWarning("[ Bullet ] OnTriggerExit2D Call, Col name : " + collision.name);
+        rigid.velocity = Vector2.zero;
+        bulletPV.RPC("ObjActiveToggle", RpcTarget.AllBuffered, bulletPV.ViewID, false);
+    }
 
     [PunRPC]
     public void ObjActiveToggle(int viewId, bool isActive)
