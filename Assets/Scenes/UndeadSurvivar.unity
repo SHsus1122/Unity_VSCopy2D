@@ -38782,7 +38782,6 @@ MonoBehaviour:
   spawnPoint: {fileID: 101672802}
   enemyCleaner: {fileID: 1693453985}
   spawner: {fileID: 1590695608}
-  poolManager: {fileID: 860527868}
   CharacterGroup: {fileID: 58239448}
   uiResult: {fileID: 2021725441}
   uiGameStart: {fileID: 830426604}
@@ -38805,7 +38804,7 @@ MonoBehaviour:
   prefixField: -1
   Synchronization: 3
   OwnershipTransfer: 0
-  observableSearch: 0
+  observableSearch: 2
   ObservedComponents:
   - {fileID: 1383446451}
   - {fileID: 1383446453}
@@ -56938,6 +56937,8 @@ MonoBehaviour:
   damage: 10000000
   per: -100
   bulletPV: {fileID: 0}
+  curPos: {x: 0, y: 0, z: 0}
+  curRot: {x: 0, y: 0, z: 0, w: 0}
 --- !u!61 &1693453988
 BoxCollider2D:
   m_ObjectHideFlags: 0

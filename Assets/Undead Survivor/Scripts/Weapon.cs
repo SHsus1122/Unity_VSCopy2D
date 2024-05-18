@@ -296,9 +296,6 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
         Debug.Log("[ Weapon ] bullet is null : " + (bullet == null));
 
         //// FromToRotation : 지정된 축을 중심으로 목표를 향해 회전하는 함수
-        //bullet.transform.position = transform.position;
-        //bullet.transform.rotation = Quaternion.FromToRotation(Vector3.up, dir);   // 축 지정, 위에서 구한 방향 지정
-
         bullet.transform.position = transform.position;
         bullet.transform.rotation = Quaternion.FromToRotation(Vector3.up, dir);
 
@@ -320,7 +317,7 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
         {
             if (obj.GetPhotonView().ViewID == viewId)
             {
-                obj.SetActive(true);
+                obj.GetComponent<Bullet>().ObjActiveToggle(viewId, true);
 
                 Debug.Log("[ Weapon ] Bullet name : " + (obj.name));
                 Vector3 localPos = owPlayer.transform.TransformPoint(targetPos);

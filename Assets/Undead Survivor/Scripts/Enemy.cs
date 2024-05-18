@@ -47,7 +47,7 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
 
     void SetParent()
     {
-        this.transform.parent = PoolManager.instance.transform;
+        this.transform.parent = GameManager.instance.pool.transform;
     }
 
     #region Update 관련 로직

@@ -34,10 +34,8 @@ public class PoolManager : MonoBehaviourPun
     // 오브젝트 반환용 함수
     public GameObject Get(int index)
     {
-        //Debug.Log("[ PoolManager ] Get Call With index : " + index + ", [ PoolManager ] pools size : " + pools[index].Count);
         GameObject select = null;
 
-        //Debug.Log("[ PoolManager ] index is null : " + index == null);
         Debug.Log("[ PoolManager ] pools Count : " + pools[index].Count);
 
         // 선택한 Pool의 놀고 있는 게임오브젝트에 접근
@@ -49,6 +47,7 @@ public class PoolManager : MonoBehaviourPun
                 //Debug.Log("[ PoolManager ] 분기문 첫 번째 !item.activeSelf");
                 select = item;          // 변수 할당
                 select.SetActive(true); // 활성화
+                //poolPV.RPC("ObjActiveToggle", RpcTarget.Others, select.GetPhotonView().ViewID, true);
                 return select;
             }
         }
@@ -73,5 +72,11 @@ public class PoolManager : MonoBehaviourPun
     {
         Transform trs = PhotonView.Find(viewId).GetComponent<Transform>();
         pools[poolListNum].Add(trs.gameObject);
+    }
+
+    [PunRPC]
+    void ObjActiveToggle(int viewId, bool isActive)
+    {
+        PhotonView.Find(viewId).gameObject.SetActive(isActive);
     }
 }

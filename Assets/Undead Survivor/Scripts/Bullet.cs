@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using static Unity.Burst.Intrinsics.X86.Avx;
 
 public class Bullet : MonoBehaviourPunCallbacks, IPunObservable
 {
@@ -23,6 +24,15 @@ public class Bullet : MonoBehaviourPunCallbacks, IPunObservable
         rigid = GetComponent<Rigidbody2D>();
 
         SetParent(bulletPV.Owner.NickName);
+    }
+
+    private void Update()
+    {
+        if (!bulletPV.IsMine)
+        {
+            //transform.position = Vector3.Lerp(transform.position, curPos, Time.deltaTime * 10);
+            transform.position = curPos;
+        }
     }
 
     void SetParent(string owName)
@@ -65,53 +75,53 @@ public class Bullet : MonoBehaviourPunCallbacks, IPunObservable
         }
     }
 
-    private void Update()
-    {
-        if (!bulletPV.IsMine && gameObject.activeSelf)
-        {
-            transform.position = Vector3.Lerp(transform.position, curPos, Time.deltaTime * 10);
-        }
-    }
-
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (!collision.CompareTag("Enemy") || per <= -100)
             return;
+
         Debug.Log("[ Bullet ] OnTriggerEnter2D Target is : " + collision.name);
 
         per--;
 
-        // 관통력을 상실했을 경우
         if (per < 0)
         {
-            rigid.velocity = Vector2.zero;  // 물리 초기화
-            gameObject.SetActive(false);    // 풀링 오브젝트 비활성화
-            bulletPV.RPC("ObjActiveToggle", RpcTarget.Others, bulletPV.ViewID);
+            Debug.LogWarning("[ Bullet ] OnTriggerEnter2D Call, Col name : " + collision.name);
+            rigid.velocity = Vector2.zero;
+            gameObject.SetActive(false);
+
+            // 비활성화 전 객체가 활성화 상태인지 확인
+            bulletPV.RPC("ObjActiveToggle", RpcTarget.Others, bulletPV.ViewID, false);
         }
     }
 
+    //private void OnTriggerExit2D(Collider2D collision)
+    //{
+    //    if (!collision.CompareTag("Area") || per <= -100)
+    //        return;
+
+    //    Debug.LogWarning("[ Bullet ] OnTriggerExit2D Call, Col name : " + collision.name);
+    //    rigid.velocity = Vector2.zero;
+    //    bulletPV.RPC("ObjActiveToggle", RpcTarget.AllBuffered, bulletPV.ViewID, false);
+    //}
 
     [PunRPC]
-    void ObjActiveToggle(int viewId)
+    public void ObjActiveToggle(int viewId, bool isActive)
     {
-        foreach (GameObject obj in GameManager.instance.pool.pools[1])
+        PhotonView targetView = PhotonView.Find(viewId);
+        if (targetView != null)
         {
-            if (obj.GetPhotonView().ViewID == viewId)
+            GameObject targetObject = targetView.gameObject;
+            if (targetObject.activeSelf != isActive)
             {
-                obj.SetActive(false);
-                break;
+                Debug.Log("[ Bullet ] ObjActiveToggle - Setting active state to: " + isActive);
+                targetObject.SetActive(isActive);
             }
         }
-    }
-
-
-    // 총알이 플레이어가 가지고있는 Area영역 밖으로 벗어나면 날아가던 투사체를 비활성화 해줍니다.
-    private void OnTriggerExit2D(Collider2D collision)
-    {
-        if (!collision.CompareTag("Area") || per <= -100)
-            return;
-
-        gameObject.SetActive(false);
+        else
+        {
+            Debug.LogError("[ Bullet ] ObjActiveToggle - PhotonView not found for viewId: " + viewId);
+        }
     }
 
 

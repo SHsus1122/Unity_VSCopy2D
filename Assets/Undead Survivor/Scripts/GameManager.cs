@@ -23,7 +23,6 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     public Transform spawnPoint;
     public GameObject enemyCleaner;
     public GameObject spawner;
-    public GameObject poolManager;
     public GameObject CharacterGroup;
 
     [Header("# Game UI")]
@@ -52,7 +51,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         PhotonNetwork.SerializationRate = 60;   // OnPhotonSerializeView 호출 빈도
         PhotonNetwork.SendRate = 60;            // RPC 원격 프로시저 호출 빈도 // 단발성 원할 때 한번
 
-        poolManager.SetActive(true);
+        pool.gameObject.SetActive(true);
         spawner.SetActive(true);
         if (!PhotonNetwork.IsMasterClient)
         {
