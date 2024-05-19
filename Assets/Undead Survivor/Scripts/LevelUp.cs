@@ -54,6 +54,7 @@ public class LevelUp : MonoBehaviour
 
         items[index].OnClick();
         player.Cost--;
+        player.playerPV.RPC("UpdateCost", RpcTarget.AllBuffered, player.Cost);
         InfoUpdate();
     }
 

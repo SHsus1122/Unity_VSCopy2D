@@ -111,16 +111,7 @@ public class Bullet : MonoBehaviourPunCallbacks, IPunObservable
         PhotonView targetView = PhotonView.Find(viewId);
         if (targetView != null)
         {
-            GameObject targetObject = targetView.gameObject;
-            if (targetObject.activeSelf != isActive)
-            {
-                Debug.Log("[ Bullet ] ObjActiveToggle - Setting active state to: " + isActive);
-                targetObject.SetActive(isActive);
-            }
-        }
-        else
-        {
-            Debug.LogError("[ Bullet ] ObjActiveToggle - PhotonView not found for viewId: " + viewId);
+            targetView.gameObject.SetActive(isActive);
         }
     }
 

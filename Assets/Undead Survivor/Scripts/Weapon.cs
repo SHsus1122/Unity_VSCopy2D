@@ -318,7 +318,7 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
         {
             if (obj.GetPhotonView().ViewID == viewId)
             {
-                obj.GetComponent<Bullet>().ObjActiveToggle(viewId, true);
+                //obj.GetComponent<Bullet>().ObjActiveToggle(viewId, true);
 
                 Debug.Log("[ Weapon ] Bullet name : " + (obj.name));
                 Vector3 localPos = owPlayer.transform.TransformPoint(targetPos);

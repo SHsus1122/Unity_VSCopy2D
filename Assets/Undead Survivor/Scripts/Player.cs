@@ -113,16 +113,6 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     }
 
 
-    //[PunRPC]
-    //public void InitRPC(int newTypeId, string owName)
-    //{
-    //    Player player = PlayerManager.instance.FindPlayer(owName);
-    //    if (!player.playerPV.IsMine)
-    //        return;
-
-    //    player.anim.runtimeAnimatorController = player.animCon[typeId];
-    //}
-
 
     void Update()
     {
@@ -235,6 +225,25 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             GameManager.instance.GameOver();
         }
     }
+    
+
+    [PunRPC]
+    public void UpdateKillCount(int newKillCount)
+    {
+        kill = newKillCount;
+    }
+
+    [PunRPC]
+    public void UpdateCost(int newCost)
+    {
+        Cost = newCost;
+    }
+
+    [PunRPC]
+    public void UpdateExp(int newExp)
+    {
+        exp = newExp;
+    }
 
 
     // ========================================== [ 경험치 획득 ]
@@ -253,6 +262,9 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             player.Cost++;      // Player 레벨업 스킬 강화용 코스트 추가
             uiLevelUp.CallLevelUp();
         }
+
+        player.playerPV.RPC("UpdateCost", RpcTarget.AllBuffered, player.Cost);
+        player.playerPV.RPC("UpdateExp", RpcTarget.AllBuffered, player.exp);
     }
 
 

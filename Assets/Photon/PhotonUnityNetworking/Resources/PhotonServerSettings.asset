@@ -79,6 +79,9 @@ MonoBehaviour:
   - PoolSync
   - ObjActiveToggle
   - PoolActiveToggle
+  - UpdateKillCount
+  - UpdateCost
+  - UpdateExp
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

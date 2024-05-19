@@ -81,7 +81,7 @@ public class PoolManager : MonoBehaviourPun
                 //Debug.Log("[ PoolManager ] 분기문 첫 번째 !item.activeSelf");
                 select = item;          // 변수 할당
                 select.SetActive(true); // 활성화
-                //poolPV.RPC("ObjActiveToggle", RpcTarget.Others, select.GetPhotonView().ViewID, true);
+                poolPV.RPC("ObjActiveToggle", RpcTarget.Others, select.GetPhotonView().ViewID, true);
                 return select;
             }
         }

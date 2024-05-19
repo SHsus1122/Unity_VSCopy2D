@@ -182,11 +182,6 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
         if (!collision.CompareTag("Bullet") || !isLive)
             return;
 
-        //Debug.Log("[ Enemy ] TriggerEvent Damage ViewID : " + collision.gameObject.GetPhotonView().ViewID);
-        //enemyPV.RPC("TriggerEventRPC", RpcTarget.All, collision.gameObject.GetPhotonView().ViewID);
-        //StartCoroutine(KnockBack(collision));
-
-
         enemyHealth -= collision.GetComponent<Bullet>().damage;
         StartCoroutine(KnockBack(collision));
 
@@ -197,51 +192,18 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
         }
         else
         {
-            //isLive = false;             // 생존 상태 변경
-            //coll.enabled = false;       // 콜라이더 비활성화
-            //rigid.simulated = false;    // 물리(움직임) 비활성화
-            //spriter.sortingOrder = 1;   // 표현 우선순위 변경
-            //anim.SetBool("Dead", true); // 애니메이터 파라메터 상태 변경
             enemyPV.RPC("Dead", RpcTarget.All);
+            Player owPlayer = collision.GetComponentInParent<Player>();
 
             // 경험치 적용을 위한 코드
-            collision.GetComponentInParent<Player>().kill++;
-            collision.GetComponentInParent<Player>().GetExp(collision.GetComponentInParent<Player>());
+            owPlayer.kill++;
+            owPlayer.GetExp(collision.GetComponentInParent<Player>());
+
+            // RPC를 사용하여 kill 카운트를 모든 클라이언트에 동기화
+            owPlayer.playerPV.RPC("UpdateKillCount", RpcTarget.AllBuffered, owPlayer.kill);
 
             // 분기문으로 플레이어가 생존함에 따라 최종 결과에서 몬스터들이 전부 사망시 다량의 사망 효과음 재생을 방지합니다.
             if (collision.GetComponentInParent<Player>().isPlayerLive)
-                AudioManager.instance.PlaySfx(AudioManager.Sfx.Dead);   // 사망 효과음 재생
-        }
-    }
-
-    [PunRPC]
-    void TriggerEventRPC(int senderViewid)
-    {
-        Collider2D sender = PhotonView.Find(senderViewid).transform.GetComponent<Collider2D>();
-        Debug.Log("[ Enemy ] TriggerEvent Sender Name : " + sender.name);
-
-        enemyHealth -= sender.GetComponent<Bullet>().damage;
-        //StartCoroutine(KnockBack(sender));
-
-        if (enemyHealth > 0)
-        {
-            anim.SetTrigger("Hit");
-            AudioManager.instance.PlaySfx(AudioManager.Sfx.Hit);   // 피격 효과음 재생
-        }
-        else
-        {
-            isLive = false;             // 생존 상태 변경
-            coll.enabled = false;       // 콜라이더 비활성화
-            rigid.simulated = false;    // 물리(움직임) 비활성화
-            spriter.sortingOrder = 1;   // 표현 우선순위 변경
-            anim.SetBool("Dead", true); // 애니메이터 파라메터 상태 변경
-
-            // 경험치 적용을 위한 코드
-            sender.GetComponentInParent<Player>().kill++;
-            sender.GetComponentInParent<Player>().GetExp(sender.GetComponentInParent<Player>());
-
-            // 분기문으로 플레이어가 생존함에 따라 최종 결과에서 몬스터들이 전부 사망시 다량의 사망 효과음 재생을 방지합니다.
-            if (sender.GetComponentInParent<Player>().isPlayerLive)
                 AudioManager.instance.PlaySfx(AudioManager.Sfx.Dead);   // 사망 효과음 재생
         }
     }
@@ -258,7 +220,6 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
     }
 
 
-
     [PunRPC]
     void Dead()
     {
@@ -268,8 +229,6 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
         spriter.sortingOrder = 1;   // 표현 우선순위 변경
         anim.SetBool("Dead", true); // 애니메이터 파라메터 상태 변경
     }
-
-
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
