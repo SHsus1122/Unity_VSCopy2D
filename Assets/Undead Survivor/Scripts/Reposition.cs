@@ -13,13 +13,6 @@ public class Reposition : MonoBehaviour
         player = GetComponent<Player>();
     }
 
-    /*void Start()
-    {
-        // GameManager에서 정적으로 클래스를 올리면 이렇게 변수로 접근이 가능합니다.
-        // 이러한 정적 변수는 즉시 클래스에서 부를 수 있기에 편리합니다.
-        // 즉, 게임매니저 변수를 만들어서 넣고 하는 과정을 생략 가능합니다.
-        // GameManager.Instance.player <- 이런식으로 가져오는것이 가능 !!
-    }*/
 
     private void OnTriggerExit2D(Collider2D collision)
     {

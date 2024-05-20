@@ -25,12 +25,14 @@ public class Gear : MonoBehaviour
         ApplyGear();
     }
 
+
     // 레벨업 함수
     public void GearLevelUp(float rate)
     {
         this.rate = rate;   // 레벨업 수치 적용
         ApplyGear();        // 레벨업 실제 적용
     }
+
 
     // 실제 기능 적용 함수
     void ApplyGear()
@@ -45,6 +47,7 @@ public class Gear : MonoBehaviour
                 break;
         }
     }
+
 
     // 장갑의 기능인 근접무기 회전력과 원거리 무기 연사력과 올리는 함수
     void RateUp()
@@ -67,6 +70,7 @@ public class Gear : MonoBehaviour
             }
         }
     }
+
 
     // 신발의 기능인 플레이어의 이동속도를 올리는 함수
     void SpeedUp()

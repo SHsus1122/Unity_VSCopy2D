@@ -41,7 +41,6 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     }
 
 
-
     // ========================================== [ 게임 시작 ]
     public void GameStart(int id)
     {
@@ -68,7 +67,6 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     }
 
 
-
     // ========================================== [ 게임 종료 ]
     IEnumerator GameOverRoutine()       // 코루틴 활용
     {
@@ -89,7 +87,6 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     {
         StartCoroutine(GameOverRoutine());
     }
-
 
 
     // ========================================== [ 게임 승리 ]
@@ -115,7 +112,6 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     }
 
 
-
     // ========================================== [ 게임 재시작 ]
     public void GaemRetry()
     {
@@ -124,12 +120,12 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     }
 
 
-
     // ========================================== [ 게임 종료 ]
     public void GaemQuit()
     {
         Application.Quit();
     }
+
 
     void Update()
     {
@@ -146,26 +142,21 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     }
 
 
-
     // ========================================== [ 게임 정지, 시작 ]
-
     [PunRPC]
     public void Stop()
     {
         isGameLive = false;
         Time.timeScale = 0; // 유니티의 시간 속도(배율)
-        //uiJoy.localScale = Vector3.zero;
     }
+
 
     [PunRPC]
     public void Resume()
     {
-        Debug.Log("=============== Call Resume ===============");
         isGameLive = true;
         Time.timeScale = 1;
-        //uiJoy.localScale = Vector3.one;
     }
-
 
 
     // ========================================== [ 네트워크 상태 동기화 함수 ]

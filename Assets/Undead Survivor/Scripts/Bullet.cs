@@ -19,12 +19,10 @@ public class Bullet : MonoBehaviourPunCallbacks, IPunObservable
 
     void Awake()
     {
-        //bulletPV = photonView;
-        Debug.Log("[ Bullet ] bulletPV Owner Name : " + bulletPV.Owner.NickName);
         rigid = GetComponent<Rigidbody2D>();
-
         SetParent(bulletPV.Owner.NickName);
     }
+
 
     private void Update()
     {
@@ -35,6 +33,7 @@ public class Bullet : MonoBehaviourPunCallbacks, IPunObservable
         }
     }
 
+
     void SetParent(string owName)
     {
         Player player = PlayerManager.instance.FindPlayer(owName);
@@ -44,17 +43,16 @@ public class Bullet : MonoBehaviourPunCallbacks, IPunObservable
         {
             if (list[j].CompareTag("Weapon") && list[j].GetComponent<Weapon>().id.ToString() == this.name.Split(' ')[1].Split('(')[0])
             {
-                Debug.Log("[ Bullet ] Parent name is : " + list[j].name);
                 transform.parent = list[j].transform;
 
                 if (transform.parent == null)
                 {
-                    Debug.Log("[ Bullet ] SetParent in Re Call !!");
                     StartCoroutine(ReParent(owName));
                 }
             }
         }
     }
+
 
     IEnumerator ReParent(string owName)
     {
@@ -62,6 +60,7 @@ public class Bullet : MonoBehaviourPunCallbacks, IPunObservable
         yield return new WaitForSeconds(0.5f);
         SetParent(owName);
     }
+
 
     public void Init(float damage, int per, Vector3 dir, string owName)
     {
@@ -75,44 +74,31 @@ public class Bullet : MonoBehaviourPunCallbacks, IPunObservable
         }
     }
 
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (!collision.CompareTag("Enemy") || per <= -100)
             return;
 
-        Debug.Log("[ Bullet ] OnTriggerEnter2D Target is : " + collision.name);
-
         per--;
 
         if (per < 0)
         {
-            Debug.LogWarning("[ Bullet ] OnTriggerEnter2D Call, Col name : " + collision.name);
             rigid.velocity = Vector2.zero;
             gameObject.SetActive(false);
 
-            // 비활성화 전 객체가 활성화 상태인지 확인
-            bulletPV.RPC("ObjActiveToggle", RpcTarget.Others, bulletPV.ViewID, false);
+            GameManager.instance.pool.poolPV.RPC("ObjActiveToggle", RpcTarget.Others, 2, bulletPV.ViewID, false);
         }
     }
+
 
     private void OnTriggerExit2D(Collider2D collision)
     {
         if (!collision.CompareTag("Area") || per <= -100)
             return;
 
-        Debug.LogWarning("[ Bullet ] OnTriggerExit2D Call, Col name : " + collision.name);
         rigid.velocity = Vector2.zero;
-        bulletPV.RPC("ObjActiveToggle", RpcTarget.AllBuffered, bulletPV.ViewID, false);
-    }
-
-    [PunRPC]
-    public void ObjActiveToggle(int viewId, bool isActive)
-    {
-        PhotonView targetView = PhotonView.Find(viewId);
-        if (targetView != null)
-        {
-            targetView.gameObject.SetActive(isActive);
-        }
+        GameManager.instance.pool.poolPV.RPC("ObjActiveToggle", RpcTarget.AllBuffered, 2, bulletPV.ViewID, false);
     }
 
 

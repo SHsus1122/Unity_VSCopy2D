@@ -24,12 +24,14 @@ public class Spawner : MonoBehaviourPun
         enemySpawnPoint = GetComponentsInChildren<Transform>().Where(t => t != transform).ToArray();
     }
 
+
     private void Start()
     {
         // 최대 시간에 따라 몬스터 데이터 크기로 나누어 자동으로 구간 시간 계산을 합니다.
         levelTime = GameManager.instance.maxGameTime / enemySpawnData.Length;
         StartCoroutine(StartIntervalCall());
     }
+
 
     void Update()
     {
@@ -43,9 +45,10 @@ public class Spawner : MonoBehaviourPun
         if (timer > enemySpawnData[level].spawnTime && startInterval)
         {
             timer = 0f;
-            Spawn();
+            EnemySpawn();
         }
     }
+
 
     IEnumerator StartIntervalCall()
     {
@@ -53,7 +56,8 @@ public class Spawner : MonoBehaviourPun
         startInterval = true;
     }
 
-    void Spawn()
+
+    void EnemySpawn()
     {
         if (!PhotonNetwork.IsMasterClient)
             return;
@@ -67,14 +71,6 @@ public class Spawner : MonoBehaviourPun
         // 0~1 사이의 랜덤 숫자를 이용
         GameObject enemy = GameManager.instance.pool.Get(0);
 
-        //if (enemy == null)
-        //{
-        //    enemy = PhotonNetwork.Instantiate(GameManager.instance.pool.prefabs[0].name, transform.position, Quaternion.identity);
-
-        //    Debug.Log("[ PoolManager ] select == null - select owner : " + enemy.GetPhotonView().Owner.NickName);
-        //    GameManager.instance.pool.pools[0].Add(enemy);   // 오브젝트 풀 리스트에 새롭게 생성된 것을 추가(등록)
-        //}
-
         // 자식 오브젝트에서만 선택되도록 랜덤 시작은 1로 지정합니다.(Spanwer의 자식으로 포인트가 존재하기에 0번째는 Spanwer입니다)
         enemy.transform.position = enemySpawnPoint[Random.Range(1, enemySpawnPoint.Length)].position;
         enemy.GetComponent<Enemy>().enemyPV.RPC("InitRPC", RpcTarget.AllBuffered, 
@@ -82,6 +78,7 @@ public class Spawner : MonoBehaviourPun
             enemySpawnData[level].spriteType,
             enemySpawnData[level].health,
             enemySpawnData[level].speed);
+
         if (!enemy.GetComponent<Enemy>().isLive)
         {
             enemy.GetComponent<Enemy>().isLive = true;
@@ -90,8 +87,11 @@ public class Spawner : MonoBehaviourPun
             enemy.GetComponent<Rigidbody2D>().simulated = true;
         }
 
+        Debug.Log("[ Spawner ] enemy view id : " + enemy.GetPhotonView().ViewID);
+        StartCoroutine(enemy.GetComponent<Enemy>().ReActive(0, enemy.GetPhotonView().ViewID));
     }
 }
+
 
 // 이렇게 직렬화를 통해 인스펙터 창에서 내부 클래스도 보여줄 수 있습니다.
 [System.Serializable]

@@ -18,11 +18,11 @@ public class GameRoom : MonoBehaviourPunCallbacks
         playerName = PhotonNetwork.LocalPlayer.NickName;
     }
 
+
     public void Ready(int id)
     {
         ExitGames.Client.Photon.Hashtable customProperties = PhotonNetwork.CurrentRoom.CustomProperties;
         playerType = id;
-        //Debug.Log("[ GameRoom ] playerType : " + id);
 
         if (!isReady)
         {
@@ -42,6 +42,7 @@ public class GameRoom : MonoBehaviourPunCallbacks
             photonView.RPC("RoomGameStartRPC", RpcTarget.All);
         }
     }
+
 
     [PunRPC]
     void RoomGameStartRPC()

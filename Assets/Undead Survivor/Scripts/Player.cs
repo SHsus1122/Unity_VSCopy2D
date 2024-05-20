@@ -109,9 +109,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
 
         player.NickNameText.text = owName;
         player.anim.runtimeAnimatorController = player.animCon[typeId];
-        //player.uiLevelUp.Select(typeId % 2);
     }
-
 
 
     void Update()
@@ -130,33 +128,15 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     }
 
 
-
     // 물리 관련한 처리를 위해서는 FixedUpdate 를 사용
     private void FixedUpdate()
     {
-        /*
-         * 이동 구현의 세 가지 방법 중 2개
-        // 물리력(힘) 작용
-        rigid.AddForce(inputVec);
-
-        // 속도 제어
-        rigid.velocity = inputVec;
-        */
         if (!GameManager.instance.isGameLive)
             return;
 
-        // normalized 를 통해서 어떠한 방향으로 나아가도 벡터의 크기가 1이 되도록 수정, deltaTime 을 사용해서 프레임에 따른 차이를 방지
-        // Time.deltaTime : 물리 프레임 하나가 소비한 시간
-        //resultVec = inputVec.normalized * speed * Time.deltaTime;
-
         if (playerPV.IsMine)
         {
-            // InputSystem 사용시 에디터에서 normalized를 사용하기에 위의 이전 코드처럼 normalized를 추가할 필요가 없습니다.
-            //resultVec = inputVec * speed * Time.deltaTime;
-
             resultVec = inputVec.normalized * speed * Time.deltaTime;
-
-            // 위치 이동(World 기준의 위치), 현재 위치를 기준으로 나아갈 방향(nextVec 활용)
             rigid.MovePosition(rigid.position + resultVec);
         }
         else
@@ -164,13 +144,6 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             transform.position = Vector3.Lerp(transform.position, curPos, 10 * Time.deltaTime);
         }
     }
-
-
-    /*
-    void OnMove(InputValue value)
-    {
-        inputVec = value.Get<Vector2>();
-    }*/
 
 
     // 프레임이 종료 되기 전 실행되는 생명주기 함수(즉, 업데이트가 끝나고 다음 프레임으로 넘어가기 직전에 실행)
@@ -183,7 +156,6 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
 
         playerPV.RPC("FlipXRPC", RpcTarget.All);
     }
-
 
 
     [PunRPC]
@@ -228,20 +200,16 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     
 
     [PunRPC]
-    public void UpdateKillCount(int newKillCount)
+    public void UpdateKillCountRPC(int newKillCount)
     {
         kill = newKillCount;
     }
 
-    [PunRPC]
-    public void UpdateCost(int newCost)
-    {
-        Cost = newCost;
-    }
 
     [PunRPC]
-    public void UpdateExp(int newExp)
+    public void UpdateInfoRPC(int newCost, int newExp)
     {
+        Cost = newCost;
         exp = newExp;
     }
 
@@ -263,8 +231,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             uiLevelUp.CallLevelUp();
         }
 
-        player.playerPV.RPC("UpdateCost", RpcTarget.AllBuffered, player.Cost);
-        player.playerPV.RPC("UpdateExp", RpcTarget.AllBuffered, player.exp);
+        player.playerPV.RPC("UpdateInfoRPC", RpcTarget.AllBuffered, player.Cost, player.exp);
     }
 
 

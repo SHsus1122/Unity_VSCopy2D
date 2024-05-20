@@ -35,6 +35,7 @@ public class Item : MonoBehaviourPun, IPunObservable
         //textName.text = data.itemName;
     }
 
+
     void ItemInfoUpdate()
     {
         nowLevel = itemLevel - 1;
@@ -56,7 +57,6 @@ public class Item : MonoBehaviourPun, IPunObservable
                 break;
         }
     }
-
 
 
     // 사용자가 Button UI 를 통해서 클릭 이벤트로 레벨업을 통해 능력치 활성화 및 강화에 사용할 함수입니다.
@@ -123,16 +123,9 @@ public class Item : MonoBehaviourPun, IPunObservable
                 player.health = PlayerManager.instance.maxHealth;
                 break;
         }
-
-        // 하지만, 스크립터블 오브젝트를 통해서 생성한 각 아이템들에 설정되어 있는 최대 수치 즉, data.damages.Length 의 길이가
-        // level 과 동일한 즉, 레벨업을 한 결과 현재 레벨이 더 이상 상승할 레벨이 없는 경우에 해당하는 경우 레벨업 버튼 자체를 비활성화
-        // 함으로 UI 에서도 클릭을 못하게 해 더이상의 레벨업을 막아줍니다.
-/*        if (Itemlevel == data.damages.Length)
-        {
-            GetComponent<Button>().interactable = false;
-        }*/
         ItemInfoUpdate();
     }
+
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {

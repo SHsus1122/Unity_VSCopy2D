@@ -37,7 +37,6 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
     }
 
 
-
     void SetPlayerWithParent(string owName)
     {
         Player owPlayer = PlayerManager.instance.FindPlayer(owName);
@@ -45,7 +44,6 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
         player = owPlayer;
         this.transform.parent = owPlayer.transform;
     }
-
 
 
     void Update()
@@ -82,7 +80,6 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
     }
 
 
-
     public void WeaponLevelUp(float damage, int count, string owName)
     {
         this.damage = damage * player.character.GetDamage();
@@ -96,7 +93,6 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
         // 물론 레벨업을 하는 경우에도 레벨업에 대한 Gear데미지를 올려 달라는 의미로 여기서 호출시켜 줍니다.
         player.BroadcastMessage("ApplyGear", SendMessageOptions.DontRequireReceiver);
     }
-
 
 
     // 초기화 함수에 만들어둔 스크립트블 오브젝트를 매개변수로 받아서 활용합니다.
@@ -146,7 +142,6 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
     }
 
 
-
     void Batch(string owName)
     {
         Debug.Log("[ Weapon ] Batch Call");
@@ -189,52 +184,6 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
     }
 
 
-
-    //[PunRPC]
-    //void BatchRPC(string owName)
-    //{
-    //    Debug.Log("[ Weapon ] Batch RPC Call");
-    //    if (weaponPV.Owner.NickName != owName)
-    //        return;
-
-    //    Player owPlayer = PlayerManager.instance.FindPlayer(owName);
-    //    for (int index = 0; index < this.count; index++)
-    //    {
-    //        GameObject bullet = null;
-
-    //        // 현재 부모가 PoolManager 인데 이를 플레이어의 자식인 Weapon 으로 부모를 변경하기 위한 작업입니다.
-    //        // 아래 분기문은 기존 오브젝트가 있다면 이를 재활용하고 모자란 것은 풀링에서 가져온다는 의미입니다.
-    //        if (index < transform.childCount)
-    //        {
-    //            bullet = transform.GetChild(index).gameObject;
-    //        }
-    //        else
-    //        {
-    //            Debug.Log("[ Weapon ] Batch prefabId is : " + prefabId);
-    //            bullet = GameManager.instance.pool.Get(prefabId);
-    //        }
-
-    //        // 초기 스폰시 위치 지정을 위해서 해주는 작업입니다.
-    //        bullet.transform.localPosition = Vector3.zero;        // 좌표값 초기화
-    //        bullet.transform.localRotation = Quaternion.identity; // 회전값 초기화
-
-    //        // Weapon의 방향을 설정하기 위한 작업입니다.
-    //        // 갯수에 따라 각도를 설정하기 위해서 초기에 Vector3.forward 로 처음 방향을 잡아주고 해당위치를 기준으로 360을 곱합니다.
-    //        // 이렇게 하면 이제 회전을 위한 360도 각도를 설정했으며 무기의 갯수에 따라 일정한 간격을 주기 위해서 count 로 나누게 됩니다.
-    //        Vector3 rotVec = Vector3.forward * 360 * index / count;
-    //        bullet.transform.Rotate(rotVec);  // Rotate 로 위에서 계산된 각도를 적용해줍니다.
-
-    //        // 이후에는 Translate를 이용해서 배치를 하는데 자기 자신의 위쪽 방향을 기준으로(즉, Local 좌표에 해당)위쪽 방향을 고정합니다.
-    //        // 이렇게 해주면 시작 위치는 고정이되 회전하는 각도는 위에서 지정해주었기 때문에 일정하게 배치가 됩니다.
-    //        bullet.transform.Translate(bullet.transform.up * 1.5f, Space.World);
-
-    //        // 근접 무기의 경우 관통에 제한을 주지 않습니다.(무한), -1 is Infinity Per.
-    //        bullet.GetComponent<Bullet>().Init(damage, -100, Vector3.zero, weaponPV.Owner.NickName);
-    //    }
-    //}
-
-
-
     [PunRPC]
     void InitObjName(int itemId, string owName, int itemTypeNum)
     {
@@ -245,9 +194,6 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
 
         foreach (Transform obj in objList)
         {
-            //if (obj.CompareTag("Weapon"))
-            //    Debug.Log("[ Weapon ] obj.GetComponent<Weapon>().id : " + (obj.GetComponent<Weapon>().id) + ", itemId : " + (itemId) + ", owName : " + (owPlayer.playerPV.Owner.NickName) + ", itemTypeNum : " + (itemTypeNum));
-
             if (obj.CompareTag("Weapon") && obj.GetComponent<Weapon>().id == itemId)
             {
                 Debug.Log("[ Weapon ] InitObjName Owner Name : " + owPlayer.playerPV.Owner.NickName);
@@ -268,6 +214,7 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
         }
     }
 
+
     IEnumerator TestRoutine(int itemId, string owName, int itemTypeNum)
     {
         yield return new WaitForSeconds(0.1f);
@@ -276,25 +223,19 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
     }
 
 
-
     void Fire(string owName)
     {
         if (!player.scanner.nearestTarget || id != 1)
             return;
 
         Player owPlayer = PlayerManager.instance.FindPlayer(owName);
-        Debug.Log("[ Weapon ] string owName : " + (owName) + ", prefabId : " + (prefabId));
 
         GameObject bullet = GameManager.instance.pool.GetForBullet(prefabId, owName);
-        Debug.Log("[ Weapon ] Fire Call, bullet Owner : " + player.playerPV.Owner.NickName + ", Weapon View Id : " + weaponPV.ViewID);
 
         // 타겟의 위치 및 방향 구하기(즉, 총알이 나아가고자 하는 위치, 방향, 속도 구하기)
         Vector3 targetPos = player.scanner.nearestTarget.position;
         Vector3 dir = targetPos - owPlayer.transform.position;
         dir = dir.normalized;   // 현재 벡터의 방향은 유지하고 크기를 1로 변환(정규화)
-
-        Debug.Log("[ Weapon ] transform name : " + transform.name);
-        Debug.Log("[ Weapon ] bullet is null : " + (bullet == null));
 
         //// FromToRotation : 지정된 축을 중심으로 목표를 향해 회전하는 함수
         bullet.transform.position = owPlayer.transform.position;
@@ -308,7 +249,6 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
         AudioManager.instance.PlaySfx(AudioManager.Sfx.Range);          // 발사 효과음 재생
     }
 
-    
 
     [PunRPC]
     void BulletRPC(int bulletId, int viewId, Vector3 dir, Vector3 targetPos, string owName)
@@ -318,9 +258,8 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
         {
             if (obj.GetPhotonView().ViewID == viewId)
             {
-                //obj.GetComponent<Bullet>().ObjActiveToggle(viewId, true);
+                //obj.GetComponent<Bullet>().ObjActiveToggle(prefabId, viewId, true);
 
-                Debug.Log("[ Weapon ] Bullet name : " + (obj.name));
                 Vector3 localPos = owPlayer.transform.TransformPoint(targetPos);
                 obj.GetComponent<Bullet>().curPos = localPos;
                 obj.transform.position = localPos;

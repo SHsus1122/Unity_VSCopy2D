@@ -82,6 +82,10 @@ MonoBehaviour:
   - UpdateKillCount
   - UpdateCost
   - UpdateExp
+  - ReActiveRPC
+  - ResetAnim
+  - UpdateInfoRPC
+  - UpdateKillCountRPC
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

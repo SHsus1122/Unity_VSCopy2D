@@ -20,6 +20,7 @@ public class HUD : MonoBehaviour
         mySlider = GetComponent<Slider>();
     }
 
+
     private void LateUpdate()
     {
         if (player == null)

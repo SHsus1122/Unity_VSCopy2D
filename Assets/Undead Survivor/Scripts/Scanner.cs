@@ -19,6 +19,7 @@ public class Scanner : MonoBehaviour
         nearestTarget = GetNearest();
     }
 
+
     // 가장 가까운 녀석을 찾아서 반환하는 함수
     Transform GetNearest()
     {

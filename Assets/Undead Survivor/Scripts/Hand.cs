@@ -24,6 +24,7 @@ public class Hand : MonoBehaviour
         player = GetComponentsInParent<SpriteRenderer>()[1];
     }
 
+
     // 모든 Update가 호출된 뒤 마지막 호출인 LateUpdate를 이용합니다.
     void LateUpdate()
     {

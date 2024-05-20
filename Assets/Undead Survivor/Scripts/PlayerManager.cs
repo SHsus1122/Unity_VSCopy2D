@@ -13,12 +13,11 @@ public class PlayerManager : MonoBehaviourPunCallbacks
     public Transform[] playerSpawnPoint;
     public List<Player> playerList = new List<Player>();
 
-
-
     private void Awake()
     {
         instance = this;
     }
+
 
     public void SpawnPlayer(int typeId)
     {
@@ -27,10 +26,12 @@ public class PlayerManager : MonoBehaviourPunCallbacks
         player.Init(typeId, player.playerPV.Owner.NickName);
     }
 
+
     public void AddPlayer(Player newPlayer)
     {
         playerList.Add(newPlayer);
     }
+
 
     public Player FindPlayer(string name)
     {

@@ -1,26 +1,27 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
 public class ScannerPlayer : MonoBehaviour
 {
-    public float scanRange;         // ½ºÄµ ¹üÀ§
-    public LayerMask targetLayer;   // ½ºÄµ ´ë»ó Á¾·ù(Layer »ç¿ë)
-    public RaycastHit2D[] targets;  // ½ºÄµµÈ ¸ğµç ´ë»ó
-    public Transform nearestTarget; // °¡Àå °¡±î¿î ½ºÄµ ´ë»ó
+    public float scanRange;         // ìŠ¤ìº” ë²”ìœ„
+    public LayerMask targetLayer;   // ìŠ¤ìº” ëŒ€ìƒ ì¢…ë¥˜(Layer ì‚¬ìš©)
+    public RaycastHit2D[] targets;  // ìŠ¤ìº”ëœ ëª¨ë“  ëŒ€ìƒ
+    public Transform nearestTarget; // ê°€ì¥ ê°€ê¹Œìš´ ìŠ¤ìº” ëŒ€ìƒ
 
     private void FixedUpdate()
     {
-        // CircleCastAll : ¿øÇüÀÇ Ä³½ºÆ®¸¦ ½î°í ¸ğµç °á°ú¸¦ ¹İÈ¯ÇÏ´Â ÇÔ¼ö
-        //  ÀÎÀÚ°ª µé¿¡ ´ëÇÑ ¼³¸í : Ä³½ºÆÃ ½ÃÀÛ À§Ä¡, ¿øÀÇ ¹İÁö¸§, Ä³½ºÆÃ ¹æÇâ, Ä³½ºÆÃ ±æÀÌ, ´ë»ó ·¹ÀÌ¾î
-        //      Vector2.zero´Â ¹æÇâ¼ºÀÌ ¾ø´Ù´Â °ÍÀ» ÀÇ¹ÌÇÕ´Ï´Ù.
-        //      0Àº ½ºÄµÀ» À§ÇØ ½ºÄµÀ» ½î´Â °ÍÀÌ ¾Æ´Ï¶ó ½ºÄ³³Ê »ç¿ëÀÚ À§Ä¡¿¡¼­ ¿øÀ» Çü¼ºÇØ¼­ ±×°ÍÀ» »ç¿ëÇÑ´Ù´Â ÀÇ¹ÌÀÔ´Ï´Ù. 
+        // CircleCastAll : ì›í˜•ì˜ ìºìŠ¤íŠ¸ë¥¼ ì˜ê³  ëª¨ë“  ê²°ê³¼ë¥¼ ë°˜í™˜í•˜ëŠ” í•¨ìˆ˜
+        //  ì¸ìê°’ ë“¤ì— ëŒ€í•œ ì„¤ëª… : ìºìŠ¤íŒ… ì‹œì‘ ìœ„ì¹˜, ì›ì˜ ë°˜ì§€ë¦„, ìºìŠ¤íŒ… ë°©í–¥, ìºìŠ¤íŒ… ê¸¸ì´, ëŒ€ìƒ ë ˆì´ì–´
+        //      Vector2.zeroëŠ” ë°©í–¥ì„±ì´ ì—†ë‹¤ëŠ” ê²ƒì„ ì˜ë¯¸í•©ë‹ˆë‹¤.
+        //      0ì€ ìŠ¤ìº”ì„ ìœ„í•´ ìŠ¤ìº”ì„ ì˜ëŠ” ê²ƒì´ ì•„ë‹ˆë¼ ìŠ¤ìºë„ˆ ì‚¬ìš©ì ìœ„ì¹˜ì—ì„œ ì›ì„ í˜•ì„±í•´ì„œ ê·¸ê²ƒì„ ì‚¬ìš©í•œë‹¤ëŠ” ì˜ë¯¸ì…ë‹ˆë‹¤. 
         targets = Physics2D.CircleCastAll(transform.position, scanRange, Vector2.zero, 0, targetLayer);
         nearestTarget = GetNearest();
     }
 
-    // °¡Àå °¡±î¿î ³à¼®À» Ã£¾Æ¼­ ¹İÈ¯ÇÏ´Â ÇÔ¼ö
+
+    // ê°€ì¥ ê°€ê¹Œìš´ ë…€ì„ì„ ì°¾ì•„ì„œ ë°˜í™˜í•˜ëŠ” í•¨ìˆ˜
     Transform GetNearest()
     {
         Transform result = null;
@@ -34,11 +35,11 @@ public class ScannerPlayer : MonoBehaviour
             if (!target.transform.CompareTag("Player"))
                 continue;
 
-            Vector3 myPos = transform.position;                     // ½ºÄ³³Ê »ç¿ëÀÚ À§Ä¡
-            Vector3 targetPos = target.transform.position;          // Å¸°ÙÀÇ À§Ä¡
-            float curDiff = Vector3.Distance(myPos, targetPos);     // º¤ÅÍ A¿Í BÀÇ °Å¸®¸¦ °è»êÇØÁÖ´Â ÇÔ¼ö
+            Vector3 myPos = transform.position;                     // ìŠ¤ìºë„ˆ ì‚¬ìš©ì ìœ„ì¹˜
+            Vector3 targetPos = target.transform.position;          // íƒ€ê²Ÿì˜ ìœ„ì¹˜
+            float curDiff = Vector3.Distance(myPos, targetPos);     // ë²¡í„° Aì™€ Bì˜ ê±°ë¦¬ë¥¼ ê³„ì‚°í•´ì£¼ëŠ” í•¨ìˆ˜
 
-            // ¹İº¹¹®À» µ¹¸ç °¡Á®¿Â °Å¸®°¡ ÀúÀåµÈ °Å¸®º¸´Ù ÀÛÀ¸¸é ±³Ã¼
+            // ë°˜ë³µë¬¸ì„ ëŒë©° ê°€ì ¸ì˜¨ ê±°ë¦¬ê°€ ì €ì¥ëœ ê±°ë¦¬ë³´ë‹¤ ì‘ìœ¼ë©´ êµì²´
             if (curDiff < diff)
             {
                 diff = curDiff;

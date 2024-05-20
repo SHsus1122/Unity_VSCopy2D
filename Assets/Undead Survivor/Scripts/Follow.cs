@@ -12,10 +12,9 @@ public class Follow : MonoBehaviour
     void Start()
     {
         rect = GetComponent<RectTransform>();
-        //player = GetComponent<Player>();
     }
 
-    // Update is called once per frame
+
     void FixedUpdate()
     {
         // 월드 좌표와 스크린 좌표는 다릅니다. 그래서 아래처럼 코드를 작성해줍니다.

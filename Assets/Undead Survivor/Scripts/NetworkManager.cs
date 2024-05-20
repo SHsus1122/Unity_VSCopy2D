@@ -53,7 +53,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public override void OnDisconnected(DisconnectCause cause) => print("연결 끊김");
 
 
-
     // 대형 게임이 아니기에 로비는 하나만 사용하도록 합니다.(여러개도 가능은 합니다)
     public void JoinLobby() => PhotonNetwork.JoinLobby();
 

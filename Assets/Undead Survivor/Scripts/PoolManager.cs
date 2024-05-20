@@ -17,6 +17,7 @@ public class PoolManager : MonoBehaviourPun
     // 풀 담당을 하는 리스트
     public List<GameObject>[] pools;
 
+
     void Awake()
     {
         instance = GameManager.instance.pool;
@@ -30,6 +31,7 @@ public class PoolManager : MonoBehaviourPun
             pools[index] = new List<GameObject>();
         }
     }
+
 
     // 오브젝트 반환용 함수
     public GameObject Get(int index)
@@ -47,7 +49,7 @@ public class PoolManager : MonoBehaviourPun
                 //Debug.Log("[ PoolManager ] 분기문 첫 번째 !item.activeSelf");
                 select = item;          // 변수 할당
                 select.SetActive(true); // 활성화
-                //poolPV.RPC("ObjActiveToggle", RpcTarget.Others, select.GetPhotonView().ViewID, true);
+                poolPV.RPC("ObjActiveToggle", RpcTarget.Others, index, select.GetPhotonView().ViewID, true);
                 return select;
             }
         }
@@ -65,6 +67,7 @@ public class PoolManager : MonoBehaviourPun
 
         return select;
     }
+
 
     public GameObject GetForBullet(int index, string owName)
     {
@@ -81,7 +84,7 @@ public class PoolManager : MonoBehaviourPun
                 //Debug.Log("[ PoolManager ] 분기문 첫 번째 !item.activeSelf");
                 select = item;          // 변수 할당
                 select.SetActive(true); // 활성화
-                poolPV.RPC("ObjActiveToggle", RpcTarget.Others, select.GetPhotonView().ViewID, true);
+                poolPV.RPC("ObjActiveToggle", RpcTarget.Others, index, select.GetPhotonView().ViewID, true);
                 return select;
             }
         }
@@ -101,6 +104,19 @@ public class PoolManager : MonoBehaviourPun
     }
 
 
+    public GameObject FindPoolObj(int typeId, int viewId)
+    {
+        foreach (GameObject item in pools[typeId])
+        {
+            if (item.GetPhotonView().ViewID == viewId)
+            {
+                return item;
+            }
+        }
+        return null;
+    }
+
+
     [PunRPC]
     void PoolSync(int viewId, int poolListNum)
     {
@@ -108,9 +124,19 @@ public class PoolManager : MonoBehaviourPun
         pools[poolListNum].Add(trs.gameObject);
     }
 
+
     [PunRPC]
-    void ObjActiveToggle(int viewId, bool isActive)
+    void ObjActiveToggle(int typeId, int viewId, bool isActive)
     {
-        PhotonView.Find(viewId).gameObject.SetActive(isActive);
+        Debug.Log("[ PoolManager ] ObjActiveToggle Call, typeID : " + (typeId) + ", viewID : " + (viewId) + ", isActive : " + (isActive));
+        foreach (GameObject item in pools[typeId])
+        {
+            if (item.GetPhotonView().ViewID == viewId)
+            {
+                Debug.Log("[ PoolManager ] ObjActiveToggle item name : " + item.name);
+                item.SetActive(isActive);
+                break;
+            }
+        }
     }
 }

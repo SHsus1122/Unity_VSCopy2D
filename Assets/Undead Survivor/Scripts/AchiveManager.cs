@@ -30,6 +30,7 @@ public class AchiveManager : MonoBehaviour
         }
     }
 
+
     // 데이터를 다른 디바이스(웹, 모바일 등)에서도 데이터를 저장하고 꺼내 써야합니다.
     // 그래서 이러한 경우에는 데이터를 먼저 초기화해줘야 하기 때문에 이를 위한 초기화 함수를 작성합니다.
     void Init()
@@ -42,11 +43,13 @@ public class AchiveManager : MonoBehaviour
             PlayerPrefs.SetInt(achive.ToString(), 0);  // 미해금은 0으로 저장
     }
 
+
     // Start is called before the first frame update
     void Start()
     {
         UnlockCharacter();
     }
+
 
     void UnlockCharacter()
     {
@@ -59,13 +62,6 @@ public class AchiveManager : MonoBehaviour
         }
     }
 
-    //void LateUpdate()
-    //{
-    //    foreach (Achive achive in achives)
-    //    {
-    //        CheckAchive(achive);
-    //    }
-    //}
 
     public void CheckAchive(Player player)
     {
@@ -77,7 +73,7 @@ public class AchiveManager : MonoBehaviour
             switch (achive)
             {
                 case Achive.unlockPotato:
-                    isAchive = player.kill >= 10;
+                    isAchive = player.kill >= 1000;
                     break;
                 case Achive.unlockBean:
                     isAchive = GameManager.instance.gameTime == GameManager.instance.maxGameTime;
@@ -98,6 +94,7 @@ public class AchiveManager : MonoBehaviour
             }
         }
     }
+
 
     IEnumerator NoticeRoutine()
     {
