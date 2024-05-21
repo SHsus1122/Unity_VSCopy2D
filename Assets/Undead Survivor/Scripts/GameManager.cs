@@ -1,4 +1,5 @@
-﻿using Photon.Pun;
+﻿using Cinemachine;
+using Photon.Pun;
 using Photon.Pun.Demo.PunBasics;
 using Photon.Realtime;
 using System.Collections;
@@ -70,17 +71,39 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     // ========================================== [ 게임 종료 ]
     IEnumerator GameOverRoutine()       // 코루틴 활용
     {
-        isGameLive = false;
+        int cnt = 0;
+        foreach (Player pls in PlayerManager.instance.playerList)
+            if (!pls.isPlayerLive) cnt++;
 
-        yield return new WaitForSeconds(0.5f);
+        Debug.Log("[ GameManager ] GameOverRoutine cnt : " + cnt);
+        if (cnt != PlayerManager.instance.playerList.Count)
+        {
+            foreach (Player pls in PlayerManager.instance.playerList)
+            {
+                if (pls.isPlayerLive)
+                {
+                    // 2D 카메라
+                    CinemachineVirtualCamera CM = GameObject.Find("Virtual Camera").GetComponent<CinemachineVirtualCamera>();
+                    CM.Follow = pls.transform;
+                    CM.LookAt = pls.transform;
+                }
+            }
+            yield break;
+        }
+        else if (cnt == PlayerManager.instance.playerList.Count)
+        {
+            isGameLive = false;
 
-        // UI 활성화 및 패배 UI 표시
-        uiResult.gameObject.SetActive(true);
-        uiResult.Lose();
-        Stop();
+            yield return new WaitForSeconds(0.5f);
 
-        AudioManager.instance.PlayBgm(false);                   // 게임 배경음 재생
-        AudioManager.instance.PlaySfx(AudioManager.Sfx.Lose);   // 패배 효과음 재생
+            // UI 활성화 및 패배 UI 표시
+            uiResult.gameObject.SetActive(true);
+            uiResult.Lose();
+            Stop();
+
+            AudioManager.instance.PlayBgm(false);                   // 게임 배경음 재생
+            AudioManager.instance.PlaySfx(AudioManager.Sfx.Lose);   // 패배 효과음 재생
+        }
     }
 
     public void GameOver()

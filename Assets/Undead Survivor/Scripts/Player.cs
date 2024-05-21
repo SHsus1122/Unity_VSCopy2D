@@ -194,10 +194,27 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             }
 
             anim.SetTrigger("Dead_t");
+            isPlayerLive = false;
+            playerPV.RPC("UpdatePlayerLive", RpcTarget.All, isPlayerLive, playerPV.Owner.NickName);
             GameManager.instance.GameOver();
         }
     }
-    
+
+
+    [PunRPC]
+    public void UpdatePlayerLive(bool isLive, string owName)
+    {
+        Player owPlayer = PlayerManager.instance.FindPlayer(owName);
+        owPlayer.isPlayerLive = isLive;
+        owPlayer.GetComponent<CapsuleCollider2D>().enabled = false;
+        owPlayer.spriter.sortingOrder = 1;
+        foreach (Transform trs in owPlayer.GetComponentsInChildren<Transform>())
+        {
+            if (trs.name.Contains("Hand")) trs.gameObject.SetActive(false);
+            if (trs.name.Contains("Weapon")) trs.gameObject.SetActive(false);
+        }
+    }
+
 
     [PunRPC]
     public void UpdateKillCountRPC(int newKillCount)
@@ -207,10 +224,11 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
 
 
     [PunRPC]
-    public void UpdateInfoRPC(int newCost, int newExp)
+    public void UpdateInfoRPC(int newCost, int newExp, int newLevel)
     {
         Cost = newCost;
         exp = newExp;
+        level = newLevel;
     }
 
 
@@ -231,7 +249,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             uiLevelUp.CallLevelUp();
         }
 
-        player.playerPV.RPC("UpdateInfoRPC", RpcTarget.AllBuffered, player.Cost, player.exp);
+        player.playerPV.RPC("UpdateInfoRPC", RpcTarget.All, player.Cost, player.exp, player.level);
     }
 
 

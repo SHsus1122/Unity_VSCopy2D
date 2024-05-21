@@ -35,6 +35,9 @@ public class ScannerPlayer : MonoBehaviour
             if (!target.transform.CompareTag("Player"))
                 continue;
 
+            if (target.transform.GetComponentInParent<Player>().isPlayerLive == false)
+                continue;
+
             Vector3 myPos = transform.position;                     // 스캐너 사용자 위치
             Vector3 targetPos = target.transform.position;          // 타겟의 위치
             float curDiff = Vector3.Distance(myPos, targetPos);     // 벡터 A와 B의 거리를 계산해주는 함수

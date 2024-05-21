@@ -3,6 +3,7 @@ using Photon.Realtime;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameRoom : MonoBehaviourPunCallbacks
 {
@@ -11,6 +12,7 @@ public class GameRoom : MonoBehaviourPunCallbacks
     public bool isReady;
 
     public PhotonView gameRoomPV;
+    public Transform charTransform;
 
     private void Awake()
     {
@@ -22,20 +24,41 @@ public class GameRoom : MonoBehaviourPunCallbacks
     public void Ready(int id)
     {
         ExitGames.Client.Photon.Hashtable customProperties = PhotonNetwork.CurrentRoom.CustomProperties;
-        playerType = id;
 
+        Debug.Log("[ GameRoom ] customProperties == " + (customProperties == null));
         if (!isReady)
         {
             customProperties["ReadyCount"] = (int)customProperties["ReadyCount"] + 1;
             PhotonNetwork.CurrentRoom.SetCustomProperties(customProperties);
             isReady = true;
+
+            foreach (Transform trs in charTransform.GetComponentsInChildren<Transform>()) 
+            {
+                if (trs.name.Contains("Group") || trs.name.Contains(id.ToString())) continue;
+                if (!trs.name.Contains("Lock") && trs.name.Contains("Character"))
+                {
+                    Debug.Log("[ GameRoom ] Button name : " + trs.name);
+                    trs.GetComponent<Button>().interactable = false;
+                }
+            }
         }
         else
         {
             customProperties["ReadyCount"] = (int)customProperties["ReadyCount"] - 1;
             PhotonNetwork.CurrentRoom.SetCustomProperties(customProperties);
             isReady = false;
+
+            foreach (Transform trs in charTransform.GetComponentsInChildren<Transform>())
+            {
+                if (trs.name.Contains("Group") || trs.name.Contains(id.ToString())) continue;
+                if (!trs.name.Contains("Lock") && trs.name.Contains("Character"))
+                {
+                    Debug.Log("[ GameRoom ] Button name : " + trs.name);
+                    trs.GetComponent<Button>().interactable = true;
+                }
+            }
         }
+        playerType = id;
 
         if ((int)PhotonNetwork.CurrentRoom.CustomProperties["ReadyCount"] == PhotonNetwork.CurrentRoom.PlayerCount)
         {

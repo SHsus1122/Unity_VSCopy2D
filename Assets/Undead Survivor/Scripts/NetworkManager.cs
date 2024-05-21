@@ -1,10 +1,8 @@
-﻿using ExitGames.Client.Photon;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine.UI;
-using Photon.Pun.Demo.PunBasics;
 
 // MonoBehaviourPunCallbacks 를 사용하기 위한 선행 using Photon.Pun, Realtime
 public class NetworkManager : MonoBehaviourPunCallbacks
@@ -22,6 +20,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     [Header("RoomPanel")]
     public Button roomButtonPrefab;
     public Transform roomContent;
+    public PhotonView networkManagerPV;
 
     [Header("GamePanel")]
     public Transform spawnPoint;
@@ -70,11 +69,16 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     {
         RoomOptions roomOptions = new RoomOptions();
         roomOptions.MaxPlayers = 2;
-        roomOptions.CustomRoomPropertiesForLobby = new string[] { "RoomName", "ReadyCount" };
-        roomOptions.CustomRoomProperties = new Hashtable() { { "RoomName", roomInput.text } };
-        roomOptions.CustomRoomProperties = new Hashtable() { { "ReadyCount", 0 } };
+        roomOptions.CustomRoomPropertiesForLobby = new string[] { "RoomName", "ReadyCount", "PlayerCount" };
+
+        roomOptions.CustomRoomProperties = new ExitGames.Client.Photon.Hashtable() { 
+            { "RoomName", roomInput.text },
+            { "ReadyCount", 0 },
+            { "PlayerCount", 0 }
+        };
 
         PhotonNetwork.CreateRoom(roomInput.text, roomOptions);
+        RoomRenewal();
     }
 
     public void CreateRoom()
@@ -100,8 +104,16 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     }
     public void JoinRandomRoom() => PhotonNetwork.JoinRandomRoom();
 
-    public void LeaveRoom() => PhotonNetwork.LeaveRoom();
+    public void LeaveRoom()
+    {
+        ExitGames.Client.Photon.Hashtable customProperties = PhotonNetwork.CurrentRoom.CustomProperties;
+        customProperties["PlayerCount"] = (int)customProperties["PlayerCount"] - 1;
+        PhotonNetwork.CurrentRoom.SetCustomProperties(customProperties);
 
+        networkManagerPV.RPC("UpdateRoomStatus", RpcTarget.All, PhotonNetwork.CurrentRoom.Name);
+
+        PhotonNetwork.LeaveRoom();
+    }
 
     public override void OnLeftRoom()
     {
@@ -123,6 +135,36 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         uiLobby.SetActive(false);
         uiRoom.SetActive(true);
         uiRoom.transform.localScale = Vector3.one;
+
+        ExitGames.Client.Photon.Hashtable customProperties = PhotonNetwork.CurrentRoom.CustomProperties;
+        customProperties["PlayerCount"] = (int)customProperties["PlayerCount"] + 1;
+        PhotonNetwork.CurrentRoom.SetCustomProperties(customProperties);
+
+        networkManagerPV.RPC("UpdateRoomStatus", RpcTarget.All, PhotonNetwork.CurrentRoom.Name);
+    }
+
+
+    [PunRPC]
+    public void UpdateRoomStatus(string roomName)
+    {
+        Debug.Log("[ NetworkManager ] UpdateRoomStatus Call, Player Count : " + PhotonNetwork.CountOfPlayers);
+
+        if (!PhotonNetwork.InRoom)
+            return;
+
+        if (PhotonNetwork.CurrentRoom != null && PhotonNetwork.CurrentRoom.Name == roomName)
+        {
+            Debug.Log("[ NetworkManager ] UpdateRoomStatus Call, current room name : " + PhotonNetwork.CurrentRoom.Name);
+
+            ExitGames.Client.Photon.Hashtable customProperties = PhotonNetwork.CurrentRoom.CustomProperties;
+            foreach (Transform trs in uiRoom.GetComponentsInChildren<Transform>())
+            {
+                if (trs.gameObject.name == "RoomStatusText")
+                {
+                    trs.GetComponent<Text>().text = roomName + " 방 / " + ((int)customProperties["PlayerCount"]) + "명 / " + (PhotonNetwork.CurrentRoom.MaxPlayers) + "최대";
+                }
+            }
+        }
     }
 
 
@@ -133,21 +175,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public override void OnJoinRandomFailed(short returnCode, string message) => print("방 랜덤 참가 실패");
 
 
-/*    public void RoomRenewal()
-    {
-        for (int i = 0; i < roomContent.childCount; i++)
-        {
-            GameObject.Destroy(roomContent.GetChild(i).gameObject);
-        }
-
-        Debug.Log("RoomRenewal Call : " + rooms.Count);
-        for (int i = 0; i < rooms.Count; i++)
-        {
-            Button myInstance = Instantiate(roomButtonPrefab, roomContent);
-            myInstance.name = rooms[i].Name;
-            myInstance.GetComponentInChildren<Text>().text = rooms[i].Name;
-        }
-    }*/
 
     public void RoomRenewal()
     {

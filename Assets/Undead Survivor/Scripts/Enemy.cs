@@ -56,6 +56,9 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
 
     private void Update()
     {
+        if (!GameManager.instance.isGameLive)
+            return;
+
         if (isLive && timer > 0.2f)
         {
             target = scanner.nearestTarget.GetComponent<Rigidbody2D>();
@@ -137,7 +140,7 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
             owPlayer.GetExp(collision.GetComponentInParent<Player>());
 
             // RPC를 사용하여 kill 카운트를 모든 클라이언트에 동기화
-            owPlayer.playerPV.RPC("UpdateKillCountRPC", RpcTarget.AllBuffered, owPlayer.kill);
+            owPlayer.playerPV.RPC("UpdateKillCountRPC", RpcTarget.All, owPlayer.kill);
 
             // 분기문으로 플레이어가 생존함에 따라 최종 결과에서 몬스터들이 전부 사망시 다량의 사망 효과음 재생을 방지합니다.
             if (collision.GetComponentInParent<Player>().isPlayerLive)
