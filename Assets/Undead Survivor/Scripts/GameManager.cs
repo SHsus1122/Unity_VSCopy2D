@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 {
@@ -33,6 +34,29 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     public GameObject uiNotice;
 
 
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;  // 씬 로드 이벤트 등록
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;  // 씬 로드 이벤트 해제
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.name == "UndeadSurvivarGame")     // 레벨 이름 검증(조건식)
+        {
+            int playerType = PlayerPrefs.GetInt("PlayerType", 0); // 저장된 playerType을 로드
+            GameStart(playerType);
+        }
+        if (scene.name == "UndeadSurvivar" && PhotonNetwork.InRoom)     // 레벨 이름 검증(조건식)
+        {
+            GameObject.Find("NetworkManager").GetComponent<NetworkManager>().ReJoinRoom(PhotonNetwork.CurrentRoom.Name);
+        }
+    }
+
 
     private void Awake()
     {
@@ -45,8 +69,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     // ========================================== [ 게임 시작 ]
     public void GameStart(int id)
     {
-        if (!PhotonNetwork.LocalPlayer.IsLocal && !PhotonNetwork.IsMasterClient)
-            return;
+        gameManagerPV.TransferOwnership(PhotonNetwork.MasterClient);
 
         PhotonNetwork.SerializationRate = 60;   // OnPhotonSerializeView 호출 빈도
         PhotonNetwork.SendRate = 60;            // RPC 원격 프로시저 호출 빈도 // 단발성 원할 때 한번
@@ -98,8 +121,12 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
             // UI 활성화 및 패배 UI 표시
             uiResult.gameObject.SetActive(true);
+            if (!PhotonNetwork.IsMasterClient)
+            {
+                uiResult.GetComponentInChildren<Button>().gameObject.SetActive(false);
+            }
             uiResult.Lose();
-            Stop();
+            gameManagerPV.RPC("Stop", RpcTarget.All);
 
             AudioManager.instance.PlayBgm(false);                   // 게임 배경음 재생
             AudioManager.instance.PlaySfx(AudioManager.Sfx.Lose);   // 패배 효과음 재생
@@ -122,8 +149,12 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
         // UI 활성화 및 승리 UI 표시
         uiResult.gameObject.SetActive(true);
+        if (!PhotonNetwork.IsMasterClient)
+        {
+            uiResult.GetComponentInChildren<Button>().gameObject.SetActive(false);
+        }
         uiResult.Win();
-        Stop();
+        gameManagerPV.RPC("Stop", RpcTarget.All);
 
         AudioManager.instance.PlayBgm(false);                  // 게임 배경음 재생
         AudioManager.instance.PlaySfx(AudioManager.Sfx.Win);   // 승리 효과음 재생
@@ -136,10 +167,36 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
 
     // ========================================== [ 게임 재시작 ]
-    public void GaemRetry()
+    public void GameRetry()
     {
-        // 씬의 이름을 넣거나 순번을 넣을 수 있습니다.
-        SceneManager.LoadScene(0);
+        gameManagerPV.RPC("AllDestroyObj", RpcTarget.All);
+        PhotonNetwork.DestroyAll();
+
+        PlayerPrefs.DeleteKey("PlayerType");
+
+        ExitGames.Client.Photon.Hashtable customProperties = PhotonNetwork.CurrentRoom.CustomProperties;
+        customProperties["ReadyCount"] = 0;
+        PhotonNetwork.CurrentRoom.SetCustomProperties(customProperties);
+
+        PhotonNetwork.LoadLevel(0);
+    }
+
+
+    [PunRPC]
+    public void AllDestroyObj()
+    {
+        for (int i = 0; i < pool.pools.Length; i++)
+        {
+            pool.pools[i].Clear();
+        }
+
+        PlayerManager.instance.playerList.Clear();
+
+        GameObject[] list1 = GameObject.FindGameObjectsWithTag("Enemy");
+        GameObject[] list2 = GameObject.FindGameObjectsWithTag("Player");
+
+        foreach (GameObject obj in list1) Destroy(obj);
+        foreach (GameObject obj in list2) Destroy(obj);
     }
 
 
@@ -170,7 +227,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     public void Stop()
     {
         isGameLive = false;
-        Time.timeScale = 0; // 유니티의 시간 속도(배율)
+        //Time.timeScale = 0; // 유니티의 시간 속도(배율)
     }
 
 

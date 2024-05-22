@@ -33,6 +33,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     public GameObject uiHud;
     public LevelUp uiLevelUp;
     public Animator anim;
+    HUD plHud;
 
     Rigidbody2D rigid;
     SpriteRenderer spriter;
@@ -52,8 +53,14 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         achiveManager = GetComponent<AchiveManager>();
         character = GetComponent<Character>();
         uiHud = GameObject.Find("HUD");
+        plHud = uiHud.GetComponent<HUD>();
         uiLevelUp = GameObject.Find("LevelUp").GetComponent<LevelUp>();
         PlayerManager.instance.AddPlayer(this);
+
+        if (playerPV.Owner == null || playerPV.Owner.NickName == "")
+        {
+            playerPV.TransferOwnership(PhotonNetwork.LocalPlayer);
+        }
 
         NickNameText.text = playerPV.IsMine ? PhotonNetwork.NickName.ToString() : playerPV.Owner.NickName.ToString();
         NickNameText.color = playerPV.IsMine ? Color.green : Color.red;
@@ -240,16 +247,17 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
 
         player.exp++;
 
-        // Mathf.Min(level, nextExp.Length - 1) 를 통해서 에러방지(초과) 및 마지막 레벨만 나오게 합니다.
         if (player.exp == PlayerManager.instance.nextExp[Mathf.Min(player.level, PlayerManager.instance.nextExp.Length - 1)])
         {
             player.level++;     // 레벨업 적용
             player.exp = 0;     // 경험치 초기화
             player.Cost++;      // Player 레벨업 스킬 강화용 코스트 추가
+            player.playerPV.RPC("UpdateInfoRPC", RpcTarget.All, player.Cost, player.exp, player.level);
             uiLevelUp.CallLevelUp();
         }
 
-        player.playerPV.RPC("UpdateInfoRPC", RpcTarget.All, player.Cost, player.exp, player.level);
+        //if (PhotonNetwork.LocalPlayer.IsLocal)
+        //    player.plHud.UpdateHud(player.exp, player.level, player.kill);
     }
 
 
@@ -262,6 +270,9 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             stream.SendNext(kill);
             stream.SendNext(speed);
             stream.SendNext(typeId);
+            stream.SendNext(level);
+            stream.SendNext(exp);
+            stream.SendNext(Cost);
         }
         else
         {
@@ -270,6 +281,9 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             kill = (int)stream.ReceiveNext();
             speed = (float)stream.ReceiveNext();
             typeId = (int)stream.ReceiveNext();
+            level = (int)stream.ReceiveNext();
+            exp = (int)stream.ReceiveNext();
+            Cost = (int)stream.ReceiveNext();
         }
     }
 }

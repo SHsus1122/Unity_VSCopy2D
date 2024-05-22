@@ -3,6 +3,7 @@ using Photon.Realtime;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class GameRoom : MonoBehaviourPunCallbacks
@@ -16,7 +17,7 @@ public class GameRoom : MonoBehaviourPunCallbacks
 
     private void Awake()
     {
-        gameRoomPV = GetComponent<PhotonView>();
+        
         playerName = PhotonNetwork.LocalPlayer.NickName;
     }
 
@@ -59,20 +60,20 @@ public class GameRoom : MonoBehaviourPunCallbacks
             }
         }
         playerType = id;
+        PlayerPrefs.SetInt("PlayerType", playerType);
 
         if ((int)PhotonNetwork.CurrentRoom.CustomProperties["ReadyCount"] == PhotonNetwork.CurrentRoom.PlayerCount)
         {
-            photonView.RPC("RoomGameStartRPC", RpcTarget.All);
+            photonView.RPC("RoomGameStartRPC", RpcTarget.MasterClient);
         }
     }
-
 
     [PunRPC]
     void RoomGameStartRPC()
     {
-        if (!PhotonNetwork.LocalPlayer.IsLocal && !PhotonNetwork.IsMasterClient)
+        if (!PhotonNetwork.IsMasterClient)
             return;
 
-        GameManager.instance.GameStart(playerType);
+        PhotonNetwork.LoadLevel(1);
     }
 }

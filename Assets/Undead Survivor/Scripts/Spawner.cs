@@ -59,7 +59,7 @@ public class Spawner : MonoBehaviourPun
 
     void EnemySpawn()
     {
-        if (!PhotonNetwork.IsMasterClient)
+        if (!PhotonNetwork.IsMasterClient || !GameManager.instance.isGameLive)
             return;
 
         if (Physics2D.OverlapCircle(enemySpawnPoint[Random.Range(1, enemySpawnPoint.Length)].position, 0.6f, enemyLayer))
@@ -73,7 +73,8 @@ public class Spawner : MonoBehaviourPun
 
         // 자식 오브젝트에서만 선택되도록 랜덤 시작은 1로 지정합니다.(Spanwer의 자식으로 포인트가 존재하기에 0번째는 Spanwer입니다)
         enemy.transform.position = enemySpawnPoint[Random.Range(1, enemySpawnPoint.Length)].position;
-        enemy.GetComponent<Enemy>().enemyPV.RPC("InitRPC", RpcTarget.AllBuffered, 
+
+        enemy.GetComponent<Enemy>().Init(
             enemySpawnData[level].spawnTime,
             enemySpawnData[level].spriteType,
             enemySpawnData[level].health,

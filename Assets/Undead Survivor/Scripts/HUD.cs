@@ -20,8 +20,14 @@ public class HUD : MonoBehaviour
         mySlider = GetComponent<Slider>();
     }
 
+    public void UpdateHud(int exp, int level, int kill)
+    {
+        player.exp = exp;
+        player.level = level;
+        player.kill = kill;
+    }
 
-    private void LateUpdate()
+    private void Update()
     {
         if (player == null)
             return;

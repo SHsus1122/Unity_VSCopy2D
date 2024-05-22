@@ -88,6 +88,12 @@ MonoBehaviour:
   - UpdateKillCountRPC
   - UpdateRoomStatus
   - UpdatePlayerLive
+  - GameRetryRPC
+  - AllLeaveRoomRPC
+  - RoomRenewal
+  - StartGameWithSceneLoadRPC
+  - SendGameStartInfoRPC
+  - AllDestroyObj
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

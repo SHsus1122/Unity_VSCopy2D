@@ -105,18 +105,32 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
     }
 
 
-    [PunRPC]
-    public void InitRPC(float spawnTim, int spriteType, int health, float speed)
+    public void Init(float spawnTime, int spriteType, int health, float speed)
     {
         anim.runtimeAnimatorController = animCon[spriteType];  // 적 타입
         enemySpeed = speed;
         enemyMaxHealth = health;
         enemyHealth = health;
+
+        enemyPV.RPC("InitRPC", RpcTarget.Others, spriteType);
+    }
+
+    [PunRPC]
+    public void InitRPC(int spriteType)
+    {
+        anim.runtimeAnimatorController = animCon[spriteType];  // 적 타입
     }
 
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        if (collision.CompareTag("EnemyCleaner"))
+        {
+            enemyHealth = 0;
+            enemyPV.RPC("Dead", RpcTarget.All);
+            return;
+        }
+
         // 사망 로직이 연달아 실행되는 것을 방지하기 위해서 !isLive 조건을 추가
         // 즉, 너무 짧은 순간에 두 번 일어나는 경우를 방지하는 것입니다.
         if (!collision.CompareTag("Bullet") || !isLive)
@@ -133,14 +147,12 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
         else
         {
             enemyPV.RPC("Dead", RpcTarget.All);
+
             Player owPlayer = collision.GetComponentInParent<Player>();
 
             // 경험치 적용을 위한 코드
             owPlayer.kill++;
             owPlayer.GetExp(collision.GetComponentInParent<Player>());
-
-            // RPC를 사용하여 kill 카운트를 모든 클라이언트에 동기화
-            owPlayer.playerPV.RPC("UpdateKillCountRPC", RpcTarget.All, owPlayer.kill);
 
             // 분기문으로 플레이어가 생존함에 따라 최종 결과에서 몬스터들이 전부 사망시 다량의 사망 효과음 재생을 방지합니다.
             if (collision.GetComponentInParent<Player>().isPlayerLive)
@@ -163,11 +175,11 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
     public IEnumerator ReActive(int typeId, int viewId)
     {
         yield return new WaitForSeconds(30f);
-        Debug.Log("[ Enemy ] ReActive Start, tpyeID : " + (typeId) + ", viewID : " + (viewId));
+
+        if (!GameManager.instance.isGameLive)
+            yield break;
 
         GameObject obj = GameManager.instance.pool.FindPoolObj(typeId, viewId);
-        Debug.Log("[ Enemy ] ReActive Start, obj name : " + obj.name);
-
 
         if (!obj)
             yield break;

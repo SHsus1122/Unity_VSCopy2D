@@ -12,6 +12,7 @@ TagManager:
   - Spawner
   - HUD
   - Weapon
+  - EnemyCleaner
   layers:
   - Default
   - TransparentFX

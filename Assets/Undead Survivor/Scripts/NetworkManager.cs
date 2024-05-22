@@ -3,6 +3,8 @@ using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+using System.Collections;
 
 // MonoBehaviourPunCallbacks 를 사용하기 위한 선행 using Photon.Pun, Realtime
 public class NetworkManager : MonoBehaviourPunCallbacks
@@ -15,7 +17,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public GameObject uiLobby;
     public GameObject uiRoom;
     public GameObject gameRoom;
-    public List<RoomInfo> rooms = new List<RoomInfo>();
+    public List<Button> rooms = new List<Button>();
 
     [Header("RoomPanel")]
     public Button roomButtonPrefab;
@@ -28,6 +30,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     // 람다식 작성법
     private void Awake() => Screen.SetResolution(1280, 720, false);
+
 
     // 일반적인 작성법(작동은 동일합니다)
     private void Update()
@@ -42,6 +45,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public override void OnConnectedToMaster()
     {
         print("서버 접속 완료");
+        PhotonNetwork.AutomaticallySyncScene = true;
         PhotonNetwork.LocalPlayer.NickName = NickNameInput.text;
         JoinLobby();
     }
@@ -50,6 +54,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public void Disconnect() => PhotonNetwork.Disconnect();
 
     public override void OnDisconnected(DisconnectCause cause) => print("연결 끊김");
+
 
 
     // 대형 게임이 아니기에 로비는 하나만 사용하도록 합니다.(여러개도 가능은 합니다)
@@ -62,7 +67,12 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         uiLobby.SetActive(true);
         rooms.Clear();
 
-        gameRoom.SetActive(true);
+        //gameRoom.SetActive(true);
+    }
+
+    public void CreateRoom()
+    {
+        CustomCreateRoom();
     }
 
     void CustomCreateRoom()
@@ -71,22 +81,20 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         roomOptions.MaxPlayers = 2;
         roomOptions.CustomRoomPropertiesForLobby = new string[] { "RoomName", "ReadyCount", "PlayerCount" };
 
-        roomOptions.CustomRoomProperties = new ExitGames.Client.Photon.Hashtable() { 
+        roomOptions.CustomRoomProperties = new ExitGames.Client.Photon.Hashtable() {
             { "RoomName", roomInput.text },
             { "ReadyCount", 0 },
             { "PlayerCount", 0 }
         };
 
         PhotonNetwork.CreateRoom(roomInput.text, roomOptions);
-        RoomRenewal();
     }
 
-    public void CreateRoom()
+    public override void OnCreatedRoom()
     {
-        CustomCreateRoom();
-
-        Button myInstance = Instantiate(roomButtonPrefab, roomContent);
-        myInstance.name = roomInput.text;
+        print("방 만들기 완료");
+        uiLobby.SetActive(false);
+        uiRoom.SetActive(true);
     }
 
     public void JoinRoomBtn(Button button)
@@ -95,24 +103,76 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         PhotonNetwork.JoinRoom(button.name);
     }
 
-    public void JoinRoom() => PhotonNetwork.JoinRoom(roomInput.text);
-
-    public void JoinOrCreateRoom()
+    public void ReNameOwnerAndController()
     {
-        //PhotonNetwork.JoinOrCreateRoom(roomInput.text, new RoomOptions { MaxPlayers = 2 }, null);
-        CustomCreateRoom();
+        //networkManagerPV.Owner.NickName = PhotonNetwork.LocalPlayer.NickName;
+        //networkManagerPV.Controller.NickName = PhotonNetwork.LocalPlayer.NickName;
+
+        //GameManager.instance.gameManagerPV.Owner.NickName = PhotonNetwork.LocalPlayer.NickName;
+        //GameManager.instance.gameManagerPV.Controller.NickName = PhotonNetwork.LocalPlayer.NickName;
+
+        Debug.Log("nininininini : " + PhotonNetwork.LocalPlayer.NickName);
+        //GameObject.Find("GameRoom").GetPhotonView().Owner.NickName = PhotonNetwork.LocalPlayer.NickName;
+        //gameRoom.GetComponent<GameRoom>().gameRoomPV.Owner.NickName = PhotonNetwork.LocalPlayer.NickName;
+        //gameRoom.GetPhotonView().Controller.NickName = PhotonNetwork.LocalPlayer.NickName;
     }
+
+    public void ReJoinRoom(string roomName)
+    {
+        Debug.Log("[ NetworkManager ] ReJoinRoom Call !!!");
+
+        gameRoom.SetActive(true);
+        uiLobby.SetActive(false);
+        uiLogin.SetActive(false);
+        uiRoom.SetActive(true);
+        uiRoom.transform.localScale = Vector3.one;
+
+        networkManagerPV.RPC("UpdateRoomStatus", RpcTarget.All, roomName);
+    }
+
+    public void ReJoinLobby()
+    {
+        Debug.Log("[ NetworkManager ] ReJoinLobby Call !!!");
+
+        gameRoom.SetActive(true);
+        uiRoom.SetActive(false);
+        uiLobby.SetActive(true);
+    }
+
+
     public void JoinRandomRoom() => PhotonNetwork.JoinRandomRoom();
 
     public void LeaveRoom()
     {
         ExitGames.Client.Photon.Hashtable customProperties = PhotonNetwork.CurrentRoom.CustomProperties;
-        customProperties["PlayerCount"] = (int)customProperties["PlayerCount"] - 1;
-        PhotonNetwork.CurrentRoom.SetCustomProperties(customProperties);
 
-        networkManagerPV.RPC("UpdateRoomStatus", RpcTarget.All, PhotonNetwork.CurrentRoom.Name);
+        if (PhotonNetwork.IsMasterClient)
+        {
+            networkManagerPV.RPC("AllLeaveRoomRPC", RpcTarget.Others);
 
+            PhotonNetwork.LeaveRoom();
+            PhotonNetwork.JoinLobby();
+            ReJoinLobby();
+        }
+        else
+        {
+            customProperties["PlayerCount"] = (int)customProperties["PlayerCount"] - 1;
+            PhotonNetwork.CurrentRoom.SetCustomProperties(customProperties);
+
+            networkManagerPV.RPC("UpdateRoomStatus", RpcTarget.All, PhotonNetwork.CurrentRoom.Name);
+
+            PhotonNetwork.LeaveRoom();
+            PhotonNetwork.JoinLobby();
+            ReJoinLobby();
+        }
+    }
+
+    [PunRPC]
+    void AllLeaveRoomRPC()
+    {
         PhotonNetwork.LeaveRoom();
+        PhotonNetwork.JoinLobby();
+        ReJoinLobby();
     }
 
     public override void OnLeftRoom()
@@ -120,13 +180,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         uiRoom.SetActive(false);
         uiLobby.SetActive(true);
         print("방 나가기 완료");
-    }
-
-    public override void OnCreatedRoom()
-    {
-        print("방 만들기 완료");
-        uiLobby.SetActive(false);
-        uiRoom.SetActive(true);
     }
 
     public override void OnJoinedRoom()
@@ -154,7 +207,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
         if (PhotonNetwork.CurrentRoom != null && PhotonNetwork.CurrentRoom.Name == roomName)
         {
-            Debug.Log("[ NetworkManager ] UpdateRoomStatus Call, current room name : " + PhotonNetwork.CurrentRoom.Name);
+            Debug.Log("[ NetworkManager ] UpdateRoomStatus Call, current room name : " + (PhotonNetwork.CurrentRoom.Name) + ", refName : " + (roomName));
 
             ExitGames.Client.Photon.Hashtable customProperties = PhotonNetwork.CurrentRoom.CustomProperties;
             foreach (Transform trs in uiRoom.GetComponentsInChildren<Transform>())
@@ -175,8 +228,8 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public override void OnJoinRandomFailed(short returnCode, string message) => print("방 랜덤 참가 실패");
 
 
-
-    public void RoomRenewal()
+    [PunRPC]
+    public void RoomRenewal(List<RoomInfo> roomList)
     {
         // 모든 방 버튼을 제거합니다.
         for (int i = 0; i < roomContent.childCount; i++)
@@ -185,13 +238,16 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         }
 
         // 새로운 방 목록으로 방 버튼을 생성합니다.
-        Debug.Log("RoomRenewal Call : " + rooms.Count);
-        foreach (RoomInfo room in rooms)
+        Debug.Log("RoomRenewal Call : " + roomList.Count);
+        foreach (RoomInfo room in roomList)
         {
-            Button myInstance = Instantiate(roomButtonPrefab, roomContent);
-            myInstance.name = room.Name;
-            myInstance.GetComponentInChildren<Text>().text = room.Name;
-            myInstance.onClick.AddListener(() => JoinRoomBtn(myInstance));
+            if (room.PlayerCount != 0)
+            {
+                Button myInstance = Instantiate(roomButtonPrefab, roomContent);
+                myInstance.name = room.Name;
+                myInstance.GetComponentInChildren<Text>().text = room.Name;
+                myInstance.onClick.AddListener(() => JoinRoomBtn(myInstance));
+            }
         }
     }
 
@@ -199,8 +255,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public override void OnRoomListUpdate(List<RoomInfo> roomList)
     {
         Debug.Log("OnRoomListUpdate Call : " + roomList.Count);
-        rooms = roomList;
-        RoomRenewal();
+        RoomRenewal(roomList);
     }
 
 
