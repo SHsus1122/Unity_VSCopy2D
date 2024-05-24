@@ -5,6 +5,7 @@ using Photon.Realtime;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections;
+using WebSocketSharp;
 
 // MonoBehaviourPunCallbacks 를 사용하기 위한 선행 using Photon.Pun, Realtime
 public class NetworkManager : MonoBehaviourPunCallbacks
@@ -50,6 +51,11 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         JoinLobby();
     }
 
+    public void NicknameSet()
+    {
+        PlayerPrefs.SetString("PlayerName", NickNameInput.text.ToString());
+    }
+
     // 연결 끊기의 경우에는 OnDisconnected를 콜백함수로 호출합니다.
     public void Disconnect() => PhotonNetwork.Disconnect();
 
@@ -62,12 +68,11 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public override void OnJoinedLobby()
     {
+        Debug.Log("[ NetworkManager ] OnJoinedLobby Call, PlayerPrefs Name : " + PlayerPrefs.GetString("PlayerName"));
         print("로비 접속 완료");
         uiLogin.SetActive(false);
         uiLobby.SetActive(true);
         rooms.Clear();
-
-        //gameRoom.SetActive(true);
     }
 
     public void CreateRoom()
@@ -128,6 +133,8 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         uiRoom.transform.localScale = Vector3.one;
 
         networkManagerPV.RPC("UpdateRoomStatus", RpcTarget.All, roomName);
+
+        StartCoroutine(ReSetting());
     }
 
     public void ReJoinLobby()
@@ -137,8 +144,9 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         gameRoom.SetActive(true);
         uiRoom.SetActive(false);
         uiLobby.SetActive(true);
-    }
 
+        StartCoroutine(ReSetting());
+    }
 
     public void JoinRandomRoom() => PhotonNetwork.JoinRandomRoom();
 
@@ -180,6 +188,31 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         uiRoom.SetActive(false);
         uiLobby.SetActive(true);
         print("방 나가기 완료");
+    }
+
+    public void Test()
+    {
+        gameRoom.GetPhotonView().TransferOwnership(PhotonNetwork.LocalPlayer);
+    }
+
+    public IEnumerator ReSetting()
+    {
+        yield return new WaitForSeconds(0.1f);
+        if (!gameRoom.GetPhotonView().IsMine)
+        {
+            gameRoom.GetPhotonView().TransferOwnership(PhotonNetwork.LocalPlayer);
+        }
+        if (gameRoom.GetPhotonView().Owner.NickName != PlayerPrefs.GetString("PlayerName"))        
+        {
+            PhotonNetwork.LocalPlayer.NickName = PlayerPrefs.GetString("PlayerName");
+            gameRoom.GetPhotonView().Owner.NickName = PlayerPrefs.GetString("PlayerName");
+        }
+        else if (gameRoom.GetPhotonView().Owner.NickName != PlayerPrefs.GetString("PlayerName"))
+        {
+            StartCoroutine(ReSetting());
+        }
+        else
+            yield break;
     }
 
     public override void OnJoinedRoom()

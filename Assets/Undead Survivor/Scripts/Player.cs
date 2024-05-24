@@ -45,6 +45,9 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         if (!PhotonNetwork.LocalPlayer.IsLocal && !playerPV.IsMine)
             return;
 
+        PhotonNetwork.NickName = PlayerPrefs.GetString("PlayerName");
+        PhotonNetwork.LocalPlayer.NickName = PlayerPrefs.GetString("PlayerName");
+
         rigid = GetComponent<Rigidbody2D>();
         spriter = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
@@ -57,12 +60,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         uiLevelUp = GameObject.Find("LevelUp").GetComponent<LevelUp>();
         PlayerManager.instance.AddPlayer(this);
 
-        if (playerPV.Owner == null || playerPV.Owner.NickName == "")
-        {
-            playerPV.TransferOwnership(PhotonNetwork.LocalPlayer);
-        }
-
-        NickNameText.text = playerPV.IsMine ? PhotonNetwork.NickName.ToString() : playerPV.Owner.NickName.ToString();
+        NickNameText.text = playerPV.IsMine ? PlayerPrefs.GetString("PlayerName") : playerPV.Owner.NickName.ToString();
         NickNameText.color = playerPV.IsMine ? Color.green : Color.red;
 
         if (playerPV.IsMine)
