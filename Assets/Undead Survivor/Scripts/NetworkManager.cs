@@ -3,9 +3,10 @@ using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
 using System.Collections;
-using WebSocketSharp;
+using System.Linq;
+using Photon.Pun.UtilityScripts;
+using System.Data;
 
 // MonoBehaviourPunCallbacks 를 사용하기 위한 선행 using Photon.Pun, Realtime
 public class NetworkManager : MonoBehaviourPunCallbacks
@@ -18,7 +19,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public GameObject uiLobby;
     public GameObject uiRoom;
     public GameObject gameRoom;
-    public List<Button> rooms = new List<Button>();
+    public List<RoomInfo> rooms = new List<RoomInfo>();
 
     [Header("RoomPanel")]
     public Button roomButtonPrefab;
@@ -41,7 +42,19 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     }
 
     // 해당 연결 함수의 호출이 성공적으로 완료되면 OnConnectedToMaster함수가 호출됩니다.
-    public void Connect() => PhotonNetwork.ConnectUsingSettings();
+    public void Connect()
+    {
+        if (DB_Control.OnCheckDuplicate(NickNameInput.text))
+        {
+            return;
+        } 
+        else
+        {
+            PlayerPrefs.SetString("PlayerName", NickNameInput.text.ToString());
+            DB_Control.OnInsertNewPlayer(NickNameInput.text);
+            PhotonNetwork.ConnectUsingSettings();
+        }
+    }
 
     public override void OnConnectedToMaster()
     {
@@ -54,6 +67,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public void NicknameSet()
     {
         PlayerPrefs.SetString("PlayerName", NickNameInput.text.ToString());
+        DB_Control.OnInsertNewPlayer(NickNameInput.text);
     }
 
     // 연결 끊기의 경우에는 OnDisconnected를 콜백함수로 호출합니다.
@@ -77,6 +91,14 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public void CreateRoom()
     {
+        foreach (RoomInfo room in rooms)
+        {
+            if (room.Name == roomInput.text)
+            {
+                Debug.Log("이미 존재하는 방이름입니다 !!");
+                return;
+            }
+        }
         CustomCreateRoom();
     }
 
@@ -104,22 +126,27 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public void JoinRoomBtn(Button button)
     {
-        Debug.Log("JoinRoomBtn Call , Room Name is : " + button.name);
+        Debug.Log("JoinRoomBtn Call , button Name is : " + (button.name) + ", rooms count : " + (rooms.Count));
+
+        foreach (RoomInfo room in rooms)
+        {
+            Debug.Log("JoinRoomBtn Call , room Name is : " + button.name);
+            if (room.Name == button.name)
+            {
+                Photon.Realtime.Player[] list = PhotonNetwork.PlayerListOthers;
+                Debug.Log("Player Length : " + list.Length);
+                for (int i = 0; i < list.Length; i++)
+                {
+                    if (list[i].GetPlayerNumber() == PhotonNetwork.LocalPlayer.GetPlayerNumber())
+                    {
+                        Debug.Log("같은 닉네임의 유저가 존재합니다 !! 닉네임 변경후 다시 시도해주세요 !!");
+                        return;
+                    }    
+                }
+            }
+        }
+
         PhotonNetwork.JoinRoom(button.name);
-    }
-
-    public void ReNameOwnerAndController()
-    {
-        //networkManagerPV.Owner.NickName = PhotonNetwork.LocalPlayer.NickName;
-        //networkManagerPV.Controller.NickName = PhotonNetwork.LocalPlayer.NickName;
-
-        //GameManager.instance.gameManagerPV.Owner.NickName = PhotonNetwork.LocalPlayer.NickName;
-        //GameManager.instance.gameManagerPV.Controller.NickName = PhotonNetwork.LocalPlayer.NickName;
-
-        Debug.Log("nininininini : " + PhotonNetwork.LocalPlayer.NickName);
-        //GameObject.Find("GameRoom").GetPhotonView().Owner.NickName = PhotonNetwork.LocalPlayer.NickName;
-        //gameRoom.GetComponent<GameRoom>().gameRoomPV.Owner.NickName = PhotonNetwork.LocalPlayer.NickName;
-        //gameRoom.GetPhotonView().Controller.NickName = PhotonNetwork.LocalPlayer.NickName;
     }
 
     public void ReJoinRoom(string roomName)
@@ -190,29 +217,23 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         print("방 나가기 완료");
     }
 
-    public void Test()
-    {
-        gameRoom.GetPhotonView().TransferOwnership(PhotonNetwork.LocalPlayer);
-    }
-
     public IEnumerator ReSetting()
     {
         yield return new WaitForSeconds(0.1f);
+
         if (!gameRoom.GetPhotonView().IsMine)
-        {
             gameRoom.GetPhotonView().TransferOwnership(PhotonNetwork.LocalPlayer);
-        }
-        if (gameRoom.GetPhotonView().Owner.NickName != PlayerPrefs.GetString("PlayerName"))        
+
+        if (gameRoom.GetPhotonView().Owner == null)
+            yield break;
+
+        if (gameRoom.GetPhotonView().Owner.NickName != PlayerPrefs.GetString("PlayerName"))
         {
             PhotonNetwork.LocalPlayer.NickName = PlayerPrefs.GetString("PlayerName");
             gameRoom.GetPhotonView().Owner.NickName = PlayerPrefs.GetString("PlayerName");
         }
-        else if (gameRoom.GetPhotonView().Owner.NickName != PlayerPrefs.GetString("PlayerName"))
-        {
-            StartCoroutine(ReSetting());
-        }
-        else
-            yield break;
+        else if (gameRoom.GetPhotonView().Owner.NickName != PlayerPrefs.GetString("PlayerName")) StartCoroutine(ReSetting());
+        else yield break;
     }
 
     public override void OnJoinedRoom()
@@ -227,6 +248,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         PhotonNetwork.CurrentRoom.SetCustomProperties(customProperties);
 
         networkManagerPV.RPC("UpdateRoomStatus", RpcTarget.All, PhotonNetwork.CurrentRoom.Name);
+
     }
 
 
@@ -274,13 +296,16 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         Debug.Log("RoomRenewal Call : " + roomList.Count);
         foreach (RoomInfo room in roomList)
         {
-            if (room.PlayerCount != 0)
+            if (room.PlayerCount != 0 && !rooms.Contains(room))
             {
                 Button myInstance = Instantiate(roomButtonPrefab, roomContent);
                 myInstance.name = room.Name;
                 myInstance.GetComponentInChildren<Text>().text = room.Name;
                 myInstance.onClick.AddListener(() => JoinRoomBtn(myInstance));
+                rooms.Add(room);
             }
+            if (room.PlayerCount == 0)
+                rooms.Remove(room);
         }
     }
 

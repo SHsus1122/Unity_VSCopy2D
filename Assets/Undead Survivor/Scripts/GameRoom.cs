@@ -17,7 +17,6 @@ public class GameRoom : MonoBehaviourPunCallbacks
 
     private void Awake()
     {
-        
         playerName = PhotonNetwork.LocalPlayer.NickName;
     }
 
