@@ -1,9 +1,6 @@
 ﻿using Photon.Pun;
-using Photon.Realtime;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using static Cinemachine.DocumentationSortingAttribute;
 
 public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
 {

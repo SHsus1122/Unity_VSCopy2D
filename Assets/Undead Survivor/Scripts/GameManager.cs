@@ -1,13 +1,9 @@
 ﻿using Cinemachine;
 using Photon.Pun;
-using Photon.Pun.Demo.PunBasics;
-using Photon.Realtime;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using WebSocketSharp;
 
 public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 {

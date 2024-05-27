@@ -1,11 +1,5 @@
 ﻿using Photon.Pun;
-using Photon.Pun.Demo.Asteroids;
-using Photon.Realtime;
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Xml.Linq;
-using Unity.Mathematics;
 using UnityEngine;
 
 public class Weapon : MonoBehaviourPunCallbacks, IPunObservable

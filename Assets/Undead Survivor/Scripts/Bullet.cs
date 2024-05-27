@@ -1,10 +1,6 @@
 ﻿using Photon.Pun;
-using Photon.Realtime;
 using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
-using static Unity.Burst.Intrinsics.X86.Avx;
 
 public class Bullet : MonoBehaviourPunCallbacks, IPunObservable
 {
