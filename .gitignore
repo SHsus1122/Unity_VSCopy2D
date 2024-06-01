@@ -76,3 +76,7 @@ crashlytics-build.properties
 
 # End of https://www.toptal.com/developers/gitignore/api/unity
 /Assets/Undead Survivor/Scripts/DB_Control.cs
+/Assets/Editor
+/Assets/Editor Default Resources
+/Assets/ExternalDependencyManager
+/Assets/Firebase
