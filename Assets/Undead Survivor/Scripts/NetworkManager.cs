@@ -5,6 +5,7 @@ using Photon.Realtime;
 using UnityEngine.UI;
 using System.Collections;
 using Photon.Pun.UtilityScripts;
+using static FirebaseScript;
 
 // MonoBehaviourPunCallbacks 를 사용하기 위한 선행 using Photon.Pun, Realtime
 public class NetworkManager : MonoBehaviourPunCallbacks
@@ -69,8 +70,12 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     // 연결 끊기의 경우에는 OnDisconnected를 콜백함수로 호출합니다.
     public void Disconnect() => PhotonNetwork.Disconnect();
 
-    public override void OnDisconnected(DisconnectCause cause) => print("연결 끊김");
-
+    public override void OnDisconnected(DisconnectCause cause)
+    {
+        print("연결 끊김");
+        string name = PlayerPrefs.GetString("PlayerName");
+        firebaseScript.UpdateUserLogging(name, new UserInfo(name, false));
+    }
 
 
     // 대형 게임이 아니기에 로비는 하나만 사용하도록 합니다.(여러개도 가능은 합니다)
@@ -310,6 +315,14 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     {
         Debug.Log("OnRoomListUpdate Call : " + roomList.Count);
         RoomRenewal(roomList);
+    }
+
+
+    private void OnApplicationQuit()
+    {
+        print("어플 종료");
+        string name = PlayerPrefs.GetString("PlayerName");
+        firebaseScript.UpdateUserLogging(name, new UserInfo(name, false));
     }
 
 

@@ -86,10 +86,15 @@ public class FirebaseScript : MonoBehaviour
     public void CreateUserWithPath(string _name, UserInfo userInfo)
     {
         reference.Child("users").Child(_name).Child("name").SetValueAsync(userInfo.name);
-        reference.Child("users").Child(_name).Child("score").SetValueAsync(userInfo.isLogging);
+        reference.Child("users").Child(_name).Child("isLogging").SetValueAsync(userInfo.isLogging);
     }
 
-    public void UpdateUserInfo(string _name, UserInfo userInfo)
+    public void UpdateUserName(string _name, UserInfo userInfo)
+    {
+        reference.Child("users").Child(_name).UpdateChildrenAsync(userInfo.ToDictionary());
+    }
+
+    public void UpdateUserLogging(string _name, UserInfo userInfo)
     {
         reference.Child("users").Child(_name).UpdateChildrenAsync(userInfo.ToDictionary());
     }
@@ -133,14 +138,22 @@ public class FirebaseScript : MonoBehaviour
                 IDictionary userInfo = (IDictionary)data.Value;
                 Debug.Log("_name : " + _name);
                 Debug.Log("Name: " + userInfo["name"] + " / isLogging: " + userInfo["isLogging"]);
-                if (_name == userInfo["name"].ToString())
+                if (_name == userInfo["name"].ToString() && Convert.ToBoolean(userInfo["isLogging"]) == true)
                 {
-                    Debug.Log("SAME !!!");
+                    Debug.Log("닉네임이 같으며 현재 로그인 상태입니다");
                     return true; // 조건 충족 시 true 반환
+                } 
+                else if (_name == userInfo["name"].ToString() && Convert.ToBoolean(userInfo["isLogging"]) == false)
+                {
+                    Debug.Log("닉네임이 같으며 현재 로그아웃 상태입니다");
+                    UpdateUserLogging(_name, new UserInfo(_name, true));
+                    return false;
                 }
             }
         }
 
+        Debug.Log("존재하지 않는 계정이므로 새롭게 생성하고 로그인합니다");
+        CreateUserWithJson(_name, new UserInfo(_name, true));
         return false; // 조건을 충족하지 않는 경우 false 반환
     }
 
