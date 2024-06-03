@@ -9,6 +9,8 @@ using Photon.Pun.UtilityScripts;
 // MonoBehaviourPunCallbacks 를 사용하기 위한 선행 using Photon.Pun, Realtime
 public class NetworkManager : MonoBehaviourPunCallbacks
 {
+    public FirebaseScript firebaseScript;
+
     //public Text StatusText;
     public InputField roomInput, NickNameInput;
 
@@ -40,16 +42,13 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     }
 
     // 해당 연결 함수의 호출이 성공적으로 완료되면 OnConnectedToMaster함수가 호출됩니다.
-    public void Connect()
+    public async void Connect()
     {
-        if (DB_Control.OnCheckDuplicate(NickNameInput.text))
+        Debug.Log("input : " + NickNameInput.text);
+        bool isDupNick = await firebaseScript.ReadUserForName(NickNameInput.text);
+        if (!isDupNick)
         {
-            return;
-        } 
-        else
-        {
-            PlayerPrefs.SetString("PlayerName", NickNameInput.text.ToString());
-            DB_Control.OnInsertNewPlayer(NickNameInput.text);
+            NicknameSet();
             PhotonNetwork.ConnectUsingSettings();
         }
     }
@@ -65,7 +64,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public void NicknameSet()
     {
         PlayerPrefs.SetString("PlayerName", NickNameInput.text.ToString());
-        DB_Control.OnInsertNewPlayer(NickNameInput.text);
     }
 
     // 연결 끊기의 경우에는 OnDisconnected를 콜백함수로 호출합니다.
@@ -139,7 +137,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
                     {
                         Debug.Log("같은 닉네임의 유저가 존재합니다 !! 닉네임 변경후 다시 시도해주세요 !!");
                         return;
-                    }    
+                    }
                 }
             }
         }
