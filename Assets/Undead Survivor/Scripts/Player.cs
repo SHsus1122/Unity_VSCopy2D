@@ -1,5 +1,6 @@
 ﻿using Cinemachine;
 using Photon.Pun;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -15,6 +16,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     public PhotonView playerPV;
     public AchiveManager achiveManager;
     public Character character;
+    public Camera camera;
 
     [Header("# Player Status")]
     public Text NickNameText;
@@ -26,15 +28,17 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     public float health;
     public float speed;
     public bool isPlayerLive = true;
+    HUD plHud;
 
     [Header("# Player UI")]
     public GameObject uiHud;
     public LevelUp uiLevelUp;
     public Animator anim;
-    HUD plHud;
-
+    
     Rigidbody2D rigid;
     SpriteRenderer spriter;
+    float callCnt = 0;
+    float callCntInterval = 0.1f;
 
 
     // Start is called before the first frame update
@@ -46,6 +50,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         PhotonNetwork.NickName = PlayerPrefs.GetString("PlayerName");
         PhotonNetwork.LocalPlayer.NickName = PlayerPrefs.GetString("PlayerName");
 
+        camera = GameObject.Find("Main Camera").GetComponent<Camera>();
         rigid = GetComponent<Rigidbody2D>();
         spriter = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
@@ -66,7 +71,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             // 2D 카메라
             CinemachineVirtualCamera CM = GameObject.Find("Virtual Camera").GetComponent<CinemachineVirtualCamera>();
             CM.Follow = transform;
-            CM.LookAt = transform;
+            //CM.LookAt = transform;
         }
     }
 
@@ -155,28 +160,29 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         if (!GameManager.instance.isGameLive)
             return;
 
-        achiveManager.CheckAchive(transform.GetComponent<Player>());
+        if (playerPV.IsMine)
+        {
+            achiveManager.CheckAchive(transform.GetComponent<Player>());
 
-        playerPV.RPC("FlipXRPC", RpcTarget.All);
+            callCnt += Time.deltaTime;
+            if (callCnt >= callCntInterval)
+            {
+                callCnt = 0;
+                playerPV.RPC("FlipXRPC", RpcTarget.All, resultVec.x);
+            }
+        }
     }
 
 
     [PunRPC]
-    void FlipXRPC()
+    void FlipXRPC(float direction)
     {
         // magnitude : 백터의 크기를 가져오는 방법
         anim.SetFloat("Speed_f", resultVec.magnitude);
 
         // Flip 을 이용해서 Sprite를 반전 시켜 방향을 구현, inputVec의 x값이 양수냐 음수냐에 따라 방향 처리
-        if (resultVec.x != 0)
-            spriter.flipX = resultVec.x < 0;
-
-        /*// 키 입력에 따라 캐릭터의 회전 방향을 처리
-        if (resultVec.x != 0)
-        {
-            // Flip 을 이용해서 Sprite를 반전 시켜 방향을 구현, inputVec의 x값이 양수냐 음수냐에 따라 방향 처리
-            spriter.flipX = resultVec.x < 0;
-        }*/
+        if (direction != 0)
+            spriter.flipX = direction < 0;
     }
 
 

@@ -5,6 +5,7 @@ using UnityEngine;
 public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
 {
     public float enemySpeed;
+    public float originSpeed;
     public float enemyHealth;        // 현재 체력
     public float enemyMaxHealth;     // 최대 체력
     public RuntimeAnimatorController[] animCon; // Sprite 즉, 적의 종류(타입) 변경을 위한 변수
@@ -59,6 +60,21 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
         if (isLive && timer > 0.2f)
         {
             target = scanner.nearestTarget.GetComponent<Rigidbody2D>();
+            Player targetPlayer = PlayerManager.instance.FindPlayer(target.GetComponent<Player>().photonView.Owner.NickName);
+            Vector3 viewPos = targetPlayer.camera.WorldToViewportPoint(transform.position);
+
+            if (target != null)
+            {
+                if (viewPos.x < 0 || viewPos.x > 1 || viewPos.y < 0 || viewPos.y > 1 || viewPos.z < 0)
+                {
+                    enemySpeed = originSpeed * 2;
+                }
+                else
+                {
+                    enemySpeed = originSpeed;
+                }
+            }
+
             timer = 0;
         }
         timer += Time.deltaTime;
@@ -106,6 +122,7 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
     {
         anim.runtimeAnimatorController = animCon[spriteType];  // 적 타입
         enemySpeed = speed;
+        originSpeed = enemySpeed;
         enemyMaxHealth = health;
         enemyHealth = health;
 
@@ -197,7 +214,7 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
     void ResetAnim(int typeId, int viewId)
     {
         GameObject obj = GameManager.instance.pool.FindPoolObj(typeId, viewId);
-        obj.GetComponent<Enemy>().anim.SetTrigger("Dead_t");
+        obj.GetComponent<Enemy>().anim.SetTrigger("Dead");
         obj.GetComponent<Enemy>().spriter.sortingOrder = 2;
     }
 

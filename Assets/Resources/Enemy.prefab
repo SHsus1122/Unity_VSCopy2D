@@ -270,6 +270,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemySpeed: 0
+  originSpeed: 0
   enemyHealth: 0
   enemyMaxHealth: 0
   animCon:

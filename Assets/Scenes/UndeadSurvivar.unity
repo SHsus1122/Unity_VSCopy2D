@@ -19160,7 +19160,8 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1.2
-  m_Text: "\uD574\uB2F9 \uC720\uC800\uB294 \uC774\uBBF8\n\uD50C\uB808\uC774 \uC911\uC785\uB2C8\uB2E4"
+  m_Text: "[\uB85C\uADF8\uC544\uC6C3 \uC54C\uB9BC]\n\uD604\uC7AC \uACC4\uC815\uC740
+    \uC774\uBBF8\n\uC811\uC18D\uC911\uC785\uB2C8\uB2E4"
 --- !u!222 &547431310
 CanvasRenderer:
   m_ObjectHideFlags: 0

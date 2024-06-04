@@ -712,6 +712,7 @@ MonoBehaviour:
   playerPV: {fileID: 5825622529715855626}
   achiveManager: {fileID: 0}
   character: {fileID: 0}
+  camera: {fileID: 0}
   NickNameText: {fileID: 5330871365154669944}
   typeId: 0
   level: 0
