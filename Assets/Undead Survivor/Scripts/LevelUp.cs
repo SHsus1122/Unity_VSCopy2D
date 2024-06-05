@@ -1,4 +1,5 @@
-﻿using Photon.Pun;
+﻿using Cysharp.Threading.Tasks;
+using Photon.Pun;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -43,12 +44,18 @@ public class LevelUp : MonoBehaviour
         rect.localScale = Vector3.one;
     }
 
+    
+    public void SelectCall(int index)
+    {
+        _ = Select(index);
+    }
 
-    public void Select(int index)
+
+    public async UniTask Select(int index)
     {
         Debug.Log("[ LevelUp ] Select index is : " + index);
 
-        items[index].OnClick();
+        await items[index].OnClickCall();
         player.Cost--;
         player.playerPV.RPC("UpdateInfoRPC", RpcTarget.All, player.Cost, player.exp, player.level);
         InfoUpdate();

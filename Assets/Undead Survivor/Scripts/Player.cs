@@ -1,4 +1,5 @@
 ﻿using Cinemachine;
+using Cysharp.Threading.Tasks;
 using Photon.Pun;
 using System.Collections;
 using UnityEngine;
@@ -16,7 +17,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     public PhotonView playerPV;
     public AchiveManager achiveManager;
     public Character character;
-    public Camera camera;
+    public GameObject playerBorder;
 
     [Header("# Player Status")]
     public Text NickNameText;
@@ -28,7 +29,6 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     public float health;
     public float speed;
     public bool isPlayerLive = true;
-    HUD plHud;
 
     [Header("# Player UI")]
     public GameObject uiHud;
@@ -37,20 +37,20 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     
     Rigidbody2D rigid;
     SpriteRenderer spriter;
-    float callCnt = 0;
-    float callCntInterval = 0.1f;
+    //float callCnt = 0;
+    //float callCntInterval = 0.1f;
 
 
     // Start is called before the first frame update
-    void Awake()
+    public void Awake()
     {
-        if (!PhotonNetwork.LocalPlayer.IsLocal && !playerPV.IsMine)
-            return;
+        //if (!playerPV.IsMine)
+        //    return;
 
-        PhotonNetwork.NickName = PlayerPrefs.GetString("PlayerName");
-        PhotonNetwork.LocalPlayer.NickName = PlayerPrefs.GetString("PlayerName");
+        Debug.Log("[ Player ] Player Awake !!");
 
-        camera = GameObject.Find("Main Camera").GetComponent<Camera>();
+        PhotonNetwork.NickName = PhotonNetwork.LocalPlayer.NickName;
+
         rigid = GetComponent<Rigidbody2D>();
         spriter = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
@@ -58,12 +58,11 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         hands = GetComponentsInChildren<Hand>(true);    // 인자값에 true를 넣을 시 Active상태가 아닌 오브젝트도 가져옵니다.
         achiveManager = GetComponent<AchiveManager>();
         character = GetComponent<Character>();
-        uiHud = GameObject.Find("HUD");
-        plHud = uiHud.GetComponent<HUD>();
-        uiLevelUp = GameObject.Find("LevelUp").GetComponent<LevelUp>();
         PlayerManager.instance.AddPlayer(this);
+        uiHud = GameObject.Find("HUD");
+        uiLevelUp = GameObject.Find("LevelUp").GetComponent<LevelUp>();
 
-        NickNameText.text = playerPV.IsMine ? PlayerPrefs.GetString("PlayerName") : playerPV.Owner.NickName.ToString();
+        NickNameText.text = playerPV.IsMine ? PhotonNetwork.LocalPlayer.NickName : playerPV.Owner.NickName.ToString();
         NickNameText.color = playerPV.IsMine ? Color.green : Color.red;
 
         if (playerPV.IsMine)
@@ -76,8 +75,10 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     }
 
 
-    public void Init(int playerTypeId, string owName)
+    public async UniTask Init(int playerTypeId, string owName)
     {
+        Debug.Log("[ Player ] Player Init Call !!, playerTypeId : " + (playerTypeId) + ", owName : " + (owName));
+
         uiLevelUp.player = this;
         achiveManager.uiNotice = GameManager.instance.uiNotice;
         uiHud.transform.localScale = Vector3.one;
@@ -101,16 +102,27 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         }
 
         photonView.RPC("InitRPC", RpcTarget.AllBuffered, playerTypeId, owName);
-        uiLevelUp.Select(typeId % 2);
+
+        await uiLevelUp.Select(playerTypeId % 2);
     }
 
 
     [PunRPC]
     public void InitRPC(int newTypeId, string owName)
     {
+        Debug.Log("[ Player ] Player InitRPC Call !!, newTypeId : " + (newTypeId) + ", owName : " + (owName));
+        Debug.Log("[ Player ] PlayerManager Count : " + PlayerManager.instance.playerList.Count);
         Player player = PlayerManager.instance.FindPlayer(owName);
 
-        Debug.Log("[ Player ] Owner is : " + owName);
+        for (int i = 0; i < PlayerManager.instance.playerList.Count; i++)
+        {
+            Debug.Log("[ Player ] InitRPC Call, player list pl name : " + PlayerManager.instance.playerList[i].playerPV.Owner.NickName);
+        }
+
+        //if (!player.playerPV.IsMine)
+        //    return;
+
+        Debug.Log("[ Player ] Player Find Result : " + owName);
         player.typeId = newTypeId;                             // 캐릭터 종류 ID
         player.health = PlayerManager.instance.maxHealth;      // 초기 체력 설정
         player.speed *= character.GetSpeed();                  // 캐릭터 고유 속성값 적용
@@ -164,12 +176,12 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         {
             achiveManager.CheckAchive(transform.GetComponent<Player>());
 
-            callCnt += Time.deltaTime;
-            if (callCnt >= callCntInterval)
-            {
-                callCnt = 0;
-                playerPV.RPC("FlipXRPC", RpcTarget.All, resultVec.x);
-            }
+            //callCnt += Time.deltaTime;
+            //if (callCnt >= callCntInterval)
+            //{
+            //    callCnt = 0;
+            //    playerPV.RPC("FlipXRPC", RpcTarget.All, resultVec.x);
+            //}
         }
     }
 
@@ -247,6 +259,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         if (!player.isPlayerLive)
             return;
 
+        player.kill++;
         player.exp++;
 
         if (player.exp == PlayerManager.instance.nextExp[Mathf.Min(player.level, PlayerManager.instance.nextExp.Length - 1)])
@@ -257,9 +270,6 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             player.playerPV.RPC("UpdateInfoRPC", RpcTarget.All, player.Cost, player.exp, player.level);
             uiLevelUp.CallLevelUp();
         }
-
-        //if (PhotonNetwork.LocalPlayer.IsLocal)
-        //    player.plHud.UpdateHud(player.exp, player.level, player.kill);
     }
 
 

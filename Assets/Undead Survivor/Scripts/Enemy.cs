@@ -1,5 +1,7 @@
 ﻿using Photon.Pun;
+using Photon.Pun.Demo.Asteroids;
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
@@ -60,21 +62,6 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
         if (isLive && timer > 0.2f)
         {
             target = scanner.nearestTarget.GetComponent<Rigidbody2D>();
-            Player targetPlayer = PlayerManager.instance.FindPlayer(target.GetComponent<Player>().photonView.Owner.NickName);
-            Vector3 viewPos = targetPlayer.camera.WorldToViewportPoint(transform.position);
-
-            if (target != null)
-            {
-                if (viewPos.x < 0 || viewPos.x > 1 || viewPos.y < 0 || viewPos.y > 1 || viewPos.z < 0)
-                {
-                    enemySpeed = originSpeed * 2;
-                }
-                else
-                {
-                    enemySpeed = originSpeed;
-                }
-            }
-
             timer = 0;
         }
         timer += Time.deltaTime;
@@ -145,6 +132,11 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
             return;
         }
 
+        if (collision.CompareTag("Area"))
+            enemySpeed = originSpeed * 2;
+        else if (collision.CompareTag("PlayerBorder"))
+            enemySpeed = originSpeed;
+
         // 사망 로직이 연달아 실행되는 것을 방지하기 위해서 !isLive 조건을 추가
         // 즉, 너무 짧은 순간에 두 번 일어나는 경우를 방지하는 것입니다.
         if (!collision.CompareTag("Bullet") || !isLive)
@@ -165,7 +157,7 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
             Player owPlayer = collision.GetComponentInParent<Player>();
 
             // 경험치 적용을 위한 코드
-            owPlayer.kill++;
+            //owPlayer.kill++;
             owPlayer.GetExp(collision.GetComponentInParent<Player>());
 
             // 분기문으로 플레이어가 생존함에 따라 최종 결과에서 몬스터들이 전부 사망시 다량의 사망 효과음 재생을 방지합니다.

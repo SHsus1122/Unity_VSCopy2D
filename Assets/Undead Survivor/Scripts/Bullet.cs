@@ -1,4 +1,5 @@
-﻿using Photon.Pun;
+﻿using Cysharp.Threading.Tasks;
+using Photon.Pun;
 using System.Collections;
 using UnityEngine;
 
@@ -58,7 +59,7 @@ public class Bullet : MonoBehaviourPunCallbacks, IPunObservable
     }
 
 
-    public void Init(float damage, int per, Vector3 dir, string owName)
+    public async UniTask Init(float damage, int per, Vector3 dir, string owName)
     {
         this.damage = damage;
         this.per = per;

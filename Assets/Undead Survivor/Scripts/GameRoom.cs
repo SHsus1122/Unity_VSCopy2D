@@ -1,6 +1,7 @@
 using Photon.Pun;
 using UnityEngine;
 using UnityEngine.UI;
+using WebSocketSharp;
 
 public class GameRoom : MonoBehaviourPunCallbacks
 {
@@ -11,14 +12,11 @@ public class GameRoom : MonoBehaviourPunCallbacks
     public PhotonView gameRoomPV;
     public Transform charTransform;
 
-    private void Awake()
-    {
-        playerName = PhotonNetwork.LocalPlayer.NickName;
-    }
-
-
     public void Ready(int id)
     {
+        if (playerName.IsNullOrEmpty())
+            playerName = PhotonNetwork.LocalPlayer.NickName;
+
         ExitGames.Client.Photon.Hashtable customProperties = PhotonNetwork.CurrentRoom.CustomProperties;
 
         Debug.Log("[ GameRoom ] customProperties == " + (customProperties == null));
@@ -55,12 +53,22 @@ public class GameRoom : MonoBehaviourPunCallbacks
             }
         }
         playerType = id;
-        PlayerPrefs.SetInt("PlayerType", playerType);
+        //PlayerPrefs.SetInt("PlayerType", playerType);
+        //PlayerPrefs.Save();
+
+        PhotonNetwork.LocalPlayer.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { "PlayerType", id } });
+
+        //Debug.Log("[ GameRoom ] PlayerType prefs : " + PlayerPrefs.GetInt("PlayerType", 0));
 
         if ((int)PhotonNetwork.CurrentRoom.CustomProperties["ReadyCount"] == PhotonNetwork.CurrentRoom.PlayerCount)
         {
-            photonView.RPC("RoomGameStartRPC", RpcTarget.MasterClient);
+            Invoke("TestCode", 5f);
         }
+    }
+
+    void TestCode()
+    {
+        gameRoomPV.RPC("RoomGameStartRPC", RpcTarget.MasterClient);
     }
 
     [PunRPC]

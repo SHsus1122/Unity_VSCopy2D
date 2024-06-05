@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using Photon.Pun;
 using System.Collections.Generic;
 using UnityEngine;
@@ -17,11 +18,15 @@ public class PlayerManager : MonoBehaviourPunCallbacks
     }
 
 
-    public void SpawnPlayer(int typeId)
+    public async UniTask SpawnPlayer(int typeId)
     {
+        Debug.Log("[ PlayerManager ] Spawn Player TypeId : " + typeId);
         GameObject playerPrefab = PhotonNetwork.Instantiate("Player", playerSpawnPoint[Random.Range(0, playerSpawnPoint.Length)].transform.position, Quaternion.identity);
+
         Player player = playerPrefab.GetComponent<Player>();
-        player.Init(typeId, PlayerPrefs.GetString("PlayerName"));
+        Debug.Log("[ PlayerManager ] player name : " + player.name);
+
+        await player.Init(typeId, PhotonNetwork.LocalPlayer.NickName);
     }
 
 

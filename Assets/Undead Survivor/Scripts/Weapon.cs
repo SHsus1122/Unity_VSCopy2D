@@ -1,4 +1,5 @@
-﻿using Photon.Pun;
+﻿using Cysharp.Threading.Tasks;
+using Photon.Pun;
 using System.Collections;
 using UnityEngine;
 
@@ -74,13 +75,13 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
     }
 
 
-    public void WeaponLevelUp(float damage, int count, string owName)
+    public async UniTask WeaponLevelUp(float damage, int count, string owName)
     {
         this.damage = damage * player.character.GetDamage();
         this.count += count;
 
         if (id == 0)
-            Batch(owName);
+            await Batch(owName);
 
         //weaponPV.RPC("Batch", RpcTarget.AllBuffered, owName);
 
@@ -90,7 +91,7 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
 
 
     // 초기화 함수에 만들어둔 스크립트블 오브젝트를 매개변수로 받아서 활용합니다.
-    public void Init(ItemData data, Weapon weapon, string owName)
+    public async UniTask Init(ItemData data, Weapon weapon, string owName)
     {
         Debug.Log("[ Weapon ] IsLocalPlayer : " + PhotonNetwork.LocalPlayer.IsLocal);
 
@@ -118,7 +119,7 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
             case 0:
                 // speed : 회전방향 및 속도
                 speed = 150 * player.character.GetWeaponSpeed();
-                Batch(owName);
+                await Batch(owName);
                 //weaponPV.RPC("Batch", RpcTarget.AllBuffered, owName);
                 break;
             default:
@@ -136,7 +137,7 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
     }
 
 
-    void Batch(string owName)
+    public async UniTask Batch(string owName)
     {
         Debug.Log("[ Weapon ] Batch Call");
         if (weaponPV.Owner.NickName != owName)
@@ -173,7 +174,7 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
             bullet.transform.Translate(bullet.transform.up * 1.5f, Space.World);
 
             // 근접 무기의 경우 관통에 제한을 주지 않습니다.(무한), -1 is Infinity Per.
-            bullet.GetComponent<Bullet>().Init(damage, -100, Vector3.zero, weaponPV.Owner.NickName);
+            await bullet.GetComponent<Bullet>().Init(damage, -100, Vector3.zero, weaponPV.Owner.NickName);
         }
     }
 
@@ -217,7 +218,7 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
     }
 
 
-    void Fire(string owName)
+    async void Fire(string owName)
     {
         if (!player.scanner.nearestTarget || id != 1)
             return;
@@ -236,7 +237,7 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
         bullet.transform.rotation = Quaternion.FromToRotation(Vector3.up, dir);
 
         bullet.GetComponent<Bullet>().curPos = targetPos;
-        bullet.GetComponent<Bullet>().Init(damage, count, dir, owName);     // 원하는 값들로 초기화 작업, count가 관통 값
+        await bullet.GetComponent<Bullet>().Init(damage, count, dir, owName);     // 원하는 값들로 초기화 작업, count가 관통 값
 
         weaponPV.RPC("BulletRPC", RpcTarget.Others, prefabId, bullet.GetPhotonView().ViewID, dir, targetPos, owName);
 

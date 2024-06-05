@@ -1,4 +1,5 @@
 ﻿using Cinemachine;
+using Cysharp.Threading.Tasks;
 using Photon.Pun;
 using System.Collections;
 using UnityEngine;
@@ -41,12 +42,14 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         SceneManager.sceneLoaded -= OnSceneLoaded;  // 씬 로드 이벤트 해제
     }
 
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    private async void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         if (scene.name == "UndeadSurvivarGame")     // 레벨 이름 검증(조건식)
         {
-            int playerType = PlayerPrefs.GetInt("PlayerType", 0); // 저장된 playerType을 로드
-            GameStart(playerType);
+            int playerType = (int)PhotonNetwork.LocalPlayer.CustomProperties["PlayerType"];
+            //int playerType = PlayerPrefs.GetInt("PlayerType", 0); // 저장된 playerType을 로드
+            Debug.Log("[ GameManager ] OnSceneLoaded, playerType : " + playerType);
+            await GameStart(playerType);
         }
         if (scene.name == "UndeadSurvivar" && PhotonNetwork.InRoom)     // 레벨 이름 검증(조건식)
         {
@@ -64,9 +67,9 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
 
     // ========================================== [ 게임 시작 ]
-    public void GameStart(int id)
+    public async UniTask GameStart(int id)
     {
-        gameManagerPV.TransferOwnership(PhotonNetwork.MasterClient);
+        //gameManagerPV.TransferOwnership(PhotonNetwork.MasterClient);
 
         PhotonNetwork.SerializationRate = 60;   // OnPhotonSerializeView 호출 빈도
         PhotonNetwork.SendRate = 60;            // RPC 원격 프로시저 호출 빈도 // 단발성 원할 때 한번
@@ -78,7 +81,8 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
             spawner = GameObject.FindWithTag("Spawner");
         }
 
-        PlayerManager.instance.SpawnPlayer(id);
+        Debug.Log("[ GameManager ] GameStart id is : " + id);
+        await PlayerManager.instance.SpawnPlayer(id);
 
         uiGameStart.localScale = Vector3.zero;
         gameManagerPV.RPC("Resume", RpcTarget.All);
@@ -231,6 +235,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     [PunRPC]
     public void Resume()
     {
+        Debug.Log("[ GameManager ] Resume Call !!");
         isGameLive = true;
         Time.timeScale = 1;
     }

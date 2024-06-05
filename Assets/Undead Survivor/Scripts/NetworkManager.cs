@@ -4,9 +4,6 @@ using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine.UI;
 using System.Collections;
-using Photon.Pun.UtilityScripts;
-using static FirebaseScript;
-using System.Linq;
 
 // MonoBehaviourPunCallbacks 를 사용하기 위한 선행 using Photon.Pun, Realtime
 public class NetworkManager : MonoBehaviourPunCallbacks
@@ -22,7 +19,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public GameObject uiRoom;
     public GameObject gameRoom;
     public List<RoomInfo> rooms = new List<RoomInfo>();
-    bool isCheck = false;
 
     [Header("RoomPanel")]
     public Button roomButtonPrefab;
@@ -152,7 +148,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
         networkManagerPV.RPC("UpdateRoomStatus", RpcTarget.All, roomName);
 
-        StartCoroutine(ReSetting());
+        //StartCoroutine(ReSetting());
     }
 
     public void ReJoinLobby()
@@ -163,7 +159,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         uiRoom.SetActive(false);
         uiLobby.SetActive(true);
 
-        StartCoroutine(ReSetting());
+        //StartCoroutine(ReSetting());
     }
 
     public void JoinRandomRoom() => PhotonNetwork.JoinRandomRoom();
@@ -217,7 +213,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
         if (gameRoom.GetPhotonView().Owner == null)
             yield break;
-
+        
         if (gameRoom.GetPhotonView().Owner.NickName != PlayerPrefs.GetString("PlayerName"))
         {
             PhotonNetwork.LocalPlayer.NickName = PlayerPrefs.GetString("PlayerName");
@@ -225,6 +221,20 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         }
         else if (gameRoom.GetPhotonView().Owner.NickName != PlayerPrefs.GetString("PlayerName")) StartCoroutine(ReSetting());
         else yield break;
+    }
+
+
+    IEnumerator NoticeRoutine()
+    {
+        GameManager.instance.uiNotice.SetActive(true);
+        GameManager.instance.uiNotice.transform.GetChild(2).gameObject.SetActive(true);
+
+        AudioManager.instance.PlaySfx(AudioManager.Sfx.LevelUp);   // 알림 효과음 재생
+
+        yield return new WaitForSeconds(3);
+
+        GameManager.instance.uiNotice.transform.GetChild(2).gameObject.SetActive(false);
+        GameManager.instance.uiNotice.SetActive(false);
     }
 
 
@@ -241,20 +251,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
             }
         }
         return false;
-    }
-
-
-    IEnumerator NoticeRoutine()
-    {
-        GameManager.instance.uiNotice.SetActive(true);
-        GameManager.instance.uiNotice.transform.GetChild(2).gameObject.SetActive(true);
-
-        AudioManager.instance.PlaySfx(AudioManager.Sfx.LevelUp);   // 알림 효과음 재생
-
-        yield return new WaitForSeconds(3);
-
-        GameManager.instance.uiNotice.transform.GetChild(2).gameObject.SetActive(false);
-        GameManager.instance.uiNotice.SetActive(false);
     }
 
 

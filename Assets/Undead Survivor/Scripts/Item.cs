@@ -1,4 +1,5 @@
-﻿using Photon.Pun;
+﻿using Cysharp.Threading.Tasks;
+using Photon.Pun;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -55,10 +56,16 @@ public class Item : MonoBehaviourPun, IPunObservable
     }
 
 
-    // 사용자가 Button UI 를 통해서 클릭 이벤트로 레벨업을 통해 능력치 활성화 및 강화에 사용할 함수입니다.
+    //// 사용자가 Button UI 를 통해서 클릭 이벤트로 레벨업을 통해 능력치 활성화 및 강화에 사용할 함수입니다.
     public void OnClick()
     {
-        if (player.Cost < 1) 
+        // _ = 를 통해서 이 이벤트 핸들러 메서드인 OnClick 자체를 비동기적으로 만들지 않고 대신 비동기 작업을 처리하는 메서드를 호출하도록 합니다.
+        _ = OnClickCall();
+    }
+
+    public async UniTask OnClickCall()
+    {
+        if (player.Cost < 1)
             return;
 
         Debug.Log("==== [ Item ] OnClick : " + (data.itemType) + ", player : " + (player.playerPV.Owner.NickName));
@@ -79,7 +86,7 @@ public class Item : MonoBehaviourPun, IPunObservable
                     weapon = PhotonNetwork.Instantiate("Weapon", transform.position, Quaternion.identity).GetComponent<Weapon>();
                     //weapon.player = player;
 
-                    weapon.Init(data, weapon, player.playerPV.Owner.NickName);
+                    await weapon.Init(data, weapon, player.playerPV.Owner.NickName);
                 }
                 else
                 {
@@ -92,7 +99,7 @@ public class Item : MonoBehaviourPun, IPunObservable
                     nextDamage += data.baseDamage * data.damages[itemLevel];    // 데미지 관련
                     nextCount += data.counts[itemLevel];                        // 횟수와 관통 관련
 
-                    weapon.WeaponLevelUp(nextDamage, nextCount, player.playerPV.Owner.NickName);
+                    await weapon.WeaponLevelUp(nextDamage, nextCount, player.playerPV.Owner.NickName);
                 }
 
                 // 위의 과정을 거치고 나면 level업 처리를 진행합니다.
