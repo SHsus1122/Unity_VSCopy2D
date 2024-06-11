@@ -1,12 +1,4 @@
-﻿using ExitGames.Client.Photon;
-using Photon.Pun;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Runtime.InteropServices;
-using UnityEngine;
-using UnityEngine.UIElements;
+﻿using UnityEngine;
 
 // CreateAssetMenu : 커스텀 메뉴를 생성하는 속성
 [System.Serializable]

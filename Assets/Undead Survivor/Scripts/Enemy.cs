@@ -1,7 +1,5 @@
 ﻿using Photon.Pun;
-using Photon.Pun.Demo.Asteroids;
 using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
@@ -91,8 +89,8 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
 
         nowPos = rigid.position;
 
-        if (!enemyPV.IsMine)
-            transform.position = Vector3.Lerp(transform.position, nowPos, 10 * Time.deltaTime);
+        //if (!enemyPV.IsMine)
+        //    transform.position = Vector3.Lerp(transform.position, nowPos, 10 * Time.deltaTime);
     }
 
 
@@ -228,7 +226,7 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
     {
         if (stream.IsWriting)
         {
-            stream.SendNext(transform.position);
+            //stream.SendNext(transform.position);
             stream.SendNext(enemySpeed);
             stream.SendNext(enemyHealth);
             stream.SendNext(enemyMaxHealth);
@@ -236,7 +234,7 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
         }
         else
         {
-            nowPos = (Vector3)stream.ReceiveNext();
+            //nowPos = (Vector3)stream.ReceiveNext();
             enemySpeed = (float)stream.ReceiveNext();
             enemyHealth = (float)stream.ReceiveNext();
             enemyMaxHealth = (float)stream.ReceiveNext();

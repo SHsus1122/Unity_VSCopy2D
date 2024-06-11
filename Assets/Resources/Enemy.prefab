@@ -256,6 +256,7 @@ MonoBehaviour:
   targetLayer:
     serializedVersion: 2
     m_Bits: 128
+  targets: []
   nearestTarget: {fileID: 0}
 --- !u!114 &6492178627727634644
 MonoBehaviour:
@@ -347,7 +348,7 @@ MonoBehaviour:
   m_SynchronizePosition: 1
   m_SynchronizeRotation: 1
   m_SynchronizeScale: 0
-  m_UseLocal: 1
+  m_UseLocal: 0
 --- !u!114 &7987237021333997731
 MonoBehaviour:
   m_ObjectHideFlags: 0

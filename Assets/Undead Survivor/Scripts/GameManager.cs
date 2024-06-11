@@ -71,8 +71,8 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     {
         //gameManagerPV.TransferOwnership(PhotonNetwork.MasterClient);
 
-        PhotonNetwork.SerializationRate = 60;   // OnPhotonSerializeView 호출 빈도
-        PhotonNetwork.SendRate = 60;            // RPC 원격 프로시저 호출 빈도 // 단발성 원할 때 한번
+        //PhotonNetwork.SerializationRate = 60;   // OnPhotonSerializeView 호출 빈도
+        //PhotonNetwork.SendRate = 60;            // RPC 원격 프로시저 호출 빈도 // 단발성 원할 때 한번
 
         pool.gameObject.SetActive(true);
         spawner.SetActive(true);

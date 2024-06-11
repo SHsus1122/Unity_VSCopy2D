@@ -1,9 +1,5 @@
 ﻿using Photon.Pun;
-using Photon.Pun.Demo.Asteroids;
-using Photon.Pun.UtilityScripts;
-using Photon.Realtime;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -88,7 +84,6 @@ public class Spawner : MonoBehaviourPun
             enemy.GetComponent<Rigidbody2D>().simulated = true;
         }
 
-        //Debug.Log("[ Spawner ] enemy view id : " + enemy.GetPhotonView().ViewID);
         StartCoroutine(enemy.GetComponent<Enemy>().ReActive(0, enemy.GetPhotonView().ViewID));
     }
 }

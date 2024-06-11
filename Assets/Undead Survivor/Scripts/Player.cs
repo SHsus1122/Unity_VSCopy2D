@@ -1,7 +1,6 @@
 ﻿using Cinemachine;
 using Cysharp.Threading.Tasks;
 using Photon.Pun;
-using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,6 +10,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     public Vector2 inputVec;
     public Vector2 resultVec;
     public Vector3 curPos;
+    public Vector3 curVel;
     public Scanner scanner;
     public Hand[] hands;
     public RuntimeAnimatorController[] animCon;
@@ -108,14 +108,8 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     [PunRPC]
     public void InitRPC(int newTypeId, string owName)
     {
-        //Debug.Log("[ Player ] Player InitRPC Call !!, newTypeId : " + (newTypeId) + ", owName : " + (owName));
-        //Debug.Log("[ Player ] PlayerManager Count : " + PlayerManager.instance.playerList.Count);
         Player player = PlayerManager.instance.FindPlayer(owName);
 
-        //if (!player.playerPV.IsMine)
-        //    return;
-
-        //Debug.Log("[ Player ] Player Find Result : " + owName);
         player.typeId = newTypeId;                             // 캐릭터 종류 ID
         player.health = PlayerManager.instance.maxHealth;      // 초기 체력 설정
         player.speed *= character.GetSpeed();                  // 캐릭터 고유 속성값 적용
@@ -149,12 +143,12 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
 
         if (playerPV.IsMine)
         {
-            resultVec = inputVec.normalized * speed * Time.deltaTime;
+            resultVec = inputVec.normalized * speed * Time.fixedDeltaTime;
             rigid.MovePosition(rigid.position + resultVec);
         }
         else
         {
-            transform.position = Vector3.Lerp(transform.position, curPos, 10 * Time.deltaTime);
+            transform.position = Vector3.Lerp(rigid.position, curPos, 10 * Time.fixedDeltaTime);
         }
     }
 

@@ -20,16 +20,13 @@ public class Bullet : MonoBehaviourPunCallbacks, IPunObservable
         SetParent(bulletPV.Owner.NickName);
     }
 
-
-    private void Update()
+    private void FixedUpdate()
     {
         if (!bulletPV.IsMine)
         {
-            //transform.position = Vector3.Lerp(transform.position, curPos, Time.deltaTime * 10);
-            transform.position = curPos;
+            transform.position = Vector3.Lerp(transform.position, curPos, Time.deltaTime * 10);
         }
     }
-
 
     void SetParent(string owName)
     {
