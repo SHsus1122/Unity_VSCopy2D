@@ -48,7 +48,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         {
             int playerType = (int)PhotonNetwork.LocalPlayer.CustomProperties["PlayerType"];
             //int playerType = PlayerPrefs.GetInt("PlayerType", 0); // 저장된 playerType을 로드
-            Debug.Log("[ GameManager ] OnSceneLoaded, playerType : " + playerType);
+            //Debug.Log("[ GameManager ] OnSceneLoaded, playerType : " + playerType);
             await GameStart(playerType);
         }
         if (scene.name == "UndeadSurvivar" && PhotonNetwork.InRoom)     // 레벨 이름 검증(조건식)
@@ -81,7 +81,6 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
             spawner = GameObject.FindWithTag("Spawner");
         }
 
-        Debug.Log("[ GameManager ] GameStart id is : " + id);
         await PlayerManager.instance.SpawnPlayer(id);
 
         uiGameStart.localScale = Vector3.zero;
@@ -109,7 +108,6 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
                     // 2D 카메라
                     CinemachineVirtualCamera CM = GameObject.Find("Virtual Camera").GetComponent<CinemachineVirtualCamera>();
                     CM.Follow = pls.transform;
-                    CM.LookAt = pls.transform;
                 }
             }
             yield break;

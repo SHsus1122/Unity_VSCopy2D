@@ -53,7 +53,7 @@ public class Bullet : MonoBehaviourPunCallbacks, IPunObservable
 
     IEnumerator ReParent(string owName)
     {
-        Debug.Log("[ Bullet ] ReParent Call !!");
+        //Debug.Log("[ Bullet ] ReParent Call !!");
         yield return new WaitForSeconds(0.5f);
         SetParent(owName);
     }

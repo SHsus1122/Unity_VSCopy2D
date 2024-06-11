@@ -11,6 +11,11 @@ public class GameRoom : MonoBehaviourPunCallbacks
 
     public PhotonView gameRoomPV;
     public Transform charTransform;
+    public GameObject timerUi;
+
+    float timer = 3f;
+    float timerInterval = 3f;
+    bool isTimerStart = false;
 
     public void Ready(int id)
     {
@@ -53,27 +58,45 @@ public class GameRoom : MonoBehaviourPunCallbacks
             }
         }
         playerType = id;
-        //PlayerPrefs.SetInt("PlayerType", playerType);
-        //PlayerPrefs.Save();
 
         PhotonNetwork.LocalPlayer.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { "PlayerType", id } });
 
-        //Debug.Log("[ GameRoom ] PlayerType prefs : " + PlayerPrefs.GetInt("PlayerType", 0));
-
         if ((int)PhotonNetwork.CurrentRoom.CustomProperties["ReadyCount"] == PhotonNetwork.CurrentRoom.PlayerCount)
         {
-            Invoke("TestCode", 5f);
+            Debug.Log("Ready Count Enough !! Call Start !!");
+            gameRoomPV.RPC("UiStartCall", RpcTarget.AllBuffered);
+            Invoke("StartCall", 3f);
         }
     }
 
-    void TestCode()
+    private void Update()
     {
-        gameRoomPV.RPC("RoomGameStartRPC", RpcTarget.MasterClient);
+        if (isTimerStart)
+        {
+            timer -= Time.deltaTime;
+            timerUi.GetComponentInChildren<Text>().text = Mathf.Round(timer).ToString();
+        }
+    }
+
+    [PunRPC]
+    public void UiStartCall()
+    {
+        timerUi.transform.localScale = Vector3.one;
+        isTimerStart = true;
+    }
+
+    void StartCall()
+    {
+        gameRoomPV.RPC("RoomGameStartRPC", RpcTarget.AllBuffered);
     }
 
     [PunRPC]
     void RoomGameStartRPC()
     {
+        isTimerStart = false;
+        timer = timerInterval;
+        timerUi.transform.localScale = Vector3.zero;
+
         if (!PhotonNetwork.IsMasterClient)
             return;
 

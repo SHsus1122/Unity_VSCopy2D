@@ -93,7 +93,7 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
     // 초기화 함수에 만들어둔 스크립트블 오브젝트를 매개변수로 받아서 활용합니다.
     public async UniTask Init(ItemData data, Weapon weapon, string owName)
     {
-        Debug.Log("[ Weapon ] IsLocalPlayer : " + PhotonNetwork.LocalPlayer.IsLocal);
+        //Debug.Log("[ Weapon ] IsLocalPlayer : " + PhotonNetwork.LocalPlayer.IsLocal);
 
         transform.position = PlayerManager.instance.FindPlayer(owName).transform.position;
 
@@ -139,7 +139,7 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
 
     public async UniTask Batch(string owName)
     {
-        Debug.Log("[ Weapon ] Batch Call");
+        //Debug.Log("[ Weapon ] Batch Call");
         if (weaponPV.Owner.NickName != owName)
             return;
 
@@ -155,7 +155,7 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
             }
             else
             {
-                Debug.Log("[ Weapon ] Batch prefabId is : " + prefabId);
+                //Debug.Log("[ Weapon ] Batch prefabId is : " + prefabId);
                 bullet = GameManager.instance.pool.Get(prefabId);
             }
 
@@ -191,7 +191,7 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
         {
             if (obj.CompareTag("Weapon") && obj.GetComponent<Weapon>().id == itemId)
             {
-                Debug.Log("[ Weapon ] InitObjName Owner Name : " + owPlayer.playerPV.Owner.NickName);
+                //Debug.Log("[ Weapon ] InitObjName Owner Name : " + owPlayer.playerPV.Owner.NickName);
                 obj.gameObject.name = "Weapon " + itemId;
                 Hand hand = owPlayer.hands[itemTypeNum];
                 hand.spriter.sprite = owPlayer.uiLevelUp.items[itemTypeNum].data.hand;
@@ -213,7 +213,7 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
     IEnumerator TestRoutine(int itemId, string owName, int itemTypeNum)
     {
         yield return new WaitForSeconds(0.1f);
-        Debug.Log("[ Weapon ] Start Coroutine");
+        //Debug.Log("[ Weapon ] Start Coroutine");
         weaponPV.RPC("InitObjName", RpcTarget.AllBuffered, itemId, owName, itemTypeNum);
     }
 

@@ -37,8 +37,8 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     
     Rigidbody2D rigid;
     SpriteRenderer spriter;
-    //float callCnt = 0;
-    //float callCntInterval = 0.1f;
+    float callCnt = 0;
+    float callCntInterval = 0.1f;
 
 
     // Start is called before the first frame update
@@ -46,8 +46,6 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     {
         //if (!playerPV.IsMine)
         //    return;
-
-        Debug.Log("[ Player ] Player Awake !!");
 
         PhotonNetwork.NickName = PhotonNetwork.LocalPlayer.NickName;
 
@@ -77,7 +75,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
 
     public async UniTask Init(int playerTypeId, string owName)
     {
-        Debug.Log("[ Player ] Player Init Call !!, playerTypeId : " + (playerTypeId) + ", owName : " + (owName));
+        //Debug.Log("[ Player ] Player Init Call !!, playerTypeId : " + (playerTypeId) + ", owName : " + (owName));
 
         uiLevelUp.player = this;
         achiveManager.uiNotice = GameManager.instance.uiNotice;
@@ -110,19 +108,14 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     [PunRPC]
     public void InitRPC(int newTypeId, string owName)
     {
-        Debug.Log("[ Player ] Player InitRPC Call !!, newTypeId : " + (newTypeId) + ", owName : " + (owName));
-        Debug.Log("[ Player ] PlayerManager Count : " + PlayerManager.instance.playerList.Count);
+        //Debug.Log("[ Player ] Player InitRPC Call !!, newTypeId : " + (newTypeId) + ", owName : " + (owName));
+        //Debug.Log("[ Player ] PlayerManager Count : " + PlayerManager.instance.playerList.Count);
         Player player = PlayerManager.instance.FindPlayer(owName);
-
-        for (int i = 0; i < PlayerManager.instance.playerList.Count; i++)
-        {
-            Debug.Log("[ Player ] InitRPC Call, player list pl name : " + PlayerManager.instance.playerList[i].playerPV.Owner.NickName);
-        }
 
         //if (!player.playerPV.IsMine)
         //    return;
 
-        Debug.Log("[ Player ] Player Find Result : " + owName);
+        //Debug.Log("[ Player ] Player Find Result : " + owName);
         player.typeId = newTypeId;                             // 캐릭터 종류 ID
         player.health = PlayerManager.instance.maxHealth;      // 초기 체력 설정
         player.speed *= character.GetSpeed();                  // 캐릭터 고유 속성값 적용
@@ -176,12 +169,12 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         {
             achiveManager.CheckAchive(transform.GetComponent<Player>());
 
-            //callCnt += Time.deltaTime;
-            //if (callCnt >= callCntInterval)
-            //{
-            //    callCnt = 0;
-            //    playerPV.RPC("FlipXRPC", RpcTarget.All, resultVec.x);
-            //}
+            callCnt += Time.deltaTime;
+            if (callCnt >= callCntInterval)
+            {
+                callCnt = 0;
+                playerPV.RPC("FlipXRPC", RpcTarget.All, resultVec.x);
+            }
         }
     }
 
@@ -215,6 +208,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             }
 
             anim.SetTrigger("Dead_t");
+            scanner.CancelInvoke();
             isPlayerLive = false;
             playerPV.RPC("UpdatePlayerLive", RpcTarget.All, isPlayerLive, playerPV.Owner.NickName);
             GameManager.instance.GameOver();
@@ -254,21 +248,24 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
 
 
     // ========================================== [ 경험치 획득 ]
-    public void GetExp(Player player)
+    [PunRPC]
+    public void GetExp(string owName)
     {
-        if (!player.isPlayerLive)
+        if (!isPlayerLive)
             return;
 
-        player.kill++;
-        player.exp++;
+        Player owPlayer = PlayerManager.instance.FindPlayer(owName);
 
-        if (player.exp == PlayerManager.instance.nextExp[Mathf.Min(player.level, PlayerManager.instance.nextExp.Length - 1)])
+        owPlayer.kill++;
+        owPlayer.exp++;
+
+        if (owPlayer.exp == PlayerManager.instance.nextExp[Mathf.Min(level, PlayerManager.instance.nextExp.Length - 1)])
         {
-            player.level++;     // 레벨업 적용
-            player.exp = 0;     // 경험치 초기화
-            player.Cost++;      // Player 레벨업 스킬 강화용 코스트 추가
-            player.playerPV.RPC("UpdateInfoRPC", RpcTarget.All, player.Cost, player.exp, player.level);
-            uiLevelUp.CallLevelUp();
+            owPlayer.level++;     // 레벨업 적용
+            owPlayer.exp = 0;     // 경험치 초기화
+            owPlayer.Cost++;      // Player 레벨업 스킬 강화용 코스트 추가
+            owPlayer.playerPV.RPC("UpdateInfoRPC", RpcTarget.All, Cost, exp, level);
+            owPlayer.uiLevelUp.CallLevelUp();
         }
     }
 

@@ -16,6 +16,7 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
     public ScannerPlayer scanner;
     public SpriteRenderer spriter;
     public bool isLive;
+    public Player targetPl;
 
     float timer;
 
@@ -59,10 +60,10 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
         if (!GameManager.instance.isGameLive)
             return;
 
-        if (isLive && timer > 0.2f)
+        if (isLive && timer > 1f)
         {
-            target = scanner.nearestTarget.GetComponent<Rigidbody2D>();
             timer = 0;
+            target = scanner.nearestTarget.GetComponent<Rigidbody2D>();
         }
         timer += Time.deltaTime;
     }
@@ -125,6 +126,7 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        Debug.Log("[ Enemy ] collision name is : " + collision.name);
         if (collision.CompareTag("EnemyCleaner"))
         {
             enemyHealth = 0;
@@ -140,7 +142,9 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
         // 사망 로직이 연달아 실행되는 것을 방지하기 위해서 !isLive 조건을 추가
         // 즉, 너무 짧은 순간에 두 번 일어나는 경우를 방지하는 것입니다.
         if (!collision.CompareTag("Bullet") || !isLive)
+        {
             return;
+        }
 
         enemyHealth -= collision.GetComponent<Bullet>().damage;
         StartCoroutine(KnockBack(collision));
@@ -150,18 +154,15 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
             anim.SetTrigger("Hit");
             AudioManager.instance.PlaySfx(AudioManager.Sfx.Hit);   // 피격 효과음 재생
         }
-        else
+        else if (enemyHealth <= 0)
         {
             enemyPV.RPC("Dead", RpcTarget.All);
 
-            Player owPlayer = collision.GetComponentInParent<Player>();
-
-            // 경험치 적용을 위한 코드
-            //owPlayer.kill++;
-            owPlayer.GetExp(collision.GetComponentInParent<Player>());
+            targetPl = collision.GetComponentInParent<Player>();
+            targetPl.playerPV.RPC("GetExp", RpcTarget.All, targetPl.playerPV.Owner.NickName);
 
             // 분기문으로 플레이어가 생존함에 따라 최종 결과에서 몬스터들이 전부 사망시 다량의 사망 효과음 재생을 방지합니다.
-            if (collision.GetComponentInParent<Player>().isPlayerLive)
+            if (targetPl.isPlayerLive)
                 AudioManager.instance.PlaySfx(AudioManager.Sfx.Dead);   // 사망 효과음 재생
         }
     }
@@ -219,6 +220,7 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
         rigid.simulated = false;    // 물리(움직임) 비활성화
         spriter.sortingOrder = 1;   // 표현 우선순위 변경
         anim.SetBool("Dead", true); // 애니메이터 파라메터 상태 변경
+        scanner.CancelInvoke();     // 스캐너 작동 정지
     }
 
 

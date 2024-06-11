@@ -53,7 +53,7 @@ public class LevelUp : MonoBehaviour
 
     public async UniTask Select(int index)
     {
-        Debug.Log("[ LevelUp ] Select index is : " + index);
+        //Debug.Log("[ LevelUp ] Select index is : " + index);
 
         await items[index].OnClickCall();
         player.Cost--;

@@ -64,7 +64,7 @@ public class Spawner : MonoBehaviourPun
 
         if (Physics2D.OverlapCircle(enemySpawnPoint[Random.Range(1, enemySpawnPoint.Length)].position, 0.6f, enemyLayer))
         {
-            Debug.Log("[ Spawner ] Spawn Chechk Sphere True");
+            //Debug.Log("[ Spawner ] Spawn Chechk Sphere True");
             return;
         }
 
@@ -88,7 +88,7 @@ public class Spawner : MonoBehaviourPun
             enemy.GetComponent<Rigidbody2D>().simulated = true;
         }
 
-        Debug.Log("[ Spawner ] enemy view id : " + enemy.GetPhotonView().ViewID);
+        //Debug.Log("[ Spawner ] enemy view id : " + enemy.GetPhotonView().ViewID);
         StartCoroutine(enemy.GetComponent<Enemy>().ReActive(0, enemy.GetPhotonView().ViewID));
     }
 }

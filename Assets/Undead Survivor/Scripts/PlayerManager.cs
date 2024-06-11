@@ -20,11 +20,11 @@ public class PlayerManager : MonoBehaviourPunCallbacks
 
     public async UniTask SpawnPlayer(int typeId)
     {
-        Debug.Log("[ PlayerManager ] Spawn Player TypeId : " + typeId);
+        //Debug.Log("[ PlayerManager ] Spawn Player TypeId : " + typeId);
         GameObject playerPrefab = PhotonNetwork.Instantiate("Player", playerSpawnPoint[Random.Range(0, playerSpawnPoint.Length)].transform.position, Quaternion.identity);
 
         Player player = playerPrefab.GetComponent<Player>();
-        Debug.Log("[ PlayerManager ] player name : " + player.name);
+        //Debug.Log("[ PlayerManager ] player name : " + player.name);
 
         await player.Init(typeId, PhotonNetwork.LocalPlayer.NickName);
     }

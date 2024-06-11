@@ -4,6 +4,8 @@ using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine.UI;
 using System.Collections;
+using UnityEditor;
+using System.Linq;
 
 // MonoBehaviourPunCallbacks 를 사용하기 위한 선행 using Photon.Pun, Realtime
 public class NetworkManager : MonoBehaviourPunCallbacks
@@ -30,7 +32,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
 
     // 람다식 작성법
-    private void Awake() => Screen.SetResolution(1280, 720, false);
+    private void Awake() => Screen.SetResolution(1920, 1080, true);
 
 
     // 일반적인 작성법(작동은 동일합니다)
@@ -120,12 +122,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public override void OnCreatedRoom()
     {
-        print("방 만들기 완료");
-        if (PhotonNetwork.CurrentRoom.Name == "ForCheck")
-        {
-            return;
-        }
-
         uiLobby.SetActive(false);
         uiRoom.SetActive(true);
     }
@@ -308,31 +304,27 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public override void OnJoinRandomFailed(short returnCode, string message) => print("방 랜덤 참가 실패");
 
 
-    [PunRPC]
-    public void RoomRenewal(List<RoomInfo> roomList)
+    public void RoomRenewal()
     {
         // 모든 방 버튼을 제거합니다.
-        for (int i = 0; i < roomContent.childCount; i++)
+        for (int i = roomContent.childCount - 1; i >= 0; i--)
         {
             Destroy(roomContent.GetChild(i).gameObject);
         }
 
         // 새로운 방 목록으로 방 버튼을 생성합니다.
-        Debug.Log("RoomRenewal Call : " + roomList.Count);
-        foreach (RoomInfo room in roomList)
+        Debug.Log("RoomRenewal Call : " + rooms.Count);
+        foreach (RoomInfo room in rooms)
         {
-            if (room.Name == "ForCheck")
-                continue;
-            if (room.PlayerCount != 0 && !rooms.Contains(room))
+            Debug.Log("room name : " + room.Name + ", PlayerCount : " + room.PlayerCount);
+
+            if (room.PlayerCount > 0)
             {
                 Button myInstance = Instantiate(roomButtonPrefab, roomContent);
                 myInstance.name = room.Name;
                 myInstance.GetComponentInChildren<Text>().text = room.Name;
                 myInstance.onClick.AddListener(() => JoinRoomBtn(myInstance));
-                rooms.Add(room);
             }
-            if (room.PlayerCount == 0)
-                rooms.Remove(room);
         }
     }
 
@@ -340,7 +332,30 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public override void OnRoomListUpdate(List<RoomInfo> roomList)
     {
         Debug.Log("OnRoomListUpdate Call : " + roomList.Count);
-        RoomRenewal(roomList);
+
+        foreach (RoomInfo room in roomList)
+        {
+            if (room.RemovedFromList)
+            {
+                // 방이 삭제된 경우
+                rooms.RemoveAll(r => r.Name == room.Name);
+            }
+            else
+            {
+                // 기존 방 업데이트 또는 새로운 방 추가
+                int index = rooms.FindIndex(r => r.Name == room.Name);
+                if (index != -1)
+                {
+                    rooms[index] = room;
+                }
+                else
+                {
+                    rooms.Add(room);
+                }
+            }
+        }
+
+        RoomRenewal();
     }
 
 

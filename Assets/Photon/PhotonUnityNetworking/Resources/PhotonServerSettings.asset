@@ -94,6 +94,8 @@ MonoBehaviour:
   - StartGameWithSceneLoadRPC
   - SendGameStartInfoRPC
   - AllDestroyObj
+  - GetExp
+  - UiStartCall
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

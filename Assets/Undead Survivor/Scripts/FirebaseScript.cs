@@ -5,10 +5,6 @@ using Firebase;
 using Firebase.Database;
 using System.Threading.Tasks;
 using UnityEngine.UI;
-using System;
-using Photon.Pun;
-using Photon.Realtime;
-using System.Linq;
 
 public class FirebaseScript : MonoBehaviour
 {

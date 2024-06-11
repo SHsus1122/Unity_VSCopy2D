@@ -12,9 +12,9 @@ public class Item : MonoBehaviourPun, IPunObservable
     public Player player;
 
     Image icon;
-    Text textLevel;
-    Text textName;
-    Text textDesc;
+    public Text textLevel;
+    public Text textName;
+    public Text textDesc;
     int nowLevel;
 
     private void Awake()
@@ -26,14 +26,14 @@ public class Item : MonoBehaviourPun, IPunObservable
 
         Text[] texts = GetComponentsInChildren<Text>();
         textLevel = texts[0];   // 인스펙터 창의 순서대로 순번을 지정해줍니다.
-        //textName = texts[1];
-        //textDesc = texts[2];
+        textName = texts[1];
+        textDesc = texts[2];
 
-        //textName.text = data.itemName;
+        textName.text = data.itemName;
     }
 
 
-    void ItemInfoUpdate()
+    public void ItemInfoUpdate()
     {
         nowLevel = itemLevel - 1;
 
@@ -42,15 +42,15 @@ public class Item : MonoBehaviourPun, IPunObservable
             case ItemData.ItemType.Melee:
             case ItemData.ItemType.Range:
                 textLevel.text = "Lv." + itemLevel;
-                //textDesc.text = string.Format(data.itemDesc, data.damages[nowLevel] * 100, data.counts[nowLevel]);
+                textDesc.text = string.Format(data.itemDesc, data.damages[nowLevel] * 100, data.counts[nowLevel]);
                 break;
             case ItemData.ItemType.Glove:
             case ItemData.ItemType.Shoe:
                 textLevel.text = "Lv." + itemLevel;
-                //textDesc.text = string.Format(data.itemDesc, data.damages[nowLevel] * 100);
+                textDesc.text = string.Format(data.itemDesc, data.damages[nowLevel] * 100);
                 break;
             case ItemData.ItemType.Heal:
-                //textDesc.text = string.Format(data.itemDesc);
+                textDesc.text = string.Format(data.itemDesc);
                 break;
         }
     }
@@ -68,7 +68,7 @@ public class Item : MonoBehaviourPun, IPunObservable
         if (player.Cost < 1)
             return;
 
-        Debug.Log("==== [ Item ] OnClick : " + (data.itemType) + ", player : " + (player.playerPV.Owner.NickName));
+        //Debug.Log("==== [ Item ] OnClick : " + (data.itemType) + ", player : " + (player.playerPV.Owner.NickName));
 
         // 능력(아이템)에 타입에 따라 각각 다르게 처리합니다.
         switch (data.itemType)
@@ -76,13 +76,13 @@ public class Item : MonoBehaviourPun, IPunObservable
             // 아래처럼 case문 두 개를 동시에 사용하는 방법도 있습니다.
             case ItemData.ItemType.Melee:
             case ItemData.ItemType.Range:
-                Debug.Log("==== [ Item ] LocalPlayer.ActorNumber : " + (PhotonNetwork.LocalPlayer.ActorNumber) + ", player ActorNum : " + (player.playerPV.Owner.ActorNumber));
+                //Debug.Log("==== [ Item ] LocalPlayer.ActorNumber : " + (PhotonNetwork.LocalPlayer.ActorNumber) + ", player ActorNum : " + (player.playerPV.Owner.ActorNumber));
 
                 if (itemLevel == 0)
                 {
                     // level이 0인 즉, 처음 초기값의 실행부입니다.
 
-                    Debug.Log("==== [ Item ] Lv.0, OnClick : " + data.itemType);
+                    //Debug.Log("==== [ Item ] Lv.0, OnClick : " + data.itemType);
                     weapon = PhotonNetwork.Instantiate("Weapon", transform.position, Quaternion.identity).GetComponent<Weapon>();
                     //weapon.player = player;
 
@@ -91,7 +91,7 @@ public class Item : MonoBehaviourPun, IPunObservable
                 else
                 {
                     // level이 0이 아닌 즉, 한 번이라도 실행했다면 이후 레벨업 관련할 실행부입니다.
-                    Debug.Log("==== [ Item ] Not Lv.0, OnClick : " + data.itemType);
+                    //Debug.Log("==== [ Item ] Not Lv.0, OnClick : " + data.itemType);
                     float nextDamage = data.baseDamage;
                     int nextCount = 0;
 
