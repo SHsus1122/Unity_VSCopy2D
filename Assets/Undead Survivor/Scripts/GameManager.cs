@@ -191,6 +191,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         uiResult.GetChild(0).gameObject.SetActive(false);
         uiResult.GetChild(1).gameObject.SetActive(true);
         gameManagerPV.RPC("Stop", RpcTarget.All);
+        GameObject.Find("AchiveManager").GetComponent<AchiveManager>().CheckAchive();
 
         AudioManager.instance.PlayBgm(false);                  // 게임 배경음 정지
         AudioManager.instance.PlaySfx(AudioManager.Sfx.Win);   // 승리 효과음 재생

@@ -158,6 +158,7 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
 
             targetPl = collision.GetComponentInParent<Player>();
             targetPl.playerPV.RPC("GetExp", RpcTarget.All, targetPl.playerPV.Owner.NickName);
+            targetPl.KillCount(targetPl.playerPV.Owner.NickName);
 
             // 분기문으로 플레이어가 생존함에 따라 최종 결과에서 몬스터들이 전부 사망시 다량의 사망 효과음 재생을 방지합니다.
             if (targetPl.isPlayerLive)

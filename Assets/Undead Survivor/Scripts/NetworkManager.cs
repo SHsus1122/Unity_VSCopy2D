@@ -26,13 +26,17 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public Button roomButtonPrefab;
     public Transform roomContent;
     public PhotonView networkManagerPV;
+    public AchiveManager achiveManager;
 
     [Header("GamePanel")]
     public Transform spawnPoint;
 
 
     // =================== 초기 셋팅
-    private void Awake() => Screen.SetResolution(1920, 1080, true);
+    private void Awake()
+    {
+        Screen.SetResolution(1920, 1080, true);
+    }
 
 
     private void Update()
@@ -163,6 +167,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
             uiLobby.SetActive(false);
             uiRoom.SetActive(true);
             uiRoom.transform.localScale = Vector3.one;
+            achiveManager.CheckAchive();
 
             ExitGames.Client.Photon.Hashtable customProperties = PhotonNetwork.CurrentRoom.CustomProperties;
             customProperties["PlayerCount"] = (int)customProperties["PlayerCount"] + 1;

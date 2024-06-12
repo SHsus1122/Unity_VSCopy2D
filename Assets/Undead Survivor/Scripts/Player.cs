@@ -1,6 +1,8 @@
 ﻿using Cinemachine;
 using Cysharp.Threading.Tasks;
 using Photon.Pun;
+using Photon.Realtime;
+using System.Xml.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -18,9 +20,9 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     public Hand[] hands;
     public RuntimeAnimatorController[] animCon;
     public PhotonView playerPV;
-    public AchiveManager achiveManager;
     public Character character;
     public GameObject playerBorder;
+    public NetworkManager networkManager;
 
     [Header("# Player Status")]
     public Text NickNameText;
@@ -52,7 +54,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         anim = GetComponent<Animator>();
         scanner = GetComponent<ScannerEnemy>();
         hands = GetComponentsInChildren<Hand>(true);    // 인자값에 true를 넣을 시 Active상태가 아닌 오브젝트도 가져옵니다.
-        achiveManager = GetComponent<AchiveManager>();
+        //achiveManager = GetComponent<AchiveManager>();
         character = GetComponent<Character>();
         PlayerManager.instance.AddPlayer(this);
 
@@ -60,6 +62,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         {
             uiHud = GameObject.Find("HUD");
             uiLevelUp = GameObject.Find("LevelUp").GetComponent<LevelUp>();
+            networkManager = GameObject.Find("NetworkManager").GetComponent<NetworkManager>();
         }
 
         NickNameText.text = playerPV.IsMine ? PhotonNetwork.LocalPlayer.NickName : playerPV.Owner.NickName.ToString();
@@ -77,7 +80,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     public async UniTask Init(int playerTypeId, string owName)
     {
         uiLevelUp.player = this;
-        achiveManager.uiNotice = GameManager.instance.uiNotice;
+        //achiveManager.uiNotice = GameManager.instance.uiNotice;
         uiHud.transform.localScale = Vector3.one;
         uiLevelUp.Show();
 
@@ -160,7 +163,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
 
         if (playerPV.IsMine)
         {
-            achiveManager.CheckAchive(transform.GetComponent<Player>());
+            //achiveManager.CheckAchive(transform.GetComponent<Player>());
 
             callCnt += Time.deltaTime;
             if (callCnt >= callCntInterval)
@@ -260,6 +263,21 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
 
             if (PhotonNetwork.LocalPlayer.NickName == owPlayer.playerPV.Owner.NickName)
                 owPlayer.uiLevelUp.CallLevelUp();
+        }
+    }
+
+
+    public void KillCount(string owName)
+    {
+        Player owPlayer = PlayerManager.instance.FindPlayer(owName);
+
+        if (PhotonNetwork.LocalPlayer.NickName != owPlayer.playerPV.Owner.NickName)
+            return;
+
+        if (owPlayer.kill % 50 == 0 && owPlayer.kill > 0)
+        {
+            PlayerPrefs.SetInt("Kill", PlayerPrefs.GetInt("Kill") + 50);
+            networkManager.achiveManager.CheckAchive();
         }
     }
 

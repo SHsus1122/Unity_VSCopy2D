@@ -790,9 +790,9 @@ MonoBehaviour:
   - {fileID: 22100000, guid: b66d3cbfbac373a439ac50490364161f, type: 2}
   - {fileID: 22100000, guid: 533ea7c4f55a673428acd6823c62cf9d, type: 2}
   playerPV: {fileID: 5825622529715855626}
-  achiveManager: {fileID: 0}
   character: {fileID: 0}
   playerBorder: {fileID: 5407331492555162155}
+  networkManager: {fileID: 0}
   NickNameText: {fileID: 5330871365154669944}
   typeId: 0
   level: 0

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 /// <summary>
@@ -38,7 +39,9 @@ public class AchiveManager : MonoBehaviour
     void Init()
     {
         // PlayerPrefs : 간단한 저장 기능을 제공하는 유니티 제공 클래스 입니다.
-        PlayerPrefs.SetInt("MyData", 1);        // Key값, Data
+        Debug.Log("업ㅇ적on");
+        PlayerPrefs.SetInt("MyData", 1);    // Key값, Data
+        PlayerPrefs.SetInt("Kill", 0);
 
         // 업적 초기화 작업
         foreach (Achive achive in achives)
@@ -46,7 +49,6 @@ public class AchiveManager : MonoBehaviour
     }
 
 
-    // Start is called before the first frame update
     void Start()
     {
         UnlockCharacter();
@@ -65,7 +67,7 @@ public class AchiveManager : MonoBehaviour
     }
 
 
-    public void CheckAchive(Player player)
+    public void CheckAchive()
     {
         bool isAchive = false;  // 업적 달성 확인용 변수
 
@@ -75,16 +77,17 @@ public class AchiveManager : MonoBehaviour
             switch (achive)
             {
                 case Achive.unlockPotato:
-                    isAchive = player.kill >= 1000;
+                    isAchive = PlayerPrefs.GetInt("Kill") >= 100;
                     break;
                 case Achive.unlockBean:
-                    isAchive = GameManager.instance.gameTime == GameManager.instance.maxGameTime;
+                    isAchive = GameManager.instance.gameTime >= GameManager.instance.maxGameTime;
                     break;
             }
 
             // 업적 달성 확인, 만약 달성이 확인되면 해금합니다.
             if (isAchive && PlayerPrefs.GetInt(achive.ToString()) == 0)
             {
+                Debug.Log("Achive Name Is : " + PlayerPrefs.GetInt(achive.ToString()));
                 PlayerPrefs.SetInt(achive.ToString(), 1);   // 업적 해금
 
                 for (int index = 0; index < uiNotice.transform.childCount; index++)
@@ -92,13 +95,13 @@ public class AchiveManager : MonoBehaviour
                     bool isActive = index == (int)achive;
                     uiNotice.transform.GetChild(index).gameObject.SetActive(isActive);
                 }
-                StartCoroutine(NoticeRoutine());
+                StartCoroutine(UnLockNoticeRoutine());
             }
         }
     }
 
 
-    IEnumerator NoticeRoutine()
+    IEnumerator UnLockNoticeRoutine()
     {
         uiNotice.SetActive(true);
         AudioManager.instance.PlaySfx(AudioManager.Sfx.LevelUp);   // 알림 효과음 재생
