@@ -1,5 +1,8 @@
 ﻿using UnityEngine;
 
+/// <summary>
+/// 캐릭터에 부착하는 UI를 위한 클래스입니다.
+/// </summary>
 public class Hand : MonoBehaviour
 {
     public bool isLeft;

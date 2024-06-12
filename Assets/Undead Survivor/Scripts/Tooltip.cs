@@ -1,6 +1,9 @@
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// 게임 내 간단한 설명을 위해 사용하는 UI관련 클래스입니다.
+/// </summary>
 public class Tooltip : MonoBehaviour
 {
     float halfWidth;
@@ -29,6 +32,6 @@ public class Tooltip : MonoBehaviour
         if (rt.anchoredPosition.x + rt.sizeDelta.x > halfWidth)
             rt.pivot = new Vector2(1, 0.5f);
         else
-            rt.pivot = new Vector2(0, 1);
+            rt.pivot = new Vector2(0.5f, 1);
     }
 }

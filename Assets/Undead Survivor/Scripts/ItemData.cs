@@ -1,5 +1,8 @@
 ﻿using UnityEngine;
 
+/// <summary>
+/// Item들(장비)에 대한 여러 속성들을 정의할 때 사용하는 스크립터블 클래스입니다.
+/// </summary>
 // CreateAssetMenu : 커스텀 메뉴를 생성하는 속성
 [System.Serializable]
 [CreateAssetMenu(fileName = "Item", menuName = "Scriptable Object/ItemData")]
@@ -15,7 +18,8 @@ public class ItemData : ScriptableObject
     public int itemId;
     public string itemName;
 
-    [TextArea]  // TextArea : 인스펙터에 텍스트를 여러 줄 넣을 수 있게 해주는 속성을 부여하는 기능입니다.
+    // TextArea : 인스펙터에 텍스트를 여러 줄 넣을 수 있게 해주는 속성을 부여하는 기능입니다.
+    [TextArea]
     public string itemDesc;
     public Sprite itemIcon;
 

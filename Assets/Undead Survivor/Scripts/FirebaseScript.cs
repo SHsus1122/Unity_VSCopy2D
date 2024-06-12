@@ -6,6 +6,9 @@ using Firebase.Database;
 using System.Threading.Tasks;
 using UnityEngine.UI;
 
+/// <summary>
+/// Firebase DB를 사용하기 위한 클래스입니다.
+/// </summary>
 public class FirebaseScript : MonoBehaviour
 {
     private DatabaseReference reference = null;
@@ -13,6 +16,8 @@ public class FirebaseScript : MonoBehaviour
     public GameObject uiNotice;
     public InputField NickNameInput;
 
+    
+    // 유저정보 설정을 위한 내부 클래스
     public class UserInfo
     {
         public string name = "";
@@ -38,7 +43,7 @@ public class FirebaseScript : MonoBehaviour
         // 파이어베이스의 메인 참조 얻기
         reference = FirebaseDatabase.DefaultInstance.RootReference;
 
-        ReadUserAll();
+        //ReadUserAll();
 
         // 추가
         //CreateUserWithJson("AA", new UserInfo("AA", false));
@@ -58,6 +63,8 @@ public class FirebaseScript : MonoBehaviour
         //ReadUserForName("AA");
     }
 
+
+    // 새로운 유저 생성
     public void CreateUserWithJson(string _name, UserInfo userInfo)
     {
         reference.GetValueAsync().ContinueWith(task =>
@@ -70,7 +77,6 @@ public class FirebaseScript : MonoBehaviour
                     {
                         // JSON 자체가 딕셔너리 기반
                         IDictionary userInfo = (IDictionary)data.Value;
-                        Debug.Log("name : " + userInfo["name"] + " / actorNum : " + userInfo["actorNum"]);
                         if (userInfo["name"].Equals(_name))
                         {
                             return;
@@ -83,31 +89,15 @@ public class FirebaseScript : MonoBehaviour
         reference.Child("users").Child(_name).SetRawJsonValueAsync(json);
     }
 
-    public void CreateUserWithPath(string _name, UserInfo userInfo)
-    {
-        reference.Child("users").Child(_name).Child("name").SetValueAsync(userInfo.name);
-        reference.Child("users").Child(_name).Child("isLogging").SetValueAsync(userInfo.actorNum);
-    }
 
+    // 유저 이름 변경
     public void UpdateUserName(string _name, UserInfo userInfo)
     {
         reference.Child("users").Child(_name).UpdateChildrenAsync(userInfo.ToDictionary());
     }
 
-    //public void UpdateUserLogging(string _name, UserInfo userInfo)
-    //{
-    //    Debug.Log("UpdateUserLogging Call");
-    //    reference.Child("users").Child(_name).UpdateChildrenAsync(userInfo.ToDictionary());
-    //}
 
-    public void PushUserInfo(UserInfo userInfo)
-    {
-        string key = reference.Child("users").Push().Key;
-        reference.Child("users").Child(key).Child("name").SetValueAsync(userInfo.name);
-        reference.Child("users").Child(key).Child("score").SetValueAsync(userInfo.actorNum);
-    }
-
-
+    // 유저 정보 가져오기
     public async Task<bool> ReadUserForName(string _name)
     {
         bool result = await ReadUserForNameAsync(_name);
@@ -123,6 +113,7 @@ public class FirebaseScript : MonoBehaviour
     }
 
 
+    // 로그인용 유저정보 읽기 및 새로운 유저 생성 함수
     public async Task<bool> ReadUserForNameAsync(string _name)
     {
         // 특정 데이터셋의 DB 참조 얻기
@@ -134,24 +125,22 @@ public class FirebaseScript : MonoBehaviour
         {
             foreach (DataSnapshot data in snapshot.Children)
             {
-                // JSON 자체가 딕셔너리 기반
+                // JSON 자체가 딕셔너리 기반, 중복 닉네임은 기존 계정으로 로그인
                 IDictionary userInfo = (IDictionary)data.Value;
-                Debug.Log("_name : " + _name);
-                Debug.Log("name : " + userInfo["name"] + " / actorNum : " + userInfo["actorNum"]);
                 if (_name == userInfo["name"].ToString())
                 {
-                    Debug.Log("존재하는 계정으로 로그인합니다");
                     return false;
                 } 
             }
         }
 
-        Debug.Log("존재하지 않는 계정이므로 새롭게 생성하고 로그인합니다");
+        // 없는 계정의 경우 새로운 계정 생성
         CreateUserWithJson(_name, new UserInfo(_name, 0));
-        return false; // 조건을 충족하지 않는 경우 false 반환
+        return false;
     }
 
 
+    // 모든 유저 정보 읽기
     public void ReadUserAll()
     {
         // 특정 데이터셋의 DB 참조 얻기
@@ -176,8 +165,34 @@ public class FirebaseScript : MonoBehaviour
     }
 
 
+    // 유저 제거
     public void RemoveUserInfo(string _name)
     {
         reference.Child("users").Child(_name).RemoveValueAsync();
     }
+
+
+
+    // ================= 미사용 함수
+
+    //public void UpdateUserLogging(string _name, UserInfo userInfo)
+    //{
+    //    Debug.Log("UpdateUserLogging Call");
+    //    reference.Child("users").Child(_name).UpdateChildrenAsync(userInfo.ToDictionary());
+    //}
+
+
+    //public void PushUserInfo(UserInfo userInfo)
+    //{
+    //    string key = reference.Child("users").Push().Key;
+    //    reference.Child("users").Child(key).Child("name").SetValueAsync(userInfo.name);
+    //    reference.Child("users").Child(key).Child("score").SetValueAsync(userInfo.actorNum);
+    //}
+
+
+    //public void CreateUserWithPath(string _name, UserInfo userInfo)
+    //{
+    //    reference.Child("users").Child(_name).Child("name").SetValueAsync(userInfo.name);
+    //    reference.Child("users").Child(_name).Child("isLogging").SetValueAsync(userInfo.actorNum);
+    //}
 }

@@ -3,6 +3,9 @@ using Photon.Pun;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// 유저의 레벨업에 관련한 정보를 관련한 기능을 가진 클래스입니다.
+/// </summary>
 public class LevelUp : MonoBehaviour
 {
     public Player player;
@@ -59,8 +62,6 @@ public class LevelUp : MonoBehaviour
 
     public async UniTask Select(int index)
     {
-        //Debug.Log("[ LevelUp ] Select index is : " + index);
-
         await items[index].OnClickCall();
         player.Cost--;
         player.playerPV.RPC("UpdateInfoRPC", RpcTarget.All, player.Cost, player.exp, player.level);
@@ -70,7 +71,6 @@ public class LevelUp : MonoBehaviour
 
     void InfoUpdate()
     {
-        //Debug.Log("[ LevelUp ] Now Cost is : " + player.Cost);
         textCost.text = "Cost\n" + player.Cost;
 
         // 아이템 레벨이 최대치일 경우 버튼 이벤트 비활성화

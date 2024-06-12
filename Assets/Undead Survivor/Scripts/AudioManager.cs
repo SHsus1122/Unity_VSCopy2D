@@ -1,7 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
+/// <summary>
+/// 여러 게임내 사운드를 제어하는 매니저 클래스입니다.
+/// </summary>
 public class AudioManager : MonoBehaviour
 {
     public static AudioManager instance;
@@ -27,6 +28,7 @@ public class AudioManager : MonoBehaviour
         Init();
     }
 
+
     private void Init()
     {
         // 배경음 플레이어 초기화
@@ -34,7 +36,7 @@ public class AudioManager : MonoBehaviour
         bgmObject.transform.parent = transform;
         bgmPlayer = bgmObject.AddComponent<AudioSource>();
         bgmPlayer.playOnAwake = false;      // 시작시 바로 재생되는 것이 아니라 게임 시작시 재생되게 하기 위해 초기엔 비활성화
-        bgmPlayer.loop = true;              // 배겨음악은 끊기지 않고 재생되어야 하기 때문에 무한반복 활성화
+        bgmPlayer.loop = true;              // 배경음악은 끊기지 않고 재생되어야 하기 때문에 무한반복 활성화
         bgmPlayer.volume = bgmVolume;       // 볼륨 설정
         bgmPlayer.clip = bgmClip;           // 재생할 음원 설정
         bgmEffect = Camera.main.GetComponent<AudioHighPassFilter>();
@@ -50,15 +52,21 @@ public class AudioManager : MonoBehaviour
             sfxPlayers[index].playOnAwake = false;
             sfxPlayers[index].volume = sfxVolume;
 
-            // 레벨업 하는 함수 코드에서 AudioHighPassFilter를 이용해 배경음에 변화를 줍니다.
-            // 하지만, 레벨업 사운드도 재생되기에 둘이 같이 영향을 받으면 레벨업 사운드가 이상하게 들리게 됩니다. 이를 방지하기 위해서
-            // ListenerEffects에 해당되는 AudioHighPassFilter를 true로 변경해줍니다.(이는 유니티 에디터 AudioSource에 옵션으로 있습니다.)
-            // 이는 HighFilter효과를 bypass 즉, 무시한다는 의미가 됩니다.
-            // 이렇게 되면 배경음에는 효과가 먹히며, 그 외의 사운드를 재생하는 AudioSource효과음들은 정상적으로 재생됩니다.
+            /* 
+             * [ 현재는 미사용 옵션 ]
+             * ===== 사운드에 필터를 입혀 원래 사운드와 조금 다르게 들리게 하는 방법 =====
+             * 레벨업 하는 함수 코드에서 AudioHighPassFilter를 이용해 배경음에 변화를 줍니다.
+             * 하지만, 레벨업 사운드도 재생되기에 둘이 같이 영향을 받으면 레벨업 사운드가 이상하게 들리게 됩니다. 이를 방지하기 위해서
+             * ListenerEffects에 해당되는 AudioHighPassFilter를 true로 변경해줍니다.(이는 유니티 에디터 AudioSource에 옵션으로 있습니다.)
+             * 이는 HighFilter효과를 bypass 즉, 무시한다는 의미가 됩니다.
+             * 이렇게 되면 배경음에는 효과가 먹히며, 그 외의 사운드를 재생하는 AudioSource효과음들은 정상적으로 재생됩니다.
+             */
             sfxPlayers[index].bypassListenerEffects = true;
         }
     }
 
+
+    // 게임 배경음 활성화/비활성화
     public void PlayBgm(bool isPlay)
     {
         if (isPlay)
@@ -71,11 +79,15 @@ public class AudioManager : MonoBehaviour
         }
     }
 
+
+    // 게임 효과음 활성화
     public void EffectBgm(bool isPlay)
     {
         bgmEffect.enabled = isPlay;
     }
 
+
+    // 게임 효과음 재생
     public void PlaySfx(Sfx sfx)
     {
         for (int index = 0; index < sfxPlayers.Length; index++)

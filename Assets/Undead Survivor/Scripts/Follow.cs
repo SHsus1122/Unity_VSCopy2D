@@ -1,5 +1,8 @@
 ﻿using UnityEngine;
 
+/// <summary>
+/// 특정 UI를 유저 화면에서 원하는 위치로 계속해서 이동하기 위한 클래스입니다.
+/// </summary>
 public class Follow : MonoBehaviour
 {
     public Player player;

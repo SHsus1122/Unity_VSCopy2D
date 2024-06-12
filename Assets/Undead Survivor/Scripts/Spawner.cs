@@ -3,6 +3,9 @@ using System.Collections;
 using System.Linq;
 using UnityEngine;
 
+/// <summary>
+/// 적을 스폰(소환)하는 데 사용하는 클래스입니다.
+/// </summary>
 public class Spawner : MonoBehaviourPun
 {
     public Transform[] enemySpawnPoint;
@@ -59,10 +62,7 @@ public class Spawner : MonoBehaviourPun
             return;
 
         if (Physics2D.OverlapCircle(enemySpawnPoint[Random.Range(1, enemySpawnPoint.Length)].position, 0.6f, enemyLayer))
-        {
-            //Debug.Log("[ Spawner ] Spawn Chechk Sphere True");
             return;
-        }
 
         // 자식 오브젝트에서만 선택되도록 랜덤 시작은 1로 지정합니다.(Spanwer의 자식으로 포인트가 존재하기에 0번째는 Spanwer입니다)
         Vector3 spawnPos = enemySpawnPoint[Random.Range(1, enemySpawnPoint.Length)].position;
@@ -84,7 +84,7 @@ public class Spawner : MonoBehaviourPun
             enemy.GetComponent<Rigidbody2D>().simulated = true;
         }
 
-        StartCoroutine(enemy.GetComponent<Enemy>().ReActive(0, enemy.GetPhotonView().ViewID));
+        StartCoroutine(enemy.GetComponent<Enemy>().ReActiveRoutine(0, enemy.GetPhotonView().ViewID));
     }
 }
 

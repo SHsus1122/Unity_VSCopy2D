@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+/// <summary>
+/// 풀링 오브젝트들을 관리하는 매니저 클래스입니다.
+/// </summary>
 public class PoolManager : MonoBehaviourPun
 {
     public static PoolManager instance;
@@ -35,15 +38,12 @@ public class PoolManager : MonoBehaviourPun
     {
         GameObject select = null;
 
-        //Debug.Log("[ PoolManager ] pools Count : " + pools[index].Count);
-
         // 선택한 Pool의 놀고 있는 게임오브젝트에 접근
         foreach (GameObject item in pools[index])
         {
             // 만약 존재할 경우 select 변수에 할당합니다.
             if (!item.activeSelf)
             {
-                //Debug.Log("[ PoolManager ] 분기문 첫 번째 !item.activeSelf");
                 if (item.CompareTag("Enemy"))
                     item.transform.position = vec;
 
@@ -56,7 +56,6 @@ public class PoolManager : MonoBehaviourPun
 
         if (!select)
         {
-            //Debug.Log("[ PoolManager ] 분기문 두 번째 select == null");
             if (prefabs[index].name == "Enemy")
             {
                 select = PhotonNetwork.Instantiate(prefabs[index].name, vec, Quaternion.identity);
@@ -66,9 +65,7 @@ public class PoolManager : MonoBehaviourPun
                 select = PhotonNetwork.Instantiate(prefabs[index].name, Vector3.zero, Quaternion.identity);
             }
 
-            //Debug.Log("[ PoolManager ] select == null - select owner : " + select.GetPhotonView().Owner.NickName);
             pools[index].Add(select);   // 오브젝트 풀 리스트에 새롭게 생성된 것을 추가(등록)
-
             poolPV.RPC("PoolSync", RpcTarget.Others, select.GetPhotonView().ViewID, index);
         }
 
@@ -80,15 +77,12 @@ public class PoolManager : MonoBehaviourPun
     {
         GameObject select = null;
 
-        //Debug.Log("[ PoolManager ] GetForBullet, pools Count : " + pools[index].Count);
-
         // 선택한 Pool의 놀고 있는 게임오브젝트에 접근
         foreach (GameObject item in pools[index])
         {
             // 만약 존재할 경우 select 변수에 할당합니다.
             if (!item.activeSelf && item.GetPhotonView().Owner.NickName == owName)
             {
-                //Debug.Log("[ PoolManager ] 분기문 첫 번째 !item.activeSelf");
                 select = item;          // 변수 할당
                 select.SetActive(true); // 활성화
                 poolPV.RPC("ObjActiveToggle", RpcTarget.Others, index, select.GetPhotonView().ViewID, true);
@@ -98,12 +92,9 @@ public class PoolManager : MonoBehaviourPun
 
         if (!select)
         {
-            //Debug.Log("[ PoolManager ] 분기문 두 번째 select == null");
             select = PhotonNetwork.Instantiate(prefabs[index].name, transform.position, Quaternion.identity);
 
-            //Debug.Log("[ PoolManager ] select == null - select owner : " + select.GetPhotonView().Owner.NickName);
             pools[index].Add(select);   // 오브젝트 풀 리스트에 새롭게 생성된 것을 추가(등록)
-
             poolPV.RPC("PoolSync", RpcTarget.Others, select.GetPhotonView().ViewID, index);
         }
 
@@ -135,12 +126,10 @@ public class PoolManager : MonoBehaviourPun
     [PunRPC]
     void ObjActiveToggle(int typeId, int viewId, bool isActive)
     {
-        //Debug.Log("[ PoolManager ] ObjActiveToggle Call, typeID : " + (typeId) + ", viewID : " + (viewId) + ", isActive : " + (isActive));
         foreach (GameObject item in pools[typeId])
         {
             if (item.GetPhotonView().ViewID == viewId)
             {
-                //Debug.Log("[ PoolManager ] ObjActiveToggle item name : " + item.name);
                 item.SetActive(isActive);
                 break;
             }

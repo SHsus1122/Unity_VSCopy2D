@@ -3,6 +3,9 @@ using Photon.Pun;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// 장비별로 강화를 할 때, 사용하는 클래스입니다.
+/// </summary>
 public class Item : MonoBehaviourPun, IPunObservable
 {
     public ItemData data;
@@ -68,30 +71,22 @@ public class Item : MonoBehaviourPun, IPunObservable
         if (player.Cost < 1)
             return;
 
-        //Debug.Log("==== [ Item ] OnClick : " + (data.itemType) + ", player : " + (player.playerPV.Owner.NickName));
-
         // 능력(아이템)에 타입에 따라 각각 다르게 처리합니다.
         switch (data.itemType)
         {
             // 아래처럼 case문 두 개를 동시에 사용하는 방법도 있습니다.
             case ItemData.ItemType.Melee:
             case ItemData.ItemType.Range:
-                //Debug.Log("==== [ Item ] LocalPlayer.ActorNumber : " + (PhotonNetwork.LocalPlayer.ActorNumber) + ", player ActorNum : " + (player.playerPV.Owner.ActorNumber));
-
                 if (itemLevel == 0)
                 {
                     // level이 0인 즉, 처음 초기값의 실행부입니다.
-
-                    //Debug.Log("==== [ Item ] Lv.0, OnClick : " + data.itemType);
                     weapon = PhotonNetwork.Instantiate("Weapon", transform.position, Quaternion.identity).GetComponent<Weapon>();
-                    //weapon.player = player;
 
                     await weapon.Init(data, weapon, player.playerPV.Owner.NickName);
                 }
                 else
                 {
                     // level이 0이 아닌 즉, 한 번이라도 실행했다면 이후 레벨업 관련할 실행부입니다.
-                    //Debug.Log("==== [ Item ] Not Lv.0, OnClick : " + data.itemType);
                     float nextDamage = data.baseDamage;
                     int nextCount = 0;
 
@@ -101,7 +96,6 @@ public class Item : MonoBehaviourPun, IPunObservable
 
                     await weapon.WeaponLevelUp(nextDamage, nextCount, player.playerPV.Owner.NickName);
                 }
-
                 // 위의 과정을 거치고 나면 level업 처리를 진행합니다.
                 itemLevel++;
                 break;
@@ -118,7 +112,6 @@ public class Item : MonoBehaviourPun, IPunObservable
                     float nextRate = data.damages[itemLevel];
                     gear.GearLevelUp(nextRate);
                 }
-
                 // 위의 과정을 거치고 나면 level업 처리를 진행합니다.
                 itemLevel++;
                 break;

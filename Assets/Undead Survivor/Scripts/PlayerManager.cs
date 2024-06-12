@@ -3,6 +3,9 @@ using Photon.Pun;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// 게임내 유저들을 조회 및 관리를 위한 매니저 클래스입니다.
+/// </summary>
 public class PlayerManager : MonoBehaviourPunCallbacks
 {
     public static PlayerManager instance;
@@ -20,11 +23,9 @@ public class PlayerManager : MonoBehaviourPunCallbacks
 
     public async UniTask SpawnPlayer(int typeId)
     {
-        //Debug.Log("[ PlayerManager ] Spawn Player TypeId : " + typeId);
         GameObject playerPrefab = PhotonNetwork.Instantiate("Player", playerSpawnPoint[Random.Range(0, playerSpawnPoint.Length)].transform.position, Quaternion.identity);
 
         Player player = playerPrefab.GetComponent<Player>();
-        //Debug.Log("[ PlayerManager ] player name : " + player.name);
 
         await player.Init(typeId, PhotonNetwork.LocalPlayer.NickName);
     }

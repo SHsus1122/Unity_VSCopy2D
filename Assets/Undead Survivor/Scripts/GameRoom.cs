@@ -3,6 +3,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using WebSocketSharp;
 
+/// <summary>
+/// 게임 준비, 시작까지를 감시하며 다루기 위한 클래스입니다.
+/// </summary>
 public class GameRoom : MonoBehaviourPunCallbacks
 {
     public string playerName;
@@ -17,6 +20,17 @@ public class GameRoom : MonoBehaviourPunCallbacks
     float timerInterval = 3f;
     bool isTimerStart = false;
 
+    private void Update()
+    {
+        if (isTimerStart)
+        {
+            timer -= Time.deltaTime;
+            timerUi.GetComponentInChildren<Text>().text = Mathf.Round(timer).ToString();
+        }
+    }
+
+
+    // 유저별로 레디 여부를 Photon의 커스텀 프로퍼티를 활용해 판단해서 게임 시작을 하게 됩니다.
     public void Ready(int id)
     {
         if (playerName.IsNullOrEmpty())
@@ -24,7 +38,6 @@ public class GameRoom : MonoBehaviourPunCallbacks
 
         ExitGames.Client.Photon.Hashtable customProperties = PhotonNetwork.CurrentRoom.CustomProperties;
 
-        Debug.Log("[ GameRoom ] customProperties == " + (customProperties == null));
         if (!isReady)
         {
             customProperties["ReadyCount"] = (int)customProperties["ReadyCount"] + 1;
@@ -36,7 +49,6 @@ public class GameRoom : MonoBehaviourPunCallbacks
                 if (trs.name.Contains("Group") || trs.name.Contains(id.ToString())) continue;
                 if (!trs.name.Contains("Lock") && trs.name.Contains("Character"))
                 {
-                    Debug.Log("[ GameRoom ] Button name : " + trs.name);
                     trs.GetComponent<Button>().interactable = false;
                 }
             }
@@ -52,7 +64,6 @@ public class GameRoom : MonoBehaviourPunCallbacks
                 if (trs.name.Contains("Group") || trs.name.Contains(id.ToString())) continue;
                 if (!trs.name.Contains("Lock") && trs.name.Contains("Character"))
                 {
-                    Debug.Log("[ GameRoom ] Button name : " + trs.name);
                     trs.GetComponent<Button>().interactable = true;
                 }
             }
@@ -63,32 +74,25 @@ public class GameRoom : MonoBehaviourPunCallbacks
 
         if ((int)PhotonNetwork.CurrentRoom.CustomProperties["ReadyCount"] == PhotonNetwork.CurrentRoom.PlayerCount)
         {
-            Debug.Log("Ready Count Enough !! Call Start !!");
-            gameRoomPV.RPC("UiStartCall", RpcTarget.AllBuffered);
+            gameRoomPV.RPC("UiStartRPC", RpcTarget.AllBuffered);
             Invoke("StartCall", 3f);
         }
     }
 
-    private void Update()
-    {
-        if (isTimerStart)
-        {
-            timer -= Time.deltaTime;
-            timerUi.GetComponentInChildren<Text>().text = Mathf.Round(timer).ToString();
-        }
-    }
 
     [PunRPC]
-    public void UiStartCall()
+    public void UiStartRPC()
     {
         timerUi.transform.localScale = Vector3.one;
         isTimerStart = true;
     }
 
+
     void StartCall()
     {
         gameRoomPV.RPC("RoomGameStartRPC", RpcTarget.AllBuffered);
     }
+
 
     [PunRPC]
     void RoomGameStartRPC()

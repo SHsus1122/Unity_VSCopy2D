@@ -2,6 +2,9 @@
 using System.Collections;
 using UnityEngine;
 
+/// <summary>
+/// 플레이어가 사냥할 적들에 대한 클래스입니다.
+/// </summary>
 public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
 {
     public float enemySpeed;
@@ -88,9 +91,6 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
         rigid.velocity = Vector2.zero;
 
         nowPos = rigid.position;
-
-        //if (!enemyPV.IsMine)
-        //    transform.position = Vector3.Lerp(transform.position, nowPos, 10 * Time.deltaTime);
     }
 
 
@@ -115,6 +115,7 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
         enemyPV.RPC("InitRPC", RpcTarget.Others, spriteType);
     }
 
+
     [PunRPC]
     public void InitRPC(int spriteType)
     {
@@ -124,7 +125,6 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        //Debug.Log("[ Enemy ] collision name is : " + collision.name);
         if (collision.CompareTag("EnemyCleaner"))
         {
             enemyHealth = 0;
@@ -145,7 +145,7 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
         }
 
         enemyHealth -= collision.GetComponent<Bullet>().damage;
-        StartCoroutine(KnockBack(collision));
+        StartCoroutine(KnockBackRoutine(collision));
 
         if (enemyHealth > 0)
         {
@@ -166,18 +166,20 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
     }
 
 
-    IEnumerator KnockBack(Collider2D collision)
+    // 적이 피격되었을 때 처리(밀려남)
+    IEnumerator KnockBackRoutine(Collider2D collision)
     {
         // null 을 리턴할 경우 1 프레임 쉬기
         yield return null;  // 다음 하나의 물리 프레임까지 기다리는 딜레이
-        //Debug.Log("[ Enemy ] KnockBack Collision Name: " + collision.name);
         Vector3 playerPos = collision.GetComponentInParent<Player>().transform.position;
         Vector3 dirVec = transform.position - playerPos;                // 플레이어로부터 반대의 방향
         rigid.AddForce(dirVec.normalized * 3f, ForceMode2D.Impulse);    // Impulse : 즉시 발동(물리력)
     }
 
 
-    public IEnumerator ReActive(int typeId, int viewId)
+    // 코루틴을 사용해서 활성화된 적이 사망한 경우 풀링 오브젝트의 재사용을 위해 비활성화 합니다.
+    // 해당 코드는 코루틴을 사용해서 30초마다 동작합니다.
+    public IEnumerator ReActiveRoutine(int typeId, int viewId)
     {
         yield return new WaitForSeconds(30f);
 
@@ -189,6 +191,8 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
         if (!obj)
             yield break;
 
+        // 적이 사망한 상태라면 상태 설정을 다시 원복 시켜주고 비활성화해서 풀링 오브젝트 재사용을 위해 비활성화 합니다.
+        // 만약 살아있는 경우 30초후에 다시 확인합니다.
         if (obj.gameObject.activeSelf && !obj.GetComponent<Enemy>().isLive)
         {
             obj.GetPhotonView().RPC("ResetAnim", RpcTarget.AllBuffered, typeId, viewId);
@@ -196,11 +200,12 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
         }
         else if (obj.gameObject.activeSelf && obj.GetComponent<Enemy>().isLive)
         {
-            StartCoroutine(ReActive(typeId, viewId));
+            StartCoroutine(ReActiveRoutine(typeId, viewId));
         }
     }
 
     
+    // 전달받은 매개변수로 모든 유저에게서 사망 처리
     [PunRPC]
     void ResetAnim(int typeId, int viewId)
     {

@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 
-// 장갑 관련 클래스
+/// <summary>
+/// 업그레이드시 강화된 개별 수치의 적용을 위한 클래스입니다.
+/// </summary>
 public class Gear : MonoBehaviour
 {
     public ItemData.ItemType type;
@@ -62,7 +64,7 @@ public class Gear : MonoBehaviour
                     break;
                 default:
                     speed = 0.5f * player.character.GetWeaponRate();
-                    weapon.speed = speed * (1f - rate);  // 원거리 무기 발사 속도
+                    weapon.speed = speed * (1f - rate);     // 원거리 무기 발사 속도
                     break;
             }
         }

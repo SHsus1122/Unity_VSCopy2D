@@ -1,10 +1,13 @@
 ﻿using UnityEngine;
 
-public class Scanner : MonoBehaviour
+/// <summary>
+/// 적들의 스캔(감지)에 사용하는 클래스입니다.
+/// </summary>
+public class ScannerEnemy : MonoBehaviour
 {
     public float scanRange;         // 스캔 범위
     public LayerMask targetLayer;   // 스캔 대상 종류(Layer 사용)
-    public Collider2D[] targets;  // 스캔된 모든 대상(배열)
+    public Collider2D[] targets;    // 스캔된 모든 대상(배열)
     public Transform nearestTarget; // 가장 가까운 스캔 대상
 
     float cnt = 0;
@@ -20,11 +23,6 @@ public class Scanner : MonoBehaviour
 
     private void FixedUpdate()
     {
-        // CircleCastAll : 원형의 캐스트를 쏘고 모든 결과를 반환하는 함수
-        //  인자값 들에 대한 설명 : 캐스팅 시작 위치, 원의 반지름, 캐스팅 방향, 캐스팅 길이, 대상 레이어
-        //      Vector2.zero는 방향성이 없다는 것을 의미합니다.
-        //      0은 스캔을 위해 스캔을 쏘는 것이 아니라 스캐너 사용자 위치에서 원을 형성해서 그것을 사용한다는 의미입니다.
-
         cnt += Time.fixedDeltaTime;
 
         if (cnt > cntInterval)

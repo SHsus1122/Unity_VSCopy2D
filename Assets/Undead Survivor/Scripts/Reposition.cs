@@ -1,5 +1,8 @@
 ﻿using UnityEngine;
 
+/// <summary>
+/// 적 또는 맵의 자동 이동을 위한 클래스입니다.(현재는 미사용)
+/// </summary>
 public class Reposition : MonoBehaviour
 {
     public Player player;

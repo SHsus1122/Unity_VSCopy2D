@@ -6,6 +6,9 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
+/// <summary>
+/// 게임의 전반적인 상태를 관리하는 매니저 클래스입니다.
+/// </summary>
 public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 {
     public static GameManager instance;
@@ -26,7 +29,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     public GameObject CharacterGroup;
 
     [Header("# Game UI")]
-    public Result uiResult;
+    public Transform uiResult;
     public Transform uiGameStart;
     public Transform uiJoy;
     public GameObject uiNotice;
@@ -48,11 +51,9 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         if (scene.name == "UndeadSurvivarGame")     // 레벨 이름 검증(조건식)
         {
             int playerType = (int)PhotonNetwork.LocalPlayer.CustomProperties["PlayerType"];
-            //int playerType = PlayerPrefs.GetInt("PlayerType", 0); // 저장된 playerType을 로드
-            //Debug.Log("[ GameManager ] OnSceneLoaded, playerType : " + playerType);
             await GameStart(playerType);
         }
-        if (scene.name == "UndeadSurvivar" && PhotonNetwork.InRoom)     // 레벨 이름 검증(조건식)
+        if (scene.name == "UndeadSurvivar" && PhotonNetwork.InRoom)
         {
             GameObject.Find("NetworkManager").GetComponent<NetworkManager>().ReJoinRoom(PhotonNetwork.CurrentRoom.Name);
         }
@@ -67,12 +68,24 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     }
 
 
+    void Update()
+    {
+        if (!isGameLive)
+            return;
+
+        gameTime += Time.deltaTime;
+
+        if (gameTime > maxGameTime)
+        {
+            gameTime = maxGameTime;
+            GameVictory();
+        }
+    }
+
+
     // ========================================== [ 게임 시작 ]
     public async UniTask GameStart(int id)
     {
-        //PhotonNetwork.SerializationRate = 60;   // OnPhotonSerializeView 호출 빈도
-        //PhotonNetwork.SendRate = 60;            // RPC 원격 프로시저 호출 빈도 // 단발성 원할 때 한번
-
         pool.gameObject.SetActive(true);
         spawner.SetActive(true);
         if (!PhotonNetwork.IsMasterClient)
@@ -91,7 +104,13 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
 
     // ========================================== [ 게임 종료 ]
-    IEnumerator GameOverRoutine()       // 코루틴 활용
+    public void GameOver()
+    {
+        StartCoroutine(GameOverRoutine());
+    }
+
+
+    IEnumerator GameOverRoutine()
     {
         yield return new WaitForSeconds(0.5f);
 
@@ -108,14 +127,13 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
             }
         }
 
-        Debug.Log("[ GameManager ] GameOverRoutine cnt : " + cnt);
+        // 사망시 다른 유저의 플레이 화면을 보게되며 전원 사망시 게임오버 함수를 호출합니다.
         if (cnt != PlayerManager.instance.playerList.Count)
         {
             foreach (Player pls in PlayerManager.instance.playerList)
             {
                 if (pls.isPlayerLive)
                 {
-                    // 2D 카메라
                     CinemachineVirtualCamera CM = GameObject.Find("Virtual Camera").GetComponent<CinemachineVirtualCamera>();
                     CM.Follow = pls.transform;
                 }
@@ -124,15 +142,8 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         } 
         else if (cnt == PlayerManager.instance.playerList.Count)
         {
-            Debug.Log("[ GameManager ] GameOverRoutine AllCnt : " + PlayerManager.instance.playerList.Count);
             gameManagerPV.RPC("GameOverRPC", RpcTarget.All);
         }
-    }
-
-
-    public void GameOver()
-    {
-        StartCoroutine(GameOverRoutine());
     }
 
 
@@ -147,16 +158,23 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         {
             uiResult.GetComponentInChildren<Button>().gameObject.SetActive(false);
         }
-        uiResult.Lose();
+        uiResult.GetChild(0).gameObject.SetActive(true);
+        uiResult.GetChild(1).gameObject.SetActive(false);
         gameManagerPV.RPC("Stop", RpcTarget.All);
 
-        AudioManager.instance.PlayBgm(false);                   // 게임 배경음 재생
+        AudioManager.instance.PlayBgm(false);                   // 게임 배경음 정지
         AudioManager.instance.PlaySfx(AudioManager.Sfx.Lose);   // 패배 효과음 재생
     }
 
 
     // ========================================== [ 게임 승리 ]
-    IEnumerator GameVictoryRoutine()    // 코루틴 활용
+    public void GameVictory()
+    {
+        gameManagerPV.RPC("GameVictoryRPC", RpcTarget.All);
+    }
+
+
+    IEnumerator GameVictoryRoutine()
     {
         isGameLive = false;
         enemyCleaner.SetActive(true);
@@ -170,17 +188,12 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         {
             uiResult.GetComponentInChildren<Button>().gameObject.SetActive(false);
         }
-        uiResult.Win();
+        uiResult.GetChild(0).gameObject.SetActive(false);
+        uiResult.GetChild(1).gameObject.SetActive(true);
         gameManagerPV.RPC("Stop", RpcTarget.All);
 
-        AudioManager.instance.PlayBgm(false);                  // 게임 배경음 재생
+        AudioManager.instance.PlayBgm(false);                  // 게임 배경음 정지
         AudioManager.instance.PlaySfx(AudioManager.Sfx.Win);   // 승리 효과음 재생
-    }
-
-
-    public void GameVictory()
-    {
-        gameManagerPV.RPC("GameVictoryRPC", RpcTarget.All);
     }
 
 
@@ -225,25 +238,10 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     }
 
 
-    // ========================================== [ 게임 종료 ]
+    // ========================================== [ 어플 종료 ]
     public void GaemQuit()
     {
         Application.Quit();
-    }
-
-
-    void Update()
-    {
-        if (!isGameLive)
-            return;
-
-        gameTime += Time.deltaTime;
-
-        if (gameTime > maxGameTime)
-        {
-            gameTime = maxGameTime;
-            GameVictory();
-        }
     }
 
 
@@ -259,9 +257,8 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     [PunRPC]
     public void Resume()
     {
-        Debug.Log("[ GameManager ] Resume Call !!");
         isGameLive = true;
-        Time.timeScale = 1;
+        //Time.timeScale = 1;
     }
 
 

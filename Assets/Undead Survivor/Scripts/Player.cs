@@ -4,6 +4,9 @@ using Photon.Pun;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// 유저들의 정보를 관리 및 정의한 클래스입니다.
+/// </summary>
 public class Player : MonoBehaviourPunCallbacks, IPunObservable
 {
     [Header("# Player Info")]
@@ -11,7 +14,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     public Vector2 resultVec;
     public Vector3 curPos;
     public Vector3 curVel;
-    public Scanner scanner;
+    public ScannerEnemy scanner;
     public Hand[] hands;
     public RuntimeAnimatorController[] animCon;
     public PhotonView playerPV;
@@ -40,19 +43,14 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     float callCnt = 0;
     float callCntInterval = 0.1f;
 
-
-    // Start is called before the first frame update
     public void Awake()
     {
-        //if (!playerPV.IsMine)
-        //    return;
-
         PhotonNetwork.NickName = PhotonNetwork.LocalPlayer.NickName;
 
         rigid = GetComponent<Rigidbody2D>();
         spriter = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
-        scanner = GetComponent<Scanner>();
+        scanner = GetComponent<ScannerEnemy>();
         hands = GetComponentsInChildren<Hand>(true);    // 인자값에 true를 넣을 시 Active상태가 아닌 오브젝트도 가져옵니다.
         achiveManager = GetComponent<AchiveManager>();
         character = GetComponent<Character>();
@@ -78,8 +76,6 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
 
     public async UniTask Init(int playerTypeId, string owName)
     {
-        //Debug.Log("[ Player ] Player Init Call !!, playerTypeId : " + (playerTypeId) + ", owName : " + (owName));
-
         uiLevelUp.player = this;
         achiveManager.uiNotice = GameManager.instance.uiNotice;
         uiHud.transform.localScale = Vector3.one;
@@ -187,13 +183,13 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             spriter.flipX = direction < 0;
     }
 
-
-    // 플레이어와 몬스터가 충돌하고 있는 상태면 지속적으로 체력 감소
+   
     private void OnCollisionStay2D(Collision2D collision)
     {
         if (!GameManager.instance.isGameLive || !collision.gameObject.CompareTag("Enemy"))
             return;
 
+        // 플레이어와 몬스터가 충돌하고 있는 상태면 지속적으로 체력 감소
         health -= Time.deltaTime * 10;
 
         if (health < 0)

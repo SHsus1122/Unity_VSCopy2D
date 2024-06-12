@@ -3,7 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// 업적 관련 매니저 클래스
+/// <summary>
+/// 유저의 업적을 관리하기 위한 매니저 클래스입니다.
+/// </summary>
 public class AchiveManager : MonoBehaviour
 {
     public List<GameObject> lockCharacter = new List<GameObject>();

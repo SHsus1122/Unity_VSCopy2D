@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// 실시간 UI에 보여주는 정보들의 업데이트에 사용하는 HUD 클래스입니다.
+/// </summary>
 public class HUD : MonoBehaviour
 {
     // 정보의 종류를 담을 열거형과 타입 선언
@@ -16,6 +19,7 @@ public class HUD : MonoBehaviour
         myText = GetComponent<Text>();
         mySlider = GetComponent<Slider>();
     }
+
 
     private void Update()
     {
@@ -42,12 +46,14 @@ public class HUD : MonoBehaviour
         }
     }
 
+
     public void UpdateExp()
     {
         float curExp = player.exp;
         float maxExp = PlayerManager.instance.nextExp[Mathf.Min(player.level, PlayerManager.instance.nextExp.Length - 1)];
         mySlider.value = curExp / maxExp;
     }
+
 
     public void UpdateLevel()
     {
@@ -58,10 +64,12 @@ public class HUD : MonoBehaviour
         myText.text = string.Format("Lv.{0:F0}", player.level);
     }
 
+
     public void UpdateKill()
     {
         myText.text = string.Format("{0:F0}", player.kill);
     }
+
 
     public void UpdateTime()
     {
@@ -70,6 +78,7 @@ public class HUD : MonoBehaviour
         int sec = Mathf.FloorToInt(remainTime % 60);    // 초, 나머지 계산
         myText.text = string.Format("{0:D2}:{1:D2}", min, sec); // D1, D2 ... 자릿수 고정
     }
+
 
     public void UpdateHealth()
     {

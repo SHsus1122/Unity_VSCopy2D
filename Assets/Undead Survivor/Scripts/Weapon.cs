@@ -3,6 +3,9 @@ using Photon.Pun;
 using System.Collections;
 using UnityEngine;
 
+/// <summary>
+/// 유저가 사용할 무기들에 대한 클래스입니다.
+/// </summary>
 public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
 {
     public int id;          // 무기 ID
@@ -23,7 +26,7 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
         // [기존 방식] 자기자신 말고 부모 오브젝트로부터 가져오는 방법
         //player = GetComponentInParent<Player>();
 
-        // [변경된 방식] 플레이어 초기화에 매개변4수가 들어감으로 인해 처음 초기화는 게임 매니저를 활용하는 것으로 변경합니다.
+        // [변경된 방식] 플레이어 초기화에 매개변수가 들어감으로 인해 처음 초기화는 게임 매니저를 활용하는 것으로 변경합니다.
         weaponPV = photonView;
 
         SetPlayerWithParent(weaponPV.Owner.NickName);
@@ -63,12 +66,6 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
                 }
                 break;
         }
-
-        //if (!weaponPV.IsMine)
-        //{
-        //    transform.position = Vector3.Lerp(transform.position, curPos, Time.deltaTime * 10);
-        //    transform.rotation = Quaternion.Lerp(transform.rotation, curRot, Time.deltaTime * 10);
-        //}
     }
 
 
@@ -80,8 +77,6 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
         if (id == 0)
             await Batch(owName);
 
-        //weaponPV.RPC("Batch", RpcTarget.AllBuffered, owName);
-
         // 물론 레벨업을 하는 경우에도 레벨업에 대한 Gear데미지를 올려 달라는 의미로 여기서 호출시켜 줍니다.
         player.BroadcastMessage("ApplyGear", SendMessageOptions.DontRequireReceiver);
     }
@@ -90,8 +85,6 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
     // 초기화 함수에 만들어둔 스크립트블 오브젝트를 매개변수로 받아서 활용합니다.
     public async UniTask Init(ItemData data, Weapon weapon, string owName)
     {
-        //Debug.Log("[ Weapon ] IsLocalPlayer : " + PhotonNetwork.LocalPlayer.IsLocal);
-
         transform.position = PlayerManager.instance.FindPlayer(owName).transform.position;
 
         // Property Set
@@ -136,7 +129,6 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
 
     public async UniTask Batch(string owName)
     {
-        //Debug.Log("[ Weapon ] Batch Call");
         if (weaponPV.Owner.NickName != owName)
             return;
 
@@ -152,7 +144,6 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
             }
             else
             {
-                //Debug.Log("[ Weapon ] Batch prefabId is : " + prefabId);
                 bullet = GameManager.instance.pool.Get(prefabId, Vector3.zero);
             }
 
@@ -188,7 +179,6 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
         {
             if (obj.CompareTag("Weapon") && obj.GetComponent<Weapon>().id == itemId)
             {
-                //Debug.Log("[ Weapon ] InitObjName Owner Name : " + owPlayer.playerPV.Owner.NickName);
                 obj.gameObject.name = "Weapon " + itemId;
                 Hand hand = owPlayer.hands[itemTypeNum];
                 hand.spriter.sprite = GameManager.instance.uiLevelup.items[itemTypeNum].data.hand;
@@ -210,7 +200,6 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
     IEnumerator TestRoutine(int itemId, string owName, int itemTypeNum)
     {
         yield return new WaitForSeconds(0.1f);
-        //Debug.Log("[ Weapon ] Start Coroutine");
         weaponPV.RPC("InitObjName", RpcTarget.AllBuffered, itemId, owName, itemTypeNum);
     }
 
@@ -234,30 +223,9 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
         bullet.transform.rotation = Quaternion.FromToRotation(Vector3.up, dir);
 
         bullet.GetComponent<Bullet>().curPos = targetPos;
-        await bullet.GetComponent<Bullet>().Init(damage, count, dir, owName);     // 원하는 값들로 초기화 작업, count가 관통 값
+        await bullet.GetComponent<Bullet>().Init(damage, count, dir, owName);   // 원하는 값들로 초기화 작업, count가 관통 값
 
-        //weaponPV.RPC("BulletRPC", RpcTarget.Others, prefabId, bullet.GetPhotonView().ViewID, dir, targetPos, owName);
-
-        AudioManager.instance.PlaySfx(AudioManager.Sfx.Range);          // 발사 효과음 재생
-    }
-
-
-    [PunRPC]
-    void BulletRPC(int bulletId, int viewId, Vector3 dir, Vector3 targetPos, string owName)
-    {
-        Player owPlayer = PlayerManager.instance.FindPlayer(owName);
-        foreach (GameObject obj in GameManager.instance.pool.pools[bulletId])
-        {
-            if (obj.GetPhotonView().ViewID == viewId)
-            {
-                //obj.GetComponent<Bullet>().ObjActiveToggle(prefabId, viewId, true);
-
-                Vector3 localPos = owPlayer.transform.TransformPoint(targetPos);
-                obj.GetComponent<Bullet>().curPos = localPos;
-                obj.transform.position = localPos;
-                obj.transform.rotation = Quaternion.FromToRotation(Vector3.up, dir);
-            }
-        }
+        AudioManager.instance.PlaySfx(AudioManager.Sfx.Range);                  // 발사 효과음 재생
     }
 
 
@@ -265,8 +233,6 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
     {
         if (stream.IsWriting)   // IsMine == true
         {
-            //stream.SendNext(transform.position);
-            //stream.SendNext(transform.rotation);
             stream.SendNext(id);
             stream.SendNext(damage);
             stream.SendNext(count);
@@ -275,8 +241,6 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
         }
         else  // IsMine == false
         {
-            //curPos = (Vector3)stream.ReceiveNext();
-            //curRot = (Quaternion)stream.ReceiveNext();
             id = (int)stream.ReceiveNext();
             damage = (float)stream.ReceiveNext();
             count = (int)stream.ReceiveNext();
