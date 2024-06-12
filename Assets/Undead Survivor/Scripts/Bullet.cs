@@ -20,14 +20,6 @@ public class Bullet : MonoBehaviourPunCallbacks, IPunObservable
         SetParent(bulletPV.Owner.NickName);
     }
 
-    private void FixedUpdate()
-    {
-        if (!bulletPV.IsMine)
-        {
-            transform.position = Vector3.Lerp(transform.position, curPos, Time.deltaTime * 10);
-        }
-    }
-
     void SetParent(string owName)
     {
         Player player = PlayerManager.instance.FindPlayer(owName);
@@ -100,15 +92,15 @@ public class Bullet : MonoBehaviourPunCallbacks, IPunObservable
     {
         if (stream.IsWriting)
         {
-            stream.SendNext(transform.position);
-            stream.SendNext(transform.rotation);
+            //stream.SendNext(transform.position);
+            //stream.SendNext(transform.rotation);
             stream.SendNext(damage);
             stream.SendNext(per);
         }
         else
         {
-            curPos = (Vector3)stream.ReceiveNext();
-            transform.rotation = (Quaternion)stream.ReceiveNext();
+            //curPos = (Vector3)stream.ReceiveNext();
+            //transform.rotation = (Quaternion)stream.ReceiveNext();
             damage = (float)stream.ReceiveNext();
             per = (int)stream.ReceiveNext();
         }

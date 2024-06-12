@@ -34,7 +34,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     public GameObject uiHud;
     public LevelUp uiLevelUp;
     public Animator anim;
-    
+
     Rigidbody2D rigid;
     SpriteRenderer spriter;
     float callCnt = 0;
@@ -57,8 +57,12 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         achiveManager = GetComponent<AchiveManager>();
         character = GetComponent<Character>();
         PlayerManager.instance.AddPlayer(this);
-        uiHud = GameObject.Find("HUD");
-        uiLevelUp = GameObject.Find("LevelUp").GetComponent<LevelUp>();
+
+        if (playerPV.IsMine)
+        {
+            uiHud = GameObject.Find("HUD");
+            uiLevelUp = GameObject.Find("LevelUp").GetComponent<LevelUp>();
+        }
 
         NickNameText.text = playerPV.IsMine ? PhotonNetwork.LocalPlayer.NickName : playerPV.Owner.NickName.ToString();
         NickNameText.color = playerPV.IsMine ? Color.green : Color.red;
@@ -68,7 +72,6 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             // 2D 카메라
             CinemachineVirtualCamera CM = GameObject.Find("Virtual Camera").GetComponent<CinemachineVirtualCamera>();
             CM.Follow = transform;
-            //CM.LookAt = transform;
         }
     }
 
@@ -201,9 +204,8 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
                 transform.GetChild(index).gameObject.SetActive(false);
             }
 
-            anim.SetTrigger("Dead_t");
-            scanner.CancelInvoke();
             isPlayerLive = false;
+            anim.SetTrigger("Dead_t");
             playerPV.RPC("UpdatePlayerLive", RpcTarget.All, isPlayerLive, playerPV.Owner.NickName);
             GameManager.instance.GameOver();
         }
@@ -259,7 +261,9 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             owPlayer.exp = 0;     // 경험치 초기화
             owPlayer.Cost++;      // Player 레벨업 스킬 강화용 코스트 추가
             owPlayer.playerPV.RPC("UpdateInfoRPC", RpcTarget.All, Cost, exp, level);
-            owPlayer.uiLevelUp.CallLevelUp();
+
+            if (PhotonNetwork.LocalPlayer.NickName == owPlayer.playerPV.Owner.NickName)
+                owPlayer.uiLevelUp.CallLevelUp();
         }
     }
 

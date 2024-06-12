@@ -7,7 +7,7 @@ public class Scanner : MonoBehaviour
     public Collider2D[] targets;  // 스캔된 모든 대상(배열)
     public Transform nearestTarget; // 가장 가까운 스캔 대상
 
-    float cnt;
+    float cnt = 0;
     float cntInterval = 0.5f;
 
 

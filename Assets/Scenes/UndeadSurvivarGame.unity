@@ -25384,7 +25384,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1004341168
 RectTransform:
   m_ObjectHideFlags: 0
@@ -43690,6 +43690,7 @@ MonoBehaviour:
   uiGameStart: {fileID: 830426604}
   uiJoy: {fileID: 1085187955}
   uiNotice: {fileID: 2100852115}
+  uiLevelup: {fileID: 1433826358}
 --- !u!114 &1383446452
 MonoBehaviour:
   m_ObjectHideFlags: 0

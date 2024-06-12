@@ -64,11 +64,11 @@ public class Spawner : MonoBehaviourPun
             return;
         }
 
-        // 0~1 사이의 랜덤 숫자를 이용
-        GameObject enemy = GameManager.instance.pool.Get(0);
-
         // 자식 오브젝트에서만 선택되도록 랜덤 시작은 1로 지정합니다.(Spanwer의 자식으로 포인트가 존재하기에 0번째는 Spanwer입니다)
-        enemy.transform.position = enemySpawnPoint[Random.Range(1, enemySpawnPoint.Length)].position;
+        Vector3 spawnPos = enemySpawnPoint[Random.Range(1, enemySpawnPoint.Length)].position;
+
+        // 0~1 사이의 랜덤 숫자를 이용
+        GameObject enemy = GameManager.instance.pool.Get(0, spawnPos);
 
         enemy.GetComponent<Enemy>().Init(
             enemySpawnData[level].spawnTime,

@@ -124,7 +124,7 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        Debug.Log("[ Enemy ] collision name is : " + collision.name);
+        //Debug.Log("[ Enemy ] collision name is : " + collision.name);
         if (collision.CompareTag("EnemyCleaner"))
         {
             enemyHealth = 0;
@@ -200,7 +200,7 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
         }
     }
 
-
+    
     [PunRPC]
     void ResetAnim(int typeId, int viewId)
     {
@@ -218,7 +218,6 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
         rigid.simulated = false;    // 물리(움직임) 비활성화
         spriter.sortingOrder = 1;   // 표현 우선순위 변경
         anim.SetBool("Dead", true); // 애니메이터 파라메터 상태 변경
-        scanner.CancelInvoke();     // 스캐너 작동 정지
     }
 
 
@@ -226,7 +225,7 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
     {
         if (stream.IsWriting)
         {
-            //stream.SendNext(transform.position);
+            stream.SendNext(transform.position);
             stream.SendNext(enemySpeed);
             stream.SendNext(enemyHealth);
             stream.SendNext(enemyMaxHealth);
@@ -234,7 +233,7 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
         }
         else
         {
-            //nowPos = (Vector3)stream.ReceiveNext();
+            nowPos = (Vector3)stream.ReceiveNext();
             enemySpeed = (float)stream.ReceiveNext();
             enemyHealth = (float)stream.ReceiveNext();
             enemyMaxHealth = (float)stream.ReceiveNext();

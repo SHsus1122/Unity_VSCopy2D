@@ -30,6 +30,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     public Transform uiGameStart;
     public Transform uiJoy;
     public GameObject uiNotice;
+    public LevelUp uiLevelup;
 
 
     private void OnEnable()
@@ -69,8 +70,6 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     // ========================================== [ 게임 시작 ]
     public async UniTask GameStart(int id)
     {
-        //gameManagerPV.TransferOwnership(PhotonNetwork.MasterClient);
-
         //PhotonNetwork.SerializationRate = 60;   // OnPhotonSerializeView 호출 빈도
         //PhotonNetwork.SendRate = 60;            // RPC 원격 프로시저 호출 빈도 // 단발성 원할 때 한번
 
@@ -94,9 +93,20 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     // ========================================== [ 게임 종료 ]
     IEnumerator GameOverRoutine()       // 코루틴 활용
     {
+        yield return new WaitForSeconds(0.5f);
+
         int cnt = 0;
         foreach (Player pls in PlayerManager.instance.playerList)
-            if (!pls.isPlayerLive) cnt++;
+        {
+            if (!pls.isPlayerLive)
+            {
+                cnt++;
+                if (PhotonNetwork.LocalPlayer.NickName == pls.playerPV.Owner.NickName)
+                {
+                    pls.uiLevelUp.Hide();
+                }
+            }
+        }
 
         Debug.Log("[ GameManager ] GameOverRoutine cnt : " + cnt);
         if (cnt != PlayerManager.instance.playerList.Count)
@@ -111,30 +121,37 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
                 }
             }
             yield break;
-        }
+        } 
         else if (cnt == PlayerManager.instance.playerList.Count)
         {
-            isGameLive = false;
-
-            yield return new WaitForSeconds(0.5f);
-
-            // UI 활성화 및 패배 UI 표시
-            uiResult.gameObject.SetActive(true);
-            if (!PhotonNetwork.IsMasterClient)
-            {
-                uiResult.GetComponentInChildren<Button>().gameObject.SetActive(false);
-            }
-            uiResult.Lose();
-            gameManagerPV.RPC("Stop", RpcTarget.All);
-
-            AudioManager.instance.PlayBgm(false);                   // 게임 배경음 재생
-            AudioManager.instance.PlaySfx(AudioManager.Sfx.Lose);   // 패배 효과음 재생
+            Debug.Log("[ GameManager ] GameOverRoutine AllCnt : " + PlayerManager.instance.playerList.Count);
+            gameManagerPV.RPC("GameOverRPC", RpcTarget.All);
         }
     }
+
 
     public void GameOver()
     {
         StartCoroutine(GameOverRoutine());
+    }
+
+
+    [PunRPC]
+    public void GameOverRPC()
+    {
+        isGameLive = false;
+
+        // UI 활성화 및 패배 UI 표시
+        uiResult.gameObject.SetActive(true);
+        if (!PhotonNetwork.IsMasterClient)
+        {
+            uiResult.GetComponentInChildren<Button>().gameObject.SetActive(false);
+        }
+        uiResult.Lose();
+        gameManagerPV.RPC("Stop", RpcTarget.All);
+
+        AudioManager.instance.PlayBgm(false);                   // 게임 배경음 재생
+        AudioManager.instance.PlaySfx(AudioManager.Sfx.Lose);   // 패배 효과음 재생
     }
 
 
@@ -148,6 +165,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
         // UI 활성화 및 승리 UI 표시
         uiResult.gameObject.SetActive(true);
+        uiLevelup.Hide();
         if (!PhotonNetwork.IsMasterClient)
         {
             uiResult.GetComponentInChildren<Button>().gameObject.SetActive(false);
@@ -159,7 +177,15 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         AudioManager.instance.PlaySfx(AudioManager.Sfx.Win);   // 승리 효과음 재생
     }
 
+
     public void GameVictory()
+    {
+        gameManagerPV.RPC("GameVictoryRPC", RpcTarget.All);
+    }
+
+
+    [PunRPC]
+    public void GameVictoryRPC()
     {
         StartCoroutine(GameVictoryRoutine());
     }

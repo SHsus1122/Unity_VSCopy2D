@@ -44,7 +44,13 @@ public class LevelUp : MonoBehaviour
         rect.localScale = Vector3.one;
     }
 
-    
+
+    public void Hide()
+    {
+        rect.localScale = Vector3.zero;
+    }
+
+
     public void SelectCall(int index)
     {
         _ = Select(index);
@@ -67,7 +73,7 @@ public class LevelUp : MonoBehaviour
         //Debug.Log("[ LevelUp ] Now Cost is : " + player.Cost);
         textCost.text = "Cost\n" + player.Cost;
 
-        // 1. 모든 아이템 비활성화
+        // 아이템 레벨이 최대치일 경우 버튼 이벤트 비활성화
         foreach (Item item in items)
         {
             if (item.itemLevel == item.data.damages.Length || player.Cost < 1)

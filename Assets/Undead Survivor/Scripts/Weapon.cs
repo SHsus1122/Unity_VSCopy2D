@@ -24,8 +24,6 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
         //player = GetComponentInParent<Player>();
 
         // [변경된 방식] 플레이어 초기화에 매개변4수가 들어감으로 인해 처음 초기화는 게임 매니저를 활용하는 것으로 변경합니다.
-        //if (!weaponPV.IsMine)
-        //    return;
         weaponPV = photonView;
 
         SetPlayerWithParent(weaponPV.Owner.NickName);
@@ -62,16 +60,15 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
 
                     timer = 0f;
                     Fire(player.playerPV.Owner.NickName);
-                    //weaponPV.RPC("Fire", RpcTarget.All, player.playerPV.Owner.NickName);
                 }
                 break;
         }
 
-        if (!weaponPV.IsMine)
-        {
-            transform.position = Vector3.Lerp(transform.position, curPos, Time.deltaTime * 10);
-            transform.rotation = Quaternion.Lerp(transform.rotation, curRot, Time.deltaTime * 10);
-        }
+        //if (!weaponPV.IsMine)
+        //{
+        //    transform.position = Vector3.Lerp(transform.position, curPos, Time.deltaTime * 10);
+        //    transform.rotation = Quaternion.Lerp(transform.rotation, curRot, Time.deltaTime * 10);
+        //}
     }
 
 
@@ -156,7 +153,7 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
             else
             {
                 //Debug.Log("[ Weapon ] Batch prefabId is : " + prefabId);
-                bullet = GameManager.instance.pool.Get(prefabId);
+                bullet = GameManager.instance.pool.Get(prefabId, Vector3.zero);
             }
 
             // 초기 스폰시 위치 지정을 위해서 해주는 작업입니다.
@@ -194,7 +191,7 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
                 //Debug.Log("[ Weapon ] InitObjName Owner Name : " + owPlayer.playerPV.Owner.NickName);
                 obj.gameObject.name = "Weapon " + itemId;
                 Hand hand = owPlayer.hands[itemTypeNum];
-                hand.spriter.sprite = owPlayer.uiLevelUp.items[itemTypeNum].data.hand;
+                hand.spriter.sprite = GameManager.instance.uiLevelup.items[itemTypeNum].data.hand;
                 hand.gameObject.SetActive(true);
             }
         }
@@ -239,7 +236,7 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
         bullet.GetComponent<Bullet>().curPos = targetPos;
         await bullet.GetComponent<Bullet>().Init(damage, count, dir, owName);     // 원하는 값들로 초기화 작업, count가 관통 값
 
-        weaponPV.RPC("BulletRPC", RpcTarget.Others, prefabId, bullet.GetPhotonView().ViewID, dir, targetPos, owName);
+        //weaponPV.RPC("BulletRPC", RpcTarget.Others, prefabId, bullet.GetPhotonView().ViewID, dir, targetPos, owName);
 
         AudioManager.instance.PlaySfx(AudioManager.Sfx.Range);          // 발사 효과음 재생
     }
@@ -268,8 +265,8 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
     {
         if (stream.IsWriting)   // IsMine == true
         {
-            stream.SendNext(transform.position);
-            stream.SendNext(transform.rotation);
+            //stream.SendNext(transform.position);
+            //stream.SendNext(transform.rotation);
             stream.SendNext(id);
             stream.SendNext(damage);
             stream.SendNext(count);
@@ -278,8 +275,8 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
         }
         else  // IsMine == false
         {
-            curPos = (Vector3)stream.ReceiveNext();
-            curRot = (Quaternion)stream.ReceiveNext();
+            //curPos = (Vector3)stream.ReceiveNext();
+            //curRot = (Quaternion)stream.ReceiveNext();
             id = (int)stream.ReceiveNext();
             damage = (float)stream.ReceiveNext();
             count = (int)stream.ReceiveNext();

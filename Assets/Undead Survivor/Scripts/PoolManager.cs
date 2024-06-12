@@ -1,5 +1,6 @@
 ﻿using Photon.Pun;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class PoolManager : MonoBehaviourPun
@@ -30,7 +31,7 @@ public class PoolManager : MonoBehaviourPun
 
 
     // 오브젝트 반환용 함수
-    public GameObject Get(int index)
+    public GameObject Get(int index, Vector3 vec)
     {
         GameObject select = null;
 
@@ -43,6 +44,9 @@ public class PoolManager : MonoBehaviourPun
             if (!item.activeSelf)
             {
                 //Debug.Log("[ PoolManager ] 분기문 첫 번째 !item.activeSelf");
+                if (item.CompareTag("Enemy"))
+                    item.transform.position = vec;
+
                 select = item;          // 변수 할당
                 select.SetActive(true); // 활성화
                 poolPV.RPC("ObjActiveToggle", RpcTarget.Others, index, select.GetPhotonView().ViewID, true);
@@ -53,7 +57,14 @@ public class PoolManager : MonoBehaviourPun
         if (!select)
         {
             //Debug.Log("[ PoolManager ] 분기문 두 번째 select == null");
-            select = PhotonNetwork.Instantiate(prefabs[index].name, transform.position, Quaternion.identity);
+            if (prefabs[index].name == "Enemy")
+            {
+                select = PhotonNetwork.Instantiate(prefabs[index].name, vec, Quaternion.identity);
+            }
+            else
+            {
+                select = PhotonNetwork.Instantiate(prefabs[index].name, Vector3.zero, Quaternion.identity);
+            }
 
             //Debug.Log("[ PoolManager ] select == null - select owner : " + select.GetPhotonView().Owner.NickName);
             pools[index].Add(select);   // 오브젝트 풀 리스트에 새롭게 생성된 것을 추가(등록)
