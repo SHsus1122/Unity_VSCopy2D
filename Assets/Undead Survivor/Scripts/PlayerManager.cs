@@ -11,20 +11,33 @@ public class PlayerManager : MonoBehaviourPunCallbacks
     public static PlayerManager instance;
 
     public float maxHealth = 100;
-    public int[] nextExp = { 3, 5, 10, 100, 150, 210, 280, 360, 450, 600 };
+    public int[] nextExp = { 3, 5, 10, 50, 100, 150, 200, 250, 350, 400 };
     public Transform[] playerSpawnPoint;
     public List<Player> playerList = new List<Player>();
     public LayerMask playerLayer;
-    private bool[] isSpawnPointUsed;
 
     private void Awake()
     {
         instance = this;
-        isSpawnPointUsed = new bool[playerSpawnPoint.Length];
     }
 
 
     public async UniTask SpawnPlayer(int typeId)
+    {
+        GameObject playerPrefab = null;
+
+        if (PhotonNetwork.IsMasterClient)
+            playerPrefab = PhotonNetwork.Instantiate("Player", playerSpawnPoint[0].position, Quaternion.identity);
+        else
+            playerPrefab = PhotonNetwork.Instantiate("Player", playerSpawnPoint[1].position, Quaternion.identity);
+
+        Player player = playerPrefab.GetComponent<Player>();
+
+        await player.Init(typeId, PhotonNetwork.LocalPlayer.NickName);
+    }
+
+
+    /*public async UniTask SpawnPlayer(int typeId)
     {
         int attemptCount = 0;
         int maxAttempts = 5; // 최대 시도 횟수 설정
@@ -61,7 +74,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks
         }
 
         Debug.LogWarning("플레이어를 스폰할 수 있는 적절한 위치를 찾지 못했습니다.");
-    }
+    }*/
 
 
     public void AddPlayer(Player newPlayer)

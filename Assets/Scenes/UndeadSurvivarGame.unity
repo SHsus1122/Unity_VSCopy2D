@@ -43734,7 +43734,7 @@ MonoBehaviour:
   isGameLive: 0
   gameStartTime: 0
   gameTime: 0
-  maxGameTime: 10
+  maxGameTime: 240
   num: 0
   gameManagerPV: {fileID: 1383446452}
   pool: {fileID: 860527870}

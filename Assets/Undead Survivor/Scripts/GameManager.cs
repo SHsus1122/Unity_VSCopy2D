@@ -80,7 +80,11 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
         if (gameTime > maxGameTime)
         {
+            if (PhotonNetwork.IsMasterClient)
+                gameManagerPV.RPC("SyncGameTimeRPC", RpcTarget.OthersBuffered, gameTime);
+
             GameVictory();
+            Debug.Log("gameTime is : " + (gameTime) + ", photonTime is : " + (PhotonNetwork.Time));
         }
     }
 
@@ -102,6 +106,13 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
         AudioManager.instance.PlayBgm(true);                    // 게임 배경음 재생
         AudioManager.instance.PlaySfx(AudioManager.Sfx.Select); // 클릭 효과음 재생
+    }
+
+
+    [PunRPC]
+    private void SyncGameTimeRPC(float newStartTime)
+    {
+        gameTime = newStartTime;
     }
 
 
@@ -152,7 +163,8 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     [PunRPC]
     public void GameOverRPC()
     {
-        //GameObject.Find("AchiveManager").GetComponent<AchiveManager>().UnlockCharacter();
+        GameObject.Find("AchiveManager").GetComponent<AchiveManager>().CheckAchive();
+        GameObject.Find("AchiveManager").GetComponent<AchiveManager>().UnlockCharacter();
 
         isGameLive = false;
 
@@ -204,7 +216,8 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     [PunRPC]
     public void GameVictoryRPC()
     {
-        //GameObject.Find("AchiveManager").GetComponent<AchiveManager>().UnlockCharacter();
+        GameObject.Find("AchiveManager").GetComponent<AchiveManager>().CheckAchive();
+        GameObject.Find("AchiveManager").GetComponent<AchiveManager>().UnlockCharacter();
         StartCoroutine(GameVictoryRoutine());
     }
 
