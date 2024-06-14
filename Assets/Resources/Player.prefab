@@ -758,7 +758,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 765b53adb12d5364d8c88ab4fa1ba2b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  scanRange: 5
+  scanRange: 6
   targetLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -794,7 +794,7 @@ MonoBehaviour:
   NickNameText: {fileID: 5330871365154669944}
   typeId: 0
   level: 0
-  Cost: 5
+  Cost: 2
   kill: 0
   exp: 0
   health: 0

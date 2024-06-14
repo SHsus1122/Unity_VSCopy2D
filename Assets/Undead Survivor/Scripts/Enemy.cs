@@ -175,11 +175,7 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
                     AudioManager.instance.PlaySfx(AudioManager.Sfx.Dead);   // 사망 효과음 재생
             }
 
-            isLive = false;             // 생존 상태 변경
-            coll.enabled = false;       // 콜라이더 비활성화
-            rigid.simulated = false;    // 물리(움직임) 비활성화
-            spriter.sortingOrder = 1;   // 표현 우선순위 변경
-            anim.SetBool("Dead", true); // 애니메이터 파라메터 상태 변경
+            enemyPV.RPC("Dead", RpcTarget.All);
         }
     }
 
