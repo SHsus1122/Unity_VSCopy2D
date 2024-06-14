@@ -123,6 +123,16 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
     }
 
 
+    [PunRPC]
+    public void ReInitRPC()
+    {
+        isLive = true;
+        spriter.sortingOrder = 2;
+        coll.enabled = true;
+        rigid.simulated = true;
+    }
+
+
     void OnTriggerEnter2D(Collider2D collision)
     {
 

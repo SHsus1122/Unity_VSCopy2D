@@ -12,6 +12,7 @@ public class Spawner : MonoBehaviourPun
     public SpawnData[] enemySpawnData;
     public float levelTime;
     public LayerMask enemyLayer;
+    public PhotonView spawnerPV;
 
     int level;
     float timer;
@@ -78,10 +79,7 @@ public class Spawner : MonoBehaviourPun
 
         if (!enemy.GetComponent<Enemy>().isLive)
         {
-            enemy.GetComponent<Enemy>().isLive = true;
-            enemy.GetComponent<Enemy>().spriter.sortingOrder = 2;
-            enemy.GetComponent<Collider2D>().enabled = true;
-            enemy.GetComponent<Rigidbody2D>().simulated = true;
+            enemy.GetComponent<Enemy>().enemyPV.RPC("ReInitRPC", RpcTarget.All);
         }
 
         StartCoroutine(enemy.GetComponent<Enemy>().ReActiveRoutine(0, enemy.GetPhotonView().ViewID));

@@ -129,7 +129,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         // 예전 방식의 컨트롤러 적용법 코드
         // Input.GetAxis 의 경우 보정이 들어가 있어서 부드럽게 움직임이 멈추게 됩니다.
         // 하지만 GetAxisRaw 의 경우에는 부드럽게 멈추는 것이 아닌 그 자리에 바로 멈추게끔 됩니다.
-        if (playerPV.IsMine)
+        if (playerPV.IsMine || isPlayerLive)
         {
             inputVec.x = Input.GetAxisRaw("Horizontal");
             inputVec.y = Input.GetAxisRaw("Vertical");
