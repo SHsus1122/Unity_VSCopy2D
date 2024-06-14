@@ -1,5 +1,6 @@
 ﻿using Photon.Pun;
 using System.Collections;
+using System.Linq;
 using UnityEngine;
 
 /// <summary>
@@ -17,7 +18,6 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
     public ScannerPlayer scanner;
     public SpriteRenderer spriter;
     public bool isLive;
-    public Player targetPl;
 
     float timer;
 
@@ -123,8 +123,9 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
     }
 
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    void OnTriggerEnter2D(Collider2D collision)
     {
+
         if (collision.CompareTag("EnemyCleaner"))
         {
             enemyHealth = 0;
@@ -139,13 +140,22 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
 
         // 사망 로직이 연달아 실행되는 것을 방지하기 위해서 !isLive 조건을 추가
         // 즉, 너무 짧은 순간에 두 번 일어나는 경우를 방지하는 것입니다.
-        if (!collision.CompareTag("Bullet") || !isLive)
-        {
-            return;
-        }
+        if (!isLive || !collision.CompareTag("Bullet")) return;
 
-        enemyHealth -= collision.GetComponent<Bullet>().damage;
-        StartCoroutine(KnockBackRoutine(collision));
+        if (collision.CompareTag("Bullet") && isLive)
+        {
+            StartCoroutine(KnockBackRoutine(collision));
+            enemyPV.RPC("TakeDamage", RpcTarget.All, collision.GetComponent<Bullet>().damage, collision.gameObject.GetPhotonView().Owner.NickName);
+        }
+    }
+
+
+    [PunRPC]
+    void TakeDamage(float damage, string playerName)
+    {
+        if (!isLive) return;
+
+        enemyHealth -= damage;
 
         if (enemyHealth > 0)
         {
@@ -154,15 +164,22 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
         }
         else if (enemyHealth <= 0)
         {
-            enemyPV.RPC("Dead", RpcTarget.All);
+            isLive = false;
+            Player targetPl = PlayerManager.instance.FindPlayer(playerName);
 
-            targetPl = collision.GetComponentInParent<Player>();
-            targetPl.playerPV.RPC("GetExp", RpcTarget.All, targetPl.playerPV.Owner.NickName);
-            targetPl.KillCount(targetPl.playerPV.Owner.NickName);
+            if (targetPl != null)
+            {
+                targetPl.GetExp(playerName);
 
-            // 분기문으로 플레이어가 생존함에 따라 최종 결과에서 몬스터들이 전부 사망시 다량의 사망 효과음 재생을 방지합니다.
-            if (targetPl.isPlayerLive)
-                AudioManager.instance.PlaySfx(AudioManager.Sfx.Dead);   // 사망 효과음 재생
+                if (targetPl.isPlayerLive)
+                    AudioManager.instance.PlaySfx(AudioManager.Sfx.Dead);   // 사망 효과음 재생
+            }
+
+            isLive = false;             // 생존 상태 변경
+            coll.enabled = false;       // 콜라이더 비활성화
+            rigid.simulated = false;    // 물리(움직임) 비활성화
+            spriter.sortingOrder = 1;   // 표현 우선순위 변경
+            anim.SetBool("Dead", true); // 애니메이터 파라메터 상태 변경
         }
     }
 
@@ -236,6 +253,7 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
             stream.SendNext(enemyHealth);
             stream.SendNext(enemyMaxHealth);
             stream.SendNext(isLive);
+            stream.SendNext(anim.GetBool("Dead"));
         }
         else
         {
@@ -244,6 +262,11 @@ public class Enemy : MonoBehaviourPunCallbacks, IPunObservable
             enemyHealth = (float)stream.ReceiveNext();
             enemyMaxHealth = (float)stream.ReceiveNext();
             isLive = (bool)stream.ReceiveNext();
+            bool deadAnimState = (bool)stream.ReceiveNext();
+            if (anim.GetBool("Dead") != deadAnimState)
+            {
+                anim.SetBool("Dead", deadAnimState);
+            }
         }
     }
 }

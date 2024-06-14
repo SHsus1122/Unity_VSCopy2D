@@ -1,7 +1,10 @@
 ﻿using Cysharp.Threading.Tasks;
 using Photon.Pun;
+using Photon.Realtime;
 using UnityEngine;
 using UnityEngine.UI;
+using static Cinemachine.DocumentationSortingAttribute;
+using WebSocketSharp;
 
 /// <summary>
 /// 유저의 레벨업에 관련한 정보를 관련한 기능을 가진 클래스입니다.
@@ -64,7 +67,8 @@ public class LevelUp : MonoBehaviour
     {
         await items[index].OnClickCall();
         player.Cost--;
-        player.playerPV.RPC("UpdateInfoRPC", RpcTarget.All, player.Cost, player.exp, player.level);
+        //player.playerPV.RPC("UpdateInfoRPC", RpcTarget.All, player.Cost, player.exp, player.level);
+        player.UpdateInfo(player.Cost, player.exp, player.level);
         InfoUpdate();
     }
 

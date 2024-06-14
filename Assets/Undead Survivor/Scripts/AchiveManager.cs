@@ -1,7 +1,8 @@
-﻿using System;
+﻿using Cysharp.Threading.Tasks;
+using Photon.Pun;
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 /// <summary>
@@ -9,6 +10,7 @@ using UnityEngine;
 /// </summary>
 public class AchiveManager : MonoBehaviour
 {
+    public FirebaseScript firebaseScript;
     public List<GameObject> lockCharacter = new List<GameObject>();
     public List<GameObject> unlockCharacter = new List<GameObject>();
     public GameObject uiNotice;
@@ -39,35 +41,27 @@ public class AchiveManager : MonoBehaviour
     void Init()
     {
         // PlayerPrefs : 간단한 저장 기능을 제공하는 유니티 제공 클래스 입니다.
-        Debug.Log("업ㅇ적on");
         PlayerPrefs.SetInt("MyData", 1);    // Key값, Data
-        PlayerPrefs.SetInt("Kill", 0);
 
         // 업적 초기화 작업
         foreach (Achive achive in achives)
-            PlayerPrefs.SetInt(achive.ToString(), 0);  // 미해금은 0으로 저장
+            PlayerPrefs.SetInt(achive.ToString(), 0);  // 미해금은 0으로 저장(firebase 사용으로 Value는 무의미합니다)
     }
 
 
-    void Start()
-    {
-        UnlockCharacter();
-    }
-
-
-    void UnlockCharacter()
+    public async void UnlockCharacter()
     {
         for (int index = 0; index < lockCharacter.Count; index++)
         {
-            string achiveName = achives[index].ToString();
-            bool isUnlock = PlayerPrefs.GetInt(achiveName) == 1;    // 업적 달성 유무에 따라 bool값 변동
+            // 업적 달성 유무에 따라 bool값 변동
+            bool isUnlock = await firebaseScript.ReadPlayerForNameAndAchive(PhotonNetwork.LocalPlayer.NickName, achives[index].ToString());
             lockCharacter[index].SetActive(!isUnlock);              // lock 캐릭터는 false로 안 보이게 상태 변경
             unlockCharacter[index].SetActive(isUnlock);             // unlock 캐릭터는 true로 보이게 상태 변경
         }
     }
 
 
-    public void CheckAchive()
+    public async void CheckAchive()
     {
         bool isAchive = false;  // 업적 달성 확인용 변수
 
@@ -77,7 +71,7 @@ public class AchiveManager : MonoBehaviour
             switch (achive)
             {
                 case Achive.unlockPotato:
-                    isAchive = PlayerPrefs.GetInt("Kill") >= 100;
+                    isAchive = await firebaseScript.ReadPlayerForNameAndKill(PhotonNetwork.LocalPlayer.NickName) >= 500;
                     break;
                 case Achive.unlockBean:
                     isAchive = GameManager.instance.gameTime >= GameManager.instance.maxGameTime;
@@ -85,10 +79,9 @@ public class AchiveManager : MonoBehaviour
             }
 
             // 업적 달성 확인, 만약 달성이 확인되면 해금합니다.
-            if (isAchive && PlayerPrefs.GetInt(achive.ToString()) == 0)
+            if (isAchive && await firebaseScript.ReadPlayerForNameAndAchive(PhotonNetwork.LocalPlayer.NickName, achive.ToString()) == false)
             {
-                Debug.Log("Achive Name Is : " + PlayerPrefs.GetInt(achive.ToString()));
-                PlayerPrefs.SetInt(achive.ToString(), 1);   // 업적 해금
+                await firebaseScript.UpdatePlayerAchive(PhotonNetwork.LocalPlayer.NickName, achive.ToString(), true);
 
                 for (int index = 0; index < uiNotice.transform.childCount; index++)
                 {

@@ -38,7 +38,7 @@ public class Bullet : MonoBehaviourPunCallbacks, IPunObservable
 
                 if (transform.parent == null)
                 {
-                    StartCoroutine(ReParentRoutind(owName));
+                    StartCoroutine(ReParentRoutine(owName));
                 }
             }
         }
@@ -46,7 +46,7 @@ public class Bullet : MonoBehaviourPunCallbacks, IPunObservable
 
 
     // 로드 순서의 문제로 부모설정이 안 되었을 경우 재설정을 위한 코루틴
-    IEnumerator ReParentRoutind(string owName)
+    IEnumerator ReParentRoutine(string owName)
     {
         yield return new WaitForSeconds(0.5f);
         SetParent(owName);

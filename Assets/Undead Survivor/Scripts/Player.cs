@@ -2,6 +2,7 @@
 using Cysharp.Threading.Tasks;
 using Photon.Pun;
 using Photon.Realtime;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 using UnityEngine;
 using UnityEngine.UI;
@@ -34,6 +35,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     public float health;
     public float speed;
     public bool isPlayerLive = true;
+    public int achiveKill = 0;
 
     [Header("# Player UI")]
     public GameObject uiHud;
@@ -54,7 +56,6 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         anim = GetComponent<Animator>();
         scanner = GetComponent<ScannerEnemy>();
         hands = GetComponentsInChildren<Hand>(true);    // 인자값에 true를 넣을 시 Active상태가 아닌 오브젝트도 가져옵니다.
-        //achiveManager = GetComponent<AchiveManager>();
         character = GetComponent<Character>();
         PlayerManager.instance.AddPlayer(this);
 
@@ -80,7 +81,6 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     public async UniTask Init(int playerTypeId, string owName)
     {
         uiLevelUp.player = this;
-        //achiveManager.uiNotice = GameManager.instance.uiNotice;
         uiHud.transform.localScale = Vector3.one;
         uiLevelUp.Show();
 
@@ -163,8 +163,6 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
 
         if (playerPV.IsMine)
         {
-            //achiveManager.CheckAchive(transform.GetComponent<Player>());
-
             callCnt += Time.deltaTime;
             if (callCnt >= callCntInterval)
             {
@@ -226,15 +224,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     }
 
 
-    [PunRPC]
-    public void UpdateKillCountRPC(int newKillCount)
-    {
-        kill = newKillCount;
-    }
-
-
-    [PunRPC]
-    public void UpdateInfoRPC(int newCost, int newExp, int newLevel)
+    public void UpdateInfo(int newCost, int newExp, int newLevel)
     {
         Cost = newCost;
         exp = newExp;
@@ -243,10 +233,12 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
 
 
     // ========================================== [ 경험치 획득 ]
-    [PunRPC]
-    public void GetExp(string owName)
+    public async void GetExp(string owName)
     {
         if (!isPlayerLive)
+            return;
+
+        if (PhotonNetwork.LocalPlayer.NickName != owName)
             return;
 
         Player owPlayer = PlayerManager.instance.FindPlayer(owName);
@@ -254,30 +246,23 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         owPlayer.kill++;
         owPlayer.exp++;
 
+        if (owPlayer.kill % 20 == 0 && owPlayer.kill > 0)
+        {
+            owPlayer.achiveKill = await networkManager.firebaseScript.ReadPlayerForNameAndKill(owName);
+            await networkManager.firebaseScript.UpdatePlayerKill(owName, owPlayer.achiveKill + 20);
+
+            owPlayer.networkManager.achiveManager.CheckAchive();
+        }
+
         if (owPlayer.exp == PlayerManager.instance.nextExp[Mathf.Min(level, PlayerManager.instance.nextExp.Length - 1)])
         {
-            owPlayer.level++;     // 레벨업 적용
             owPlayer.exp = 0;     // 경험치 초기화
+            owPlayer.level++;     // 레벨업 적용
             owPlayer.Cost++;      // Player 레벨업 스킬 강화용 코스트 추가
-            owPlayer.playerPV.RPC("UpdateInfoRPC", RpcTarget.All, Cost, exp, level);
+            owPlayer.UpdateInfo(Cost, exp, level);
 
             if (PhotonNetwork.LocalPlayer.NickName == owPlayer.playerPV.Owner.NickName)
                 owPlayer.uiLevelUp.CallLevelUp();
-        }
-    }
-
-
-    public void KillCount(string owName)
-    {
-        Player owPlayer = PlayerManager.instance.FindPlayer(owName);
-
-        if (PhotonNetwork.LocalPlayer.NickName != owPlayer.playerPV.Owner.NickName)
-            return;
-
-        if (owPlayer.kill % 50 == 0 && owPlayer.kill > 0)
-        {
-            PlayerPrefs.SetInt("Kill", PlayerPrefs.GetInt("Kill") + 50);
-            networkManager.achiveManager.CheckAchive();
         }
     }
 

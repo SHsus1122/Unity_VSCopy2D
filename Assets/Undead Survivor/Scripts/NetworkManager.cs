@@ -4,6 +4,7 @@ using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine.UI;
 using System.Collections;
+using System.Text.RegularExpressions;
 
 /// <summary>
 /// Photon을 사용하기 위해서(네트워크 작업) 작성된 클래스입니다.
@@ -31,11 +32,24 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     [Header("GamePanel")]
     public Transform spawnPoint;
 
+    Regex NickRegex = new Regex(@"^[0-9a-zA-Z가-힣]{2,10}$");
+    Regex RoomRegex = new Regex(@"^[0-9a-zA-Z가-힣]{4,12}$");
+    Coroutine runningCoroutine = null;
 
     // =================== 초기 셋팅
     private void Awake()
     {
-        Screen.SetResolution(1920, 1080, true);
+        Screen.SetResolution(1280, 720, false);
+        PhotonNetwork.AutomaticallySyncScene = true;
+
+        NickNameInput.characterLimit = 10;
+        NickNameInput.onValueChanged.AddListener(
+            (word) => NickNameInput.text = Regex.Replace(word, @"[^0-9a-zA-Z가-힣]", "")
+        );
+        roomInput.characterLimit = 12;
+        roomInput.onValueChanged.AddListener(
+            (word) => roomInput.text = Regex.Replace(word, @"[^0-9a-zA-Z가-힣]", "")
+        );
     }
 
 
@@ -50,9 +64,13 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     // 해당 연결 함수의 호출이 성공적으로 완료되면 OnConnectedToMaster함수가 호출됩니다.
     public async void Connect()
     {
-        PhotonNetwork.AutomaticallySyncScene = true;
+        if (!NickRegex.IsMatch(NickNameInput.text))
+        {
+            StartNewCoroutine(NickNameNoticeRoutine());
+            return;
+        }
 
-        bool isDupNick = await firebaseScript.ReadUserForName(NickNameInput.text);
+        bool isDupNick = await firebaseScript.ReadPlayerForName(NickNameInput.text);
         if (!isDupNick)
         {
             NicknameSet();
@@ -112,11 +130,17 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     // ========================================== [ 방 생성 ]
     public void CreateRoom()
     {
+        if (!RoomRegex.IsMatch(roomInput.text))
+        {
+            StartNewCoroutine(RoomNameNoticeRoutine());
+            return;
+        }
+
         foreach (RoomInfo room in rooms)
         {
             if (room.Name == roomInput.text)
             {
-                StartCoroutine(DuplicateRoomNoticeRoutine());
+                StartNewCoroutine(DuplicateRoomNoticeRoutine());
                 return;
             }
         }
@@ -167,12 +191,12 @@ public class NetworkManager : MonoBehaviourPunCallbacks
             uiLobby.SetActive(false);
             uiRoom.SetActive(true);
             uiRoom.transform.localScale = Vector3.one;
-            achiveManager.CheckAchive();
 
             ExitGames.Client.Photon.Hashtable customProperties = PhotonNetwork.CurrentRoom.CustomProperties;
             customProperties["PlayerCount"] = (int)customProperties["PlayerCount"] + 1;
             PhotonNetwork.CurrentRoom.SetCustomProperties(customProperties);
 
+            achiveManager.UnlockCharacter();
             networkManagerPV.RPC("UpdateRoomStatus", RpcTarget.All, PhotonNetwork.CurrentRoom.Name);
         }
     }
@@ -186,9 +210,10 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         uiRoom.SetActive(true);
         uiRoom.transform.localScale = Vector3.one;
 
+        achiveManager.UnlockCharacter();
+
         networkManagerPV.RPC("UpdateRoomStatus", RpcTarget.All, roomName);
     }
-
 
     public void JoinRandomRoom() => PhotonNetwork.JoinRandomRoom();
 
@@ -244,7 +269,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         {
             if (PhotonNetwork.LocalPlayer.NickName == pl.NickName && PhotonNetwork.LocalPlayer.UserId != pl.UserId)
             {
-                StartCoroutine(DuplicateUserNoticeRoutine());
+                StartNewCoroutine(DuplicatePlayerNoticeRoutine());
                 return true;
             }
         }
@@ -253,6 +278,20 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
 
     // ========================================== [ 중복 관련 UI 호출 ]
+    IEnumerator DuplicatePlayerNoticeRoutine()
+    {
+        GameManager.instance.uiNotice.SetActive(true);
+        GameManager.instance.uiNotice.transform.GetChild(2).gameObject.SetActive(true);
+
+        AudioManager.instance.PlaySfx(AudioManager.Sfx.LevelUp);   // 알림 효과음 재생
+
+        yield return new WaitForSeconds(3);
+
+        GameManager.instance.uiNotice.transform.GetChild(2).gameObject.SetActive(false);
+        GameManager.instance.uiNotice.SetActive(false);
+    }
+
+
     IEnumerator DuplicateRoomNoticeRoutine()
     {
         GameManager.instance.uiNotice.SetActive(true);
@@ -267,17 +306,44 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     }
 
 
-    IEnumerator DuplicateUserNoticeRoutine()
+    IEnumerator NickNameNoticeRoutine()
     {
         GameManager.instance.uiNotice.SetActive(true);
-        GameManager.instance.uiNotice.transform.GetChild(2).gameObject.SetActive(true);
+        GameManager.instance.uiNotice.transform.GetChild(4).gameObject.SetActive(true);
 
         AudioManager.instance.PlaySfx(AudioManager.Sfx.LevelUp);   // 알림 효과음 재생
 
         yield return new WaitForSeconds(3);
 
-        GameManager.instance.uiNotice.transform.GetChild(2).gameObject.SetActive(false);
+        GameManager.instance.uiNotice.transform.GetChild(4).gameObject.SetActive(false);
         GameManager.instance.uiNotice.SetActive(false);
+    }
+
+
+    IEnumerator RoomNameNoticeRoutine()
+    {
+        GameManager.instance.uiNotice.SetActive(true);
+        GameManager.instance.uiNotice.transform.GetChild(5).gameObject.SetActive(true);
+
+        AudioManager.instance.PlaySfx(AudioManager.Sfx.LevelUp);   // 알림 효과음 재생
+
+        yield return new WaitForSeconds(3);
+
+        GameManager.instance.uiNotice.transform.GetChild(5).gameObject.SetActive(false);
+        GameManager.instance.uiNotice.SetActive(false);
+    }
+
+
+    public void StartNewCoroutine(IEnumerator newCoroutine)
+    {
+        // 기존 코루틴이 실행 중이라면 중지
+        if (runningCoroutine != null)
+        {
+            StopCoroutine(runningCoroutine);
+        }
+
+        // 새로운 코루틴을 시작하고 참조를 저장
+        runningCoroutine = StartCoroutine(newCoroutine);
     }
 
 

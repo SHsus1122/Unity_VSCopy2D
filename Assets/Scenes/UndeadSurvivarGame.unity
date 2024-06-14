@@ -788,7 +788,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &140992114
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1741,6 +1741,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7302323a88b51f6419fc5c111787ee27, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  firebaseScript: {fileID: 486941478}
   lockCharacter:
   - {fileID: 1430881151}
   - {fileID: 158725934}
@@ -22967,8 +22968,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 927fb0c0e201b6f4ebda2f3fae1f5844, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  uiNotice: {fileID: 0}
-  NickNameInput: {fileID: 0}
+  uiNotice: {fileID: 2100852115}
+  NickNameInput: {fileID: 1358913510}
 --- !u!4 &486941479
 Transform:
   m_ObjectHideFlags: 0
@@ -42475,6 +42476,9 @@ MonoBehaviour:
   - {fileID: 101672802}
   - {fileID: 1515782580}
   playerList: []
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 128
 --- !u!1 &1162803922
 GameObject:
   m_ObjectHideFlags: 0
@@ -43728,6 +43732,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isGameLive: 0
+  gameStartTime: 0
   gameTime: 0
   maxGameTime: 10
   num: 0
@@ -63139,7 +63144,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a25d158b8b4e1d4f817dc620ffecd4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  firebaseScript: {fileID: 0}
+  firebaseScript: {fileID: 486941478}
   uiLogin: {fileID: 1307547947}
   uiLobby: {fileID: 1864214504}
   uiRoom: {fileID: 830426603}

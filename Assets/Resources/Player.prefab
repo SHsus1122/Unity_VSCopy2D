@@ -571,12 +571,10 @@ GameObject:
   - component: {fileID: 7802992460460827351}
   - component: {fileID: 5005638853734911847}
   - component: {fileID: 5175468597423561234}
-  - component: {fileID: -847337665541382343}
   - component: {fileID: 7158626894779380314}
   - component: {fileID: 3384754861038764315}
   - component: {fileID: 5825622529715855626}
   - component: {fileID: 332030927433768054}
-  - component: {fileID: 4496831392737602703}
   m_Layer: 7
   m_Name: Player
   m_TagString: Player
@@ -802,24 +800,10 @@ MonoBehaviour:
   health: 0
   speed: 3
   isPlayerLive: 1
+  achiveKill: 0
   uiHud: {fileID: 0}
   uiLevelUp: {fileID: 0}
   anim: {fileID: 0}
---- !u!114 &-847337665541382343
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6795932912850234857}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7302323a88b51f6419fc5c111787ee27, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lockCharacter: []
-  unlockCharacter: []
-  uiNotice: {fileID: 0}
 --- !u!114 &7158626894779380314
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -875,7 +859,6 @@ MonoBehaviour:
   ObservedComponents:
   - {fileID: 5175468597423561234}
   - {fileID: 332030927433768054}
-  - {fileID: 4496831392737602703}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
@@ -895,30 +878,6 @@ MonoBehaviour:
   m_SynchronizeAngularVelocity: 0
   m_TeleportEnabled: 0
   m_TeleportIfDistanceGreaterThan: 3
---- !u!114 &4496831392737602703
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6795932912850234857}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9b8c4a61274f60b4ea5fb4299cfdbf14, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ShowLayerWeightsInspector: 1
-  ShowParameterInspector: 1
-  m_SynchronizeParameters:
-  - Type: 1
-    SynchronizeType: 2
-    Name: Speed_f
-  - Type: 9
-    SynchronizeType: 2
-    Name: Dead_t
-  m_SynchronizeLayers:
-  - SynchronizeType: 0
-    LayerIndex: 0
 --- !u!1 &6799154881052935494
 GameObject:
   m_ObjectHideFlags: 0

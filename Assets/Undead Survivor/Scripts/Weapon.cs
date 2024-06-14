@@ -190,14 +190,14 @@ public class Weapon : MonoBehaviourPunCallbacks, IPunObservable
         {
             if (obj.CompareTag("Weapon") && obj.GetComponent<Weapon>().gameObject.name.Contains("Clone"))
             {
-                StartCoroutine(TestRoutine(itemId, owName, itemTypeNum));
+                StartCoroutine(ReNameRoutine(itemId, owName, itemTypeNum));
                 break;
             }
         }
     }
 
 
-    IEnumerator TestRoutine(int itemId, string owName, int itemTypeNum)
+    IEnumerator ReNameRoutine(int itemId, string owName, int itemTypeNum)
     {
         yield return new WaitForSeconds(0.1f);
         weaponPV.RPC("InitObjName", RpcTarget.AllBuffered, itemId, owName, itemTypeNum);

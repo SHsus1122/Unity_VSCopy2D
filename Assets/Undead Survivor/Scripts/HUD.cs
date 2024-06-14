@@ -74,9 +74,15 @@ public class HUD : MonoBehaviour
     public void UpdateTime()
     {
         float remainTime = GameManager.instance.maxGameTime - GameManager.instance.gameTime;
+        remainTime = Mathf.Max(remainTime, 0);          // 최소값을 0으로 제한
+
         int min = Mathf.FloorToInt(remainTime / 60);    // 분
         int sec = Mathf.FloorToInt(remainTime % 60);    // 초, 나머지 계산
-        myText.text = string.Format("{0:D2}:{1:D2}", min, sec); // D1, D2 ... 자릿수 고정
+
+        if (min <= 0 && sec <= 0)
+            myText.text = "00:00";      // 시간이 0 이하로 내려간 경우 "00:00"으로 표시
+        else
+            myText.text = string.Format("{0:D2}:{1:D2}", min, sec); // D1, D2 ... 자릿수 고정
     }
 
 
