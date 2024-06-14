@@ -19116,7 +19116,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_ComponentVersion: 1
-  m_AssetsPPU: 18
+  m_AssetsPPU: 24
   m_RefResolutionX: 135
   m_RefResolutionY: 270
   m_CropFrame: 0
@@ -58741,7 +58741,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1.2
-  m_Text: "\uC5B8\uB370\uB4DC 1000\uB9C8\uB9AC\n\uCC98\uCE58 \uC2DC \uD569\uB958"
+  m_Text: "\uC5B8\uB370\uB4DC 500\uB9C8\uB9AC\n\uCC98\uCE58 \uC2DC \uD569\uB958"
 --- !u!222 &1856827782
 CanvasRenderer:
   m_ObjectHideFlags: 0
